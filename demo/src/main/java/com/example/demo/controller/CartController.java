@@ -24,8 +24,9 @@ public class CartController {
             Long userId = Long.valueOf(body.get("userId").toString());
             Long productId = Long.valueOf(body.get("productId").toString());
             Integer quantity = Integer.valueOf(body.get("quantity").toString());
+            String size = body.get("size") != null ? body.get("size").toString() : null;
 
-            Cart cart = cartService.addToCart(userId, productId, quantity);
+            Cart cart = cartService.addToCart(userId, productId, quantity, size);
             return ResponseEntity.ok(cart);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("erro", e.getMessage()));

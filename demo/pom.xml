@@ -47,6 +47,29 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<!--  JWT  -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.12.6</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.12.6</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.12.6</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!--  Email  -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
 		<!--  Testes  -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -68,6 +91,65 @@
 					</excludes>
 				</configuration>
 			</plugin>
-		</plugins>
+			</plugins>
 	</build>
+
+	<!-- Profile prod: builda o React junto — usado no deploy (Railway) -->
+	<profiles>
+		<profile>
+			<id>prod</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.github.eirslett</groupId>
+						<artifactId>frontend-maven-plugin</artifactId>
+						<version>1.15.0</version>
+						<configuration>
+							<workingDirectory>../react-frontend</workingDirectory>
+							<nodeVersion>v20.11.0</nodeVersion>
+							<npmVersion>10.2.4</npmVersion>
+						</configuration>
+						<executions>
+							<execution>
+								<id>install-node</id>
+								<goals><goal>install-node-and-npm</goal></goals>
+								<phase>generate-resources</phase>
+							</execution>
+							<execution>
+								<id>npm-install</id>
+								<goals><goal>npm</goal></goals>
+								<phase>generate-resources</phase>
+								<configuration><arguments>install</arguments></configuration>
+							</execution>
+							<execution>
+								<id>npm-build</id>
+								<goals><goal>npm</goal></goals>
+								<phase>generate-resources</phase>
+								<configuration><arguments>run build</arguments></configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-resources-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-react-build</id>
+								<phase>process-resources</phase>
+								<goals><goal>copy-resources</goal></goals>
+								<configuration>
+									<outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+									<resources>
+										<resource>
+											<directory>../react-frontend/dist</directory>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

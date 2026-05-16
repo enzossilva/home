@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Young Zone</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Young Zone</h1>
+    <nav>
+      <a href="index.html">Produtos</a>
+      <a href="login.html">Login</a>
+      <a href="register.html">Cadastro</a>
+      <a href="cart.html">Carrinho</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Produtos</h2>
+    <div id="products" class="grid"></div>
+  </main>
+
+  <script>
+    fetch('http://localhost:8080/products')
+      .then(res => res.json())
+      .then(products => {
+        const container = document.getElementById('products');
+        if (products.length === 0) {
+          container.innerHTML = '<p>Nenhum produto cadastrado.</p>';
+          return;
+        }
+        products.forEach(p => {
+          container.innerHTML += `
+            <div class="card">
+              ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" />` : '<div class="no-image">Sem imagem</div>'}
+              <h3>${p.name}</h3>
+              <p class="category">${p.category || ''}</p>
+              <p class="price">R$ ${Number(p.price).toFixed(2)}</p>
+              <p class="stock">Estoque: ${p.stock}</p>
+              <p class="desc">${p.description || ''}</p>
+            </div>
+          `;
+        });
+      })
+      .catch(() => {
+        document.getElementById('products').innerHTML = '<p class="error">Erro ao conectar com o servidor. A aplicação está rodando?</p>';
+      });
+  </script>
+</body>
+</html>

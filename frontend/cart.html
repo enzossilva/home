@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carrinho — Young Zone</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Young Zone</h1>
+    <nav>
+      <a href="index.html">Produtos</a>
+      <a href="login.html">Login</a>
+      <a href="register.html">Cadastro</a>
+      <a href="cart.html">Carrinho</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Carrinho</h2>
+    <div id="message"></div>
+    <div id="cart-items"></div>
+    <div id="cart-total"></div>
+  </main>
+
+  <script>
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+    const msg = document.getElementById('message');
+
+    if (!userId) {
+      msg.innerHTML = '<p class="error">Você precisa estar logado. <a href="login.html">Fazer login</a></p>';
+    } else {
+      msg.innerHTML = `<p class="success">Logado como: ${userName}</p>`;
+      loadCart();
+    }
+
+    function loadCart() {
+      fetch(`http://localhost:8080/cart/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('cart-items');
+          const totalEl = document.getElementById('cart-total');
+          container.innerHTML = '';
+          totalEl.innerHTML = '';
+
+          if (!data.items || data.items.length === 0) {
+            container.innerHTML = '<p>Carrinho vazio.</p>';
+            return;
+          }
+
+          data.items.forEach(item => {
+            container.innerHTML += `
+              <div class="cart-item">
+                <div>
+                  <strong>${item.product.name}</strong>
+                  <span class="category">${item.product.category || ''}</span>
+                </div>
+                <div class="cart-item-info">
+                  <span>Qtd: ${item.quantity}</span>
+                  <span>R$ ${Number(item.product.price).toFixed(2)} un.</span>
+                  <span><strong>R$ ${Number(item.subtotal).toFixed(2)}</strong></span>
+                  <button class="btn-remove" onclick="removeItem(${item.id})">Remover</button>
+                </div>
+              </div>
+            `;
+          });
+
+          totalEl.innerHTML = `
+            <div class="cart-total">
+              <strong>Total: R$ ${Number(data.total).toFixed(2)}</strong>
+            </div>
+          `;
+        })
+        .catch(() => {
+          document.getElementById('cart-items').innerHTML = '<p class="error">Erro ao carregar carrinho.</p>';
+        });
+    }
+
+    function removeItem(cartItemId) {
+      fetch(`http://localhost:8080/cart/${cartItemId}`, { method: 'DELETE' })
+        .then(() => loadCart())
+        .catch(() => alert('Erro ao remover item.'));
+    }
+  </script>
+</body>
+</html>

@@ -1,6 +1,10 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.util.List;
+import java.util.Map;
 
 @Entity
 public class Product {
@@ -17,15 +21,21 @@ public class Product {
 
     private String description;
 
-    // URL da imagem do produto (ex: link do S3, Cloudinary, etc)
     private String imageUrl;
 
-    // Estoque disponível
     @Column(nullable = false)
     private Integer stock = 0;
 
-    // Categoria (ex: "Camiseta", "Calça", "Acessório")
     private String category;
+
+    // Lista de tamanhos com estoque individual
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<ProductSize> productSizes;
+
+    // Campo transiente: recebe o mapa { "P": 5, "M": 3 } do frontend
+    @Transient
+    private Map<String, Integer> sizeStocks;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -47,4 +57,10 @@ public class Product {
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+
+    public List<ProductSize> getProductSizes() { return productSizes; }
+    public void setProductSizes(List<ProductSize> productSizes) { this.productSizes = productSizes; }
+
+    public Map<String, Integer> getSizeStocks() { return sizeStocks; }
+    public void setSizeStocks(Map<String, Integer> sizeStocks) { this.sizeStocks = sizeStocks; }
 }

@@ -22,6 +22,8 @@ public class Cart {
     @Column(nullable = false)
     private Integer quantity;
 
+    private String size;
+
     public Cart() {}
 
     public Long getId() { return id; }
@@ -34,6 +36,9 @@ public class Cart {
 
     public Integer getQuantity() { return quantity; }
     public void setQuantity(Integer quantity) { this.quantity = quantity; }
+
+    public String getSize() { return size; }
+    public void setSize(String size) { this.size = size; }
 
     // Calcula o subtotal do item
     public Double getSubtotal() {

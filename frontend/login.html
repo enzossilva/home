@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — Young Zone</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Young Zone</h1>
+    <nav>
+      <a href="index.html">Produtos</a>
+      <a href="login.html">Login</a>
+      <a href="register.html">Cadastro</a>
+      <a href="cart.html">Carrinho</a>
+    </nav>
+  </header>
+
+  <main class="form-page">
+    <div class="form-card">
+      <h2>Login</h2>
+      <div id="message"></div>
+      <form id="loginForm">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="seu@email.com" required />
+
+        <label>Senha</label>
+        <input type="password" id="password" placeholder="••••••" required />
+
+        <button type="submit">Entrar</button>
+      </form>
+      <p class="form-link">Não tem conta? <a href="register.html">Cadastre-se</a></p>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const msg = document.getElementById('message');
+      msg.innerHTML = '';
+
+      fetch('http://localhost:8080/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.erro) {
+          msg.innerHTML = `<p class="error">${data.erro}</p>`;
+        } else {
+          localStorage.setItem('userId', data.id);
+          localStorage.setItem('userName', data.name);
+          msg.innerHTML = `<p class="success">Bem-vindo, ${data.name}!</p>`;
+          setTimeout(() => window.location.href = 'index.html', 1000);
+        }
+      })
+      .catch(() => msg.innerHTML = '<p class="error">Erro ao conectar com o servidor.</p>');
+    });
+  </script>
+</body>
+</html>

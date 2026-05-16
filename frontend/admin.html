@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — Young Zone</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-layout { display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap; }
+    .admin-form-card { flex: 1; min-width: 300px; }
+    .admin-list { flex: 2; min-width: 300px; }
+    .product-row {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;
+      margin-bottom: 0.5rem; background: #fff;
+    }
+    .product-row img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
+    .product-row .no-img { width: 60px; height: 60px; background: #eee; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #999; }
+    .product-row .info { flex: 1; }
+    .product-row .info strong { display: block; }
+    .product-row .info span { font-size: 0.85rem; color: #666; }
+    .btn-delete { background: #e74c3c; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; }
+    .btn-delete:hover { background: #c0392b; }
+    #imagePreview { width: 100%; max-height: 180px; object-fit: cover; border-radius: 8px; margin-top: 0.5rem; display: none; }
+    .form-row { display: flex; gap: 1rem; }
+    .form-row > div { flex: 1; display: flex; flex-direction: column; }
+    .form-row label { margin-bottom: 0.25rem; font-size: 0.9rem; }
+    h3 { margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Young Zone</h1>
+    <nav>
+      <a href="index.html">Produtos</a>
+      <a href="login.html">Login</a>
+      <a href="register.html">Cadastro</a>
+      <a href="cart.html">Carrinho</a>
+      <a href="admin.html"><strong>Admin</strong></a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Painel Admin</h2>
+    <div class="admin-layout">
+
+      <!-- Formulário -->
+      <div class="admin-form-card form-card">
+        <h3>Novo Produto</h3>
+        <div id="message"></div>
+        <form id="productForm">
+          <label>Nome *</label>
+          <input type="text" id="name" placeholder="Ex: Camiseta Básica" required />
+
+          <div class="form-row">
+            <div>
+              <label>Preço (R$) *</label>
+              <input type="number" id="price" placeholder="0.00" step="0.01" min="0" required />
+            </div>
+            <div>
+              <label>Estoque *</label>
+              <input type="number" id="stock" placeholder="0" min="0" required />
+            </div>
+          </div>
+
+          <label>Categoria</label>
+          <input type="text" id="category" placeholder="Ex: Camiseta, Calça, Acessório" />
+
+          <label>Descrição</label>
+          <textarea id="description" placeholder="Descrição do produto..." rows="3" style="resize:vertical"></textarea>
+
+          <label>URL da Imagem</label>
+          <input type="url" id="imageUrl" placeholder="https://..." />
+          <img id="imagePreview" alt="Preview da imagem" />
+
+          <button type="submit">Cadastrar Produto</button>
+        </form>
+      </div>
+
+      <!-- Lista de produtos -->
+      <div class="admin-list">
+        <h3>Produtos Cadastrados</h3>
+        <div id="productList"><p>Carregando...</p></div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    const API = 'http://localhost:8080/products';
+
+    // Preview da imagem ao digitar a URL
+    document.getElementById('imageUrl').addEventListener('input', function () {
+      const preview = document.getElementById('imagePreview');
+      if (this.value) {
+        preview.src = this.value;
+        preview.style.display = 'block';
+        preview.onerror = () => { preview.style.display = 'none'; };
+      } else {
+        preview.style.display = 'none';
+      }
+    });
+
+    // Carrega lista de produtos
+    function loadProducts() {
+      fetch(API)
+        .then(res => res.json())
+        .then(products => {
+          const list = document.getElementById('productList');
+          if (products.length === 0) {
+            list.innerHTML = '<p>Nenhum produto cadastrado.</p>';
+            return;
+          }
+          list.innerHTML = products.map(p => `
+            <div class="product-row">
+              ${p.imageUrl
+                ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.style.display='none'" />`
+                : '<div class="no-img">Sem imagem</div>'}
+              <div class="info">
+                <strong>${p.name}</strong>
+                <span>${p.category || ''} — R$ ${Number(p.price).toFixed(2)} — Estoque: ${p.stock}</span>
+              </div>
+              <button class="btn-delete" onclick="deleteProduct(${p.id})">Deletar</button>
+            </div>
+          `).join('');
+        })
+        .catch(() => {
+          document.getElementById('productList').innerHTML = '<p class="error">Erro ao carregar produtos.</p>';
+        });
+    }
+
+    // Deleta produto
+    function deleteProduct(id) {
+      if (!confirm('Deletar este produto?')) return;
+      fetch(`${API}/${id}`, { method: 'DELETE' })
+        .then(() => loadProducts())
+        .catch(() => alert('Erro ao deletar produto.'));
+    }
+
+    // Cadastra produto
+    document.getElementById('productForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const msg = document.getElementById('message');
+      msg.innerHTML = '';
+
+      const product = {
+        name: document.getElementById('name').value,
+        price: parseFloat(document.getElementById('price').value),
+        stock: parseInt(document.getElementById('stock').value),
+        category: document.getElementById('category').value,
+        description: document.getElementById('description').value,
+        imageUrl: document.getElementById('imageUrl').value || null
+      };
+
+      fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.erro) {
+          msg.innerHTML = `<p class="error">${data.erro}</p>`;
+        } else {
+          msg.innerHTML = '<p class="success">Produto cadastrado!</p>';
+          document.getElementById('productForm').reset();
+          document.getElementById('imagePreview').style.display = 'none';
+          loadProducts();
+        }
+      })
+      .catch(() => msg.innerHTML = '<p class="error">Erro ao conectar com o servidor.</p>');
+    });
+
+    loadProducts();
+  </script>
+</body>
+</html>
