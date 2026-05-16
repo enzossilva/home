@@ -1,0 +1,10 @@
+providers = ["java"]
+
+[phases.setup]
+nixPkgs = ["jdk21_headless", "nodejs_20", "nodePackages.npm"]
+
+[phases.build]
+cmds = ["cd demo && ./mvnw clean package -DskipTests -Pprod"]
+
+[start]
+cmd = "java -jar demo/target/demo-0.0.1-SNAPSHOT.jar"
