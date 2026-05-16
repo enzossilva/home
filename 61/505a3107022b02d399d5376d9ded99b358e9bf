@@ -1,0 +1,21 @@
+react-frontend/vite.config.js
+  s_c08cee8edcde8c::t_16995fbe7ea060 4-11,13-29
+railway.toml
+  s_c08cee8edcde8c::t_c0b7b309b97d1d 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "61505a3107022b02d399d5376d9ded99b358e9bf",
+  "prompts": {},
+  "sessions": {
+    "s_c08cee8edcde8c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1e706e13-b80c-459c-bb23-cb1dc154e2ea",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
