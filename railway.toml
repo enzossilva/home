@@ -1,8 +1,9 @@
 [build]
-buildCommand = "cd react-frontend && npm install && npm run build && mkdir -p ../demo/src/main/resources/static && cp -r dist/* ../demo/src/main/resources/static/ && cd ../demo && ./mvnw clean package -DskipTests"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "java -jar demo/target/demo-0.0.1-SNAPSHOT.jar"
+startCommand = "java -jar app.jar"
 healthcheckPath = "/products"
-healthcheckTimeout = 60
+healthcheckTimeout = 120
 restartPolicyType = "on_failure"
