@@ -1,0 +1,20 @@
+demo/src/main/resources/application-prod.properties
+  s_c08cee8edcde8c::t_2a237e7ec5b6fd 1,11-12,18,21-22,25,28-30,33-39,41-49
+  s_c08cee8edcde8c::t_8e254fa4b16781 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "20f479c75428f379f00d7c3bf88a1bdc129cb918",
+  "prompts": {},
+  "sessions": {
+    "s_c08cee8edcde8c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1e706e13-b80c-459c-bb23-cb1dc154e2ea",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
