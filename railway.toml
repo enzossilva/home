@@ -1,5 +1,5 @@
 [build]
-builder = "nixpacks"
+buildCommand = "cd react-frontend && npm install && npm run build && mkdir -p ../demo/src/main/resources/static && cp -r dist/* ../demo/src/main/resources/static/ && cd ../demo && ./mvnw clean package -DskipTests"
 
 [deploy]
 startCommand = "java -jar demo/target/demo-0.0.1-SNAPSHOT.jar"
