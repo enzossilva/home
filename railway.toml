@@ -1,6 +1,5 @@
 [build]
 builder = "nixpacks"
-buildCommand = "cd demo && ./mvnw clean package -DskipTests -Pprod"
 
 [deploy]
 startCommand = "java -jar demo/target/demo-0.0.1-SNAPSHOT.jar"
