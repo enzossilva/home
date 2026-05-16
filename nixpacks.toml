@@ -1,7 +1,7 @@
 providers = ["java"]
 
 [phases.setup]
-nixPkgs = ["jdk21_headless", "nodejs_20", "nodePackages.npm"]
+nixPkgs = ["jdk21_headless", "nodejs_20"]
 
 [phases.build]
 cmds = ["cd demo && ./mvnw clean package -DskipTests -Pprod"]
