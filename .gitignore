@@ -1,0 +1,13 @@
+# Credenciais locais — nunca subir para o GitHub
+demo/src/main/resources/application.properties
+react-frontend/.env
+
+# Build
+demo/target/
+react-frontend/dist/
+react-frontend/node_modules/
+
+# IDE
+.idea/
+*.iml
+.DS_Store
