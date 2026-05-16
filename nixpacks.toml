@@ -4,7 +4,11 @@ providers = ["java"]
 nixPkgs = ["jdk21_headless", "nodejs_20"]
 
 [phases.build]
-cmds = ["cd demo && ./mvnw clean package -DskipTests -Pprod"]
+cmds = [
+  "cd react-frontend && npm install && npm run build",
+  "mkdir -p demo/src/main/resources/static && cp -r react-frontend/dist/* demo/src/main/resources/static/",
+  "cd demo && ./mvnw clean package -DskipTests"
+]
 
 [start]
 cmd = "java -jar demo/target/demo-0.0.1-SNAPSHOT.jar"
