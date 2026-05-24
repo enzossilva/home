@@ -74,6 +74,15 @@ public class CartService {
         cartRepository.deleteById(cartItemId);
     }
 
+    public void removeFromCartSecure(Long cartItemId, Long tokenUserId, boolean isAdmin) {
+        Cart item = cartRepository.findById(cartItemId)
+                .orElseThrow(() -> new RuntimeException("Item não encontrado"));
+        if (!isAdmin && !item.getUser().getId().equals(tokenUserId)) {
+            throw new SecurityException("Acesso negado");
+        }
+        cartRepository.deleteById(cartItemId);
+    }
+
     public void clearCart(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));

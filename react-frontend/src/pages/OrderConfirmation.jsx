@@ -29,7 +29,7 @@ export default function OrderConfirmation() {
     if (!confirm('Tem certeza que deseja cancelar este pedido?')) return;
     setCancelling(true);
     try {
-      await cancelOrder(order.id, user.id);
+      await cancelOrder(order.id);
       setOrder(o => ({ ...o, status: 'CANCELLED' }));
     } catch (err) {
       setError(err.message);

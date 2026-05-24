@@ -1,7 +1,9 @@
 package com.example.demo.controller;
 
+import com.example.demo.config.AuthHelper;
 import com.example.demo.model.Order;
 import com.example.demo.service.OrderService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,53 +15,67 @@ import java.util.Map;
 public class OrderController {
 
     private final OrderService orderService;
+    private final AuthHelper authHelper;
 
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderService orderService, AuthHelper authHelper) {
         this.orderService = orderService;
+        this.authHelper = authHelper;
     }
 
     @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> body,
+                                         HttpServletRequest request) {
         try {
-            Long userId = Long.valueOf(body.get("userId").toString());
+            Long userId = authHelper.getUserId(request);
             String shippingMethod = body.getOrDefault("shippingMethod", "PAC").toString();
 
             @SuppressWarnings("unchecked")
             Map<String, String> address = (Map<String, String>) body.get("address");
 
             double shippingCost = OrderService.calcularFrete(address.get("cep"), shippingMethod);
-
             Order order = orderService.createOrder(userId, address, shippingCost, shippingMethod);
             return ResponseEntity.ok(order);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403).body(Map.of("erro", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("erro", e.getMessage()));
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOrder(@PathVariable Long id) {
+    public ResponseEntity<?> getOrder(@PathVariable Long id, HttpServletRequest request) {
         try {
-            return ResponseEntity.ok(orderService.getOrder(id));
+            Order order = orderService.getOrder(id);
+            authHelper.requireOwnerOrAdmin(request, order.getUser().getId());
+            return ResponseEntity.ok(order);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403).body(Map.of("erro", "Acesso negado"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("erro", e.getMessage()));
         }
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getOrdersByUser(@PathVariable Long userId) {
+    public ResponseEntity<?> getOrdersByUser(@PathVariable Long userId,
+                                             HttpServletRequest request) {
         try {
+            authHelper.requireOwnerOrAdmin(request, userId);
             return ResponseEntity.ok(orderService.getOrdersByUser(userId));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403).body(Map.of("erro", "Acesso negado"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("erro", e.getMessage()));
         }
     }
 
     @PostMapping("/{id}/cancel")
-    public ResponseEntity<?> cancelOrder(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+    public ResponseEntity<?> cancelOrder(@PathVariable Long id, HttpServletRequest request) {
         try {
-            Long userId = Long.valueOf(body.get("userId").toString());
+            Long userId = authHelper.getUserId(request);
             orderService.cancelOrder(id, userId);
             return ResponseEntity.ok(Map.of("mensagem", "Pedido cancelado"));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403).body(Map.of("erro", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("erro", e.getMessage()));
         }
@@ -86,7 +102,8 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/ship")
-    public ResponseEntity<?> markAsShipped(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+    public ResponseEntity<?> markAsShipped(@PathVariable Long id,
+                                           @RequestBody Map<String, Object> body) {
         try {
             String trackingCode = body.get("trackingCode").toString();
             orderService.markAsShipped(id, trackingCode);
@@ -131,14 +148,11 @@ public class OrderController {
     public ResponseEntity<?> webhookMP(@RequestBody Map<String, Object> body) {
         try {
             String action = body.getOrDefault("action", "").toString();
-            System.out.println("=== MP WEBHOOK === action=" + action + " body=" + body);
-
             if ("payment.updated".equals(action) || "payment.created".equals(action)) {
                 @SuppressWarnings("unchecked")
                 Map<String, Object> data = (Map<String, Object>) body.get("data");
                 if (data != null) {
                     String mpId = data.get("id").toString();
-                    // Tenta localizar pedido pelo mpPaymentId e marcar como PAID
                     orderService.getAllOrders().stream()
                             .filter(o -> mpId.equals(o.getMpPaymentId()) && "PENDING".equals(o.getStatus()))
                             .findFirst()
@@ -147,7 +161,7 @@ public class OrderController {
             }
             return ResponseEntity.ok(Map.of("status", "ok"));
         } catch (Exception e) {
-            return ResponseEntity.ok(Map.of("status", "ok")); // sempre 200 para o MP
+            return ResponseEntity.ok(Map.of("status", "ok"));
         }
     }
 }

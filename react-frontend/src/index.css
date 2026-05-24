@@ -746,7 +746,8 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 @media (max-width: 768px) {
   /* Header */
   .header { padding: 0 1rem; height: 70px; }
-  .header-logo-img { height: 60px; }
+  .header-logo-img { height: 40px; }
+  .header-logo { max-width: 40%; }
   .header-nav-left { display: none; }
   .search-input.search-open { width: 130px; }
 

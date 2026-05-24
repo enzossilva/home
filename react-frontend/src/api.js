@@ -166,11 +166,11 @@ export async function getOrdersByUser(userId) {
   return res.json();
 }
 
-export async function cancelOrder(orderId, userId) {
+export async function cancelOrder(orderId) {
   const res = handleResponse(await fetch(`${BASE}orders/${orderId}/cancel`, {
     method: 'POST',
     headers: authHeaders(),
-    body: JSON.stringify({ userId }),
+    body: JSON.stringify({}),
   }));
   const data = await res.json();
   if (!res.ok) throw new Error(data.erro || 'Erro ao cancelar pedido');
