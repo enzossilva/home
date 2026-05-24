@@ -11,6 +11,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -48,8 +50,16 @@ public class SecurityConfig {
                     .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
             )
             .authorizeHttpRequests(auth -> auth
+                // Static assets — declared first so they are never caught by anyRequest().authenticated()
+                .requestMatchers(
+                    AntPathRequestMatcher.antMatcher("/assets/**"),
+                    AntPathRequestMatcher.antMatcher("/favicon.ico"),
+                    AntPathRequestMatcher.antMatcher("/*.js"),
+                    AntPathRequestMatcher.antMatcher("/*.css"),
+                    AntPathRequestMatcher.antMatcher("/*.ico")
+                ).permitAll()
                 // Público
-                .requestMatchers("/", "/index.html", "/*.js", "/*.css", "/*.ico", "/assets/**").permitAll()
+                .requestMatchers("/", "/index.html").permitAll()
                 .requestMatchers("/login", "/register", "/admin", "/checkout",
                         "/product/**", "/pedido/**", "/meus-pedidos",
                         "/esqueci-senha", "/reset-senha", "/privacidade", "/termos").permitAll()

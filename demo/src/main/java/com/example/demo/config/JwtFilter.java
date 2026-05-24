@@ -23,6 +23,21 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        // Skip JWT processing for static assets — they are always public
+        return path.startsWith("/assets/")
+            || path.equals("/favicon.ico")
+            || path.endsWith(".js")
+            || path.endsWith(".css")
+            || path.endsWith(".ico")
+            || path.endsWith(".png")
+            || path.endsWith(".svg")
+            || path.endsWith(".woff")
+            || path.endsWith(".woff2");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
