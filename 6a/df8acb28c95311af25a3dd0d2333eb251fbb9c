@@ -1,0 +1,19 @@
+demo/src/main/java/com/example/demo/config/SecurityConfig.java
+  s_c08cee8edcde8c::t_c6d666f15b3412 56-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "6adf8acb28c95311af25a3dd0d2333eb251fbb9c",
+  "prompts": {},
+  "sessions": {
+    "s_c08cee8edcde8c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1e706e13-b80c-459c-bb23-cb1dc154e2ea",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
