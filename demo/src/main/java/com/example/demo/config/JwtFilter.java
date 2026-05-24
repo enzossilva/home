@@ -24,7 +24,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
+        String path = request.getServletPath();
         // Skip JWT processing for static assets — they are always public
         return path.startsWith("/assets/")
             || path.equals("/favicon.ico")
