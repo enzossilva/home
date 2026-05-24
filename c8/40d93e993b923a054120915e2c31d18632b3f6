@@ -1,0 +1,37 @@
+react-frontend/node_modules/.vite/deps/_metadata.json
+  ai_agent 2-3,5,10,16,22,28,34,40
+react-frontend/src/index.css
+  s_c08cee8edcde8c::t_ef7faaca637e90 749-750
+demo/src/main/java/com/example/demo/config/AuthHelper.java
+  s_c08cee8edcde8c::t_152e1c587adf68 1-37
+demo/src/main/java/com/example/demo/controller/CartController.java
+  s_c08cee8edcde8c::t_56575f814adb08 3,6,18,20,22,26-27,29-30,37-38,45-46,48,52-53,60-61,63-65,67-68,73
+demo/src/main/java/com/example/demo/controller/OrderController.java
+  s_c08cee8edcde8c::t_63568e5a72b2e9 3,6,18,20,22,26-27,29,38-39,46,48-52,59-60,62,64-65,72,74,77-78,105-106,164
+react-frontend/src/api.js
+  s_c08cee8edcde8c::t_a2b53a53ec863f 169,173
+demo/src/main/resources/application-prod.properties
+  s_c08cee8edcde8c::t_7d6d8687333147 11-13
+demo/src/main/java/com/example/demo/service/CartService.java
+  s_c08cee8edcde8c::t_1ca168416c46ba 77-85
+react-frontend/src/pages/OrderConfirmation.jsx
+  s_c08cee8edcde8c::t_4782caed4c11c7 32
+demo/src/main/java/com/example/demo/controller/PaymentController.java
+  s_c08cee8edcde8c::t_02eb76984ffc62 3,6,18,23,25,34-35,37,44-45,47,49,54-55,57,64-65,67,69,74-75,77,92-93,95,97
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "c840d93e993b923a054120915e2c31d18632b3f6",
+  "prompts": {},
+  "sessions": {
+    "s_c08cee8edcde8c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1e706e13-b80c-459c-bb23-cb1dc154e2ea",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
