@@ -2,6 +2,7 @@ package com.example.demo.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -53,9 +54,7 @@ public class SecurityConfig {
                 // Ant-style patterns for static asset directories. Use a lambda matcher that checks
                 // getServletPath() (not getRequestURI()) so that the match works correctly for both
                 // direct requests and internal forwards (e.g. SPA routes forwarded to index.html).
-                .requestMatchers("/assets/**", "/favicon.ico", "/**/*.js", "/**/*.css",
-                        "/**/*.png", "/**/*.svg", "/**/*.ico", "/**/*.woff", "/**/*.woff2").permitAll()
-                .requestMatchers("/", "/index.html").permitAll()
+                .requestMatchers("/", "/index.html", "/favicon.ico").permitAll()
                 .requestMatchers("/login", "/register", "/admin", "/checkout",
                         "/product/**", "/pedido/**", "/meus-pedidos",
                         "/esqueci-senha", "/reset-senha", "/privacidade", "/termos").permitAll()
@@ -81,6 +80,14 @@ public class SecurityConfig {
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring()
+            .requestMatchers("/assets/**", "/**/*.js", "/**/*.css",
+                    "/**/*.ico", "/**/*.png", "/**/*.svg",
+                    "/**/*.woff", "/**/*.woff2");
     }
 
     @Bean
