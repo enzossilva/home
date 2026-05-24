@@ -49,7 +49,11 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 // Static assets — declared first so they are never caught by anyRequest().authenticated()
-                .requestMatchers("/assets/**", "/favicon.ico", "/*.js", "/*.css", "/*.ico").permitAll()
+                // Spring Security 7.x uses MVC path matching by default, which doesn't correctly handle
+                // Ant-style patterns for static asset directories. Use a lambda matcher that checks the
+                // request URI directly to bypass MVC path matching for the /assets/ prefix.
+                .requestMatchers(request -> request.getRequestURI().startsWith("/assets/")).permitAll()
+                .requestMatchers("/favicon.ico", "/*.js", "/*.css", "/*.ico").permitAll()
                 // Público
                 .requestMatchers("/", "/index.html").permitAll()
                 .requestMatchers("/login", "/register", "/admin", "/checkout",
