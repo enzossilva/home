@@ -108,12 +108,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-            frontendUrl,
-            "https://localhost:3000",
-            "http://localhost:3000",
-            "http://localhost:3001",
-            "https://localhost:3001"
+        config.setAllowedOriginPatterns(List.of(
+            "https://*.up.railway.app",
+            "http://localhost:*",
+            "https://localhost:*",
+            frontendUrl
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
