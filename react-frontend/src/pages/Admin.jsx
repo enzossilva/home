@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getProducts, addProduct, deleteProduct, updateProduct, getAllOrders, markAsShipped, getAdminStats, gerarEtiqueta } from '../api';
+import { getProducts, addProduct, deleteProduct, updateProduct, getAllOrders, markAsShipped, getAdminStats, gerarEtiqueta, getLookbook, addLookbookItem, deleteLookbookItem } from '../api';
 import { useUser } from '../context/UserContext';
 import ImageUpload from '../components/ImageUpload';
 
@@ -20,6 +20,8 @@ export default function Admin() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('dashboard');
   const [stats, setStats] = useState(null);
+  const [lookbook, setLookbook] = useState([]);
+  const [lbForm, setLbForm] = useState({ imageUrl: '', title: '', ordem: '' });
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [form, setForm] = useState(EMPTY);
@@ -34,6 +36,7 @@ export default function Admin() {
     load();
     loadOrders();
     getAdminStats().then(setStats).catch(() => {});
+    getLookbook().then(setLookbook).catch(() => {});
   }, [user]);
 
   async function load() {
@@ -171,6 +174,7 @@ export default function Admin() {
       <div className="payment-tabs" style={{ marginBottom: '1.5rem' }}>
         <button className={`payment-tab ${tab === 'dashboard' ? 'active' : ''}`} onClick={() => setTab('dashboard')}>Dashboard</button>
         <button className={`payment-tab ${tab === 'produtos' ? 'active' : ''}`} onClick={() => setTab('produtos')}>Produtos</button>
+        <button className={`payment-tab ${tab === 'lookbook' ? 'active' : ''}`} onClick={() => setTab('lookbook')}>Lookbook</button>
         <button className={`payment-tab ${tab === 'pedidos' ? 'active' : ''}`} onClick={() => setTab('pedidos')}>
           Pedidos {orders.filter(o => o.status === 'PAID').length > 0 && (
             <span style={{ background: '#e63946', color: '#fff', borderRadius: '10px', padding: '1px 7px', fontSize: '0.75rem', marginLeft: '6px' }}>
@@ -250,6 +254,50 @@ export default function Admin() {
               </div>
             );
           })()}
+        </div>
+      )}
+
+      {/* ABA LOOKBOOK */}
+      {tab === 'lookbook' && (
+        <div>
+          {message.text && <p className={message.type === 'error' ? 'error' : 'success'}>{message.text}</p>}
+          <div className="form-card" style={{ maxWidth: 500, marginBottom: '1.5rem' }}>
+            <h3>Adicionar foto</h3>
+            <label>URL da imagem *</label>
+            <input value={lbForm.imageUrl} onChange={e => setLbForm(f => ({ ...f, imageUrl: e.target.value }))} placeholder="https://..." />
+            <label>Legenda</label>
+            <input value={lbForm.title} onChange={e => setLbForm(f => ({ ...f, title: e.target.value }))} placeholder="Ex: São Paulo, 2025" />
+            <label>Ordem (número)</label>
+            <input type="number" value={lbForm.ordem} onChange={e => setLbForm(f => ({ ...f, ordem: e.target.value }))} placeholder="1, 2, 3..." />
+            <button className="btn" style={{ marginTop: '0.75rem', background: '#111', color: '#fff', border: 'none' }}
+              onClick={async () => {
+                if (!lbForm.imageUrl) { showMsg('URL da imagem obrigatória', 'error'); return; }
+                try {
+                  const item = await addLookbookItem({ imageUrl: lbForm.imageUrl, title: lbForm.title, ordem: lbForm.ordem ? parseInt(lbForm.ordem) : null });
+                  setLookbook(l => [...l, item]);
+                  setLbForm({ imageUrl: '', title: '', ordem: '' });
+                  showMsg('Foto adicionada!');
+                } catch (err) { showMsg(err.message, 'error'); }
+              }}>
+              Adicionar
+            </button>
+          </div>
+
+          <div className="lookbook-grid">
+            {lookbook.map(item => (
+              <div key={item.id} className="lookbook-item" style={{ position: 'relative' }}>
+                <div className="lookbook-img-wrap">
+                  <img src={item.imageUrl} alt={item.title} onError={e => e.target.style.display = 'none'} />
+                </div>
+                {item.title && <p className="lookbook-title">{item.title}</p>}
+                <button onClick={async () => {
+                  await deleteLookbookItem(item.id);
+                  setLookbook(l => l.filter(i => i.id !== item.id));
+                }} style={{ position: 'absolute', top: 4, right: 4, background: '#e63946', color: '#fff', border: 'none', borderRadius: 4, padding: '2px 6px', cursor: 'pointer', fontSize: '0.75rem' }}>✕</button>
+              </div>
+            ))}
+          </div>
+          {lookbook.length === 0 && <p className="empty">Nenhuma foto no lookbook ainda.</p>}
         </div>
       )}
 

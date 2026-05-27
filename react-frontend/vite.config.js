@@ -12,6 +12,7 @@ export default defineConfig({
       '/payment': 'http://localhost:8080',
       '/orders': 'http://localhost:8080',
       '/frete': 'http://localhost:8080',
+      '/lookbook': 'http://localhost:8080',
     }
   }
 })

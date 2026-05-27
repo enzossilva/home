@@ -189,6 +189,32 @@ export async function getAllOrders() {
   return res.json();
 }
 
+// ── Lookbook ────────────────────────────────────────────────
+export async function getLookbook() {
+  const res = await fetch(`${BASE}lookbook`);
+  if (!res.ok) throw new Error('Erro ao buscar lookbook');
+  return res.json();
+}
+
+export async function addLookbookItem(item) {
+  const res = await fetch(`${BASE}lookbook`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(item),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.erro || 'Erro ao adicionar foto');
+  return data;
+}
+
+export async function deleteLookbookItem(id) {
+  const res = await fetch(`${BASE}lookbook/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error('Erro ao remover foto');
+}
+
 export async function gerarEtiqueta(orderId) {
   const res = handleResponse(await fetch(`${BASE}orders/${orderId}/etiqueta`, {
     method: 'POST',

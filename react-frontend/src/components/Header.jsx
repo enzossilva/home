@@ -49,6 +49,7 @@ export default function Header() {
     <header className="header">
       <nav className="header-nav-left">
         <Link to="/">Shop</Link>
+        <Link to="/lookbook">Lookbook</Link>
       </nav>
       <Link to="/" className="header-logo">
         <img src="/logo.png" alt="Young Zone" className="header-logo-img" />

@@ -14,7 +14,7 @@ public class SpaController {
     @RequestMapping(value = {
         "/login", "/register", "/admin", "/checkout",
         "/product/**", "/pedido/**", "/meus-pedidos",
-        "/perfil", "/esqueci-senha", "/reset-senha",
+        "/lookbook", "/perfil", "/esqueci-senha", "/reset-senha",
         "/privacidade", "/termos"
     })
     public String spa() {

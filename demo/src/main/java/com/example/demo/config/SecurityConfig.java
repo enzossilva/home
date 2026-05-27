@@ -8,6 +8,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -62,6 +64,9 @@ public class SecurityConfig {
                         "/users/reset-request", "/users/reset-password").permitAll()
                 .requestMatchers("/payment/public-key").permitAll()
                 .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/lookbook").permitAll()
+                .requestMatchers(HttpMethod.POST, "/lookbook").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/lookbook/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/frete/calcular").permitAll()
                 .requestMatchers("/orders/webhook/mp").permitAll()
 
@@ -91,6 +96,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public UserDetailsService userDetailsService() {
+        return username -> { throw new UsernameNotFoundException("Use JWT"); };
+    }
+
+    @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -101,7 +111,9 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
             frontendUrl,
             "https://localhost:3000",
-            "http://localhost:3000"
+            "http://localhost:3000",
+            "http://localhost:3001",
+            "https://localhost:3001"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));

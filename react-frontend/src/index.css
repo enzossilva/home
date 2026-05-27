@@ -800,3 +800,12 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
   .cart-drawer-header { padding: 1rem; }
   .cart-drawer-body { padding: 0.75rem; }
 }
+
+/* ── Lookbook ── */
+.lookbook-page { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
+.lookbook-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+.lookbook-item { display: flex; flex-direction: column; gap: 0.5rem; }
+.lookbook-img-wrap { width: 100%; }
+.lookbook-img-wrap img { width: 100%; height: auto; display: block; max-height: 300px; object-fit: contain; }
+.lookbook-title { font-size: 0.82rem; color: #333; }
+@media (max-width: 768px) { .lookbook-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } }
