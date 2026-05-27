@@ -1,0 +1,51 @@
+demo/src/main/java/com/example/demo/config/SecurityConfig.java
+  s_c08cee8edcde8c::t_51c3ce2f559e73 11-12
+  s_c08cee8edcde8c::t_889b5fb3f09fd0 114-116
+  s_c08cee8edcde8c::t_3778b746c04bee 67-69
+  s_c08cee8edcde8c::t_abec232c23970d 99-102
+react-frontend/src/components/Header.jsx
+  s_c08cee8edcde8c::t_344da1575bb47f 52
+react-frontend/src/api.js
+  s_c08cee8edcde8c::t_4180b63147afa8 192-217
+demo/src/main/java/com/example/demo/model/LookbookItem.java
+  s_c08cee8edcde8c::t_0dc2c7c5ebe998 13
+  s_c08cee8edcde8c::t_38c680bf6b5c65 1-12,14-28
+demo/src/main/java/com/example/demo/controller/LookbookController.java
+  s_c08cee8edcde8c::t_0b3ffebb2b680b 1-36
+demo/src/main/java/com/example/demo/config/SpaController.java
+  s_c08cee8edcde8c::t_36a2823af5bf3e 17
+react-frontend/vite.config.js
+  s_c08cee8edcde8c::t_68d59d570ade45 15
+react-frontend/src/pages/Lookbook.jsx
+  s_c08cee8edcde8c::t_78020bc5820cdb 1-34
+demo/src/main/java/com/example/demo/repository/LookbookRepository.java
+  s_c08cee8edcde8c::t_ae8b96ad23e15a 1-10
+react-frontend/src/App.jsx
+  s_c08cee8edcde8c::t_150039f6368e7f 47
+  s_c08cee8edcde8c::t_57a8c2a213f479 22
+react-frontend/src/pages/Admin.jsx
+  s_c08cee8edcde8c::t_84cd21136180df 177
+  s_c08cee8edcde8c::t_a07417aa731e8b 3
+  s_c08cee8edcde8c::t_3a003385dade4f 260-303
+  s_c08cee8edcde8c::t_47cb06d2c34315 23-24
+  s_c08cee8edcde8c::t_d6fc96aacd8f32 39
+react-frontend/src/index.css
+  s_c08cee8edcde8c::t_267bbb651c23e4 803-807,810-811
+  s_c08cee8edcde8c::t_170ca00de25f13 808-809
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "95b7f3159e687e7cb644f9cb1a6a43935ee466aa",
+  "prompts": {},
+  "sessions": {
+    "s_c08cee8edcde8c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1e706e13-b80c-459c-bb23-cb1dc154e2ea",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
