@@ -163,11 +163,13 @@ public class OrderService {
             throw new RuntimeException("Pedido já está cancelado");
         }
 
+        boolean wasPaid = "PAID".equals(order.getStatus());
+
         order.setStatus("CANCELLED");
         orderRepository.save(order);
 
         // Devolve estoque se o pedido estava pago
-        if ("PAID".equals(order.getStatus()) && order.getItems() != null) {
+        if (wasPaid && order.getItems() != null) {
             for (OrderItem item : order.getItems()) {
                 if (item.getProductId() == null) continue;
                 productRepository.findById(item.getProductId()).ifPresent(product -> {
