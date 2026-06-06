@@ -1,0 +1,19 @@
+README.md
+  s_c08cee8edcde8c::t_e75bcf64822f4f 1-210
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "47a7489f1a03e12c7208df401464007af4414fa3",
+  "prompts": {},
+  "sessions": {
+    "s_c08cee8edcde8c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1e706e13-b80c-459c-bb23-cb1dc154e2ea",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
