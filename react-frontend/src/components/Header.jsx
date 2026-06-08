@@ -3,6 +3,7 @@ import { useUser } from '../context/UserContext';
 import { useCartDrawer } from '../context/CartDrawerContext';
 import { useSearch } from '../context/SearchContext';
 import { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 export default function Header() {
   const { user, setUser } = useUser();
@@ -12,8 +13,11 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchVal, setSearchVal] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const searchRef = useRef(null);
   const menuRef = useRef(null);
+  const location = useLocation();
+  const isHome = location.pathname === '/';
 
   function toggleSearch() {
     setSearchOpen(o => {
@@ -34,6 +38,12 @@ export default function Header() {
     navigate('/');
   }
 
+  useEffect(() => {
+    function onScroll() { setScrolled(window.scrollY > 60); }
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   // Fecha o menu ao clicar fora
   useEffect(() => {
     function handleClickOutside(e) {
@@ -46,13 +56,13 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="header">
+    <header className={`header ${isHome && !scrolled ? 'header-hero' : ''}`}>
       <nav className="header-nav-left">
         <Link to="/">Shop</Link>
         <Link to="/lookbook">Lookbook</Link>
       </nav>
       <Link to="/" className="header-logo">
-        <img src="/logo.png" alt="Young Zone" className="header-logo-img" />
+        <img src="/logo.svg" alt="Young Zone" className="header-logo-img" />
       </Link>
       <nav className="header-nav">
         {/* Busca */}

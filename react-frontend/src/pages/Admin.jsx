@@ -4,7 +4,7 @@ import { getProducts, addProduct, deleteProduct, updateProduct, getAllOrders, ma
 import { useUser } from '../context/UserContext';
 import ImageUpload from '../components/ImageUpload';
 
-const EMPTY = { name: '', price: '', stock: '', category: '', description: '', imageUrl: '', sizeStocks: {} };
+const EMPTY = { name: '', price: '', stock: '', category: '', description: '', images: [], sizeStocks: {} };
 const ALL_SIZES = ['PP', 'P', 'M', 'G', 'GG', 'XGG'];
 
 const STATUS_LABEL = {
@@ -107,7 +107,7 @@ export default function Admin() {
       stock: p.stock,
       category: p.category || '',
       description: p.description || '',
-      imageUrl: p.imageUrl || '',
+      images: p.images && p.images.length > 0 ? p.images : (p.imageUrl ? [p.imageUrl] : []),
       sizeStocks,
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -129,13 +129,15 @@ export default function Admin() {
     const hasSizes = Object.keys(sizeStocks).length > 0;
     const totalStock = hasSizes ? Object.values(sizeStocks).reduce((a, b) => a + b, 0) : parseInt(form.stock) || 0;
 
+    const images = (form.images || []).filter(u => u && u.trim());
     const payload = {
       name: form.name,
       price: parseFloat(form.price),
       stock: totalStock,
       category: form.category,
       description: form.description,
-      imageUrl: form.imageUrl || null,
+      imageUrl: images[0] || null,
+      images: images.length > 0 ? images : null,
       sizeStocks: hasSizes ? sizeStocks : null,
     };
     try {
@@ -463,11 +465,25 @@ export default function Admin() {
             <label>Descrição</label>
             <textarea name="description" value={form.description} onChange={handleChange} rows={3} placeholder="Descrição do produto..." />
 
-            <label>Imagem do produto</label>
-            <ImageUpload
-              value={form.imageUrl}
-              onChange={url => setForm(f => ({ ...f, imageUrl: url }))}
-            />
+            <label>Fotos do produto <span style={{ fontWeight: 400, fontSize: '0.82rem', color: '#888' }}>(primeira = capa)</span></label>
+            {(form.images || []).map((url, i) => (
+              <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.4rem' }}>
+                <ImageUpload
+                  value={url}
+                  onChange={newUrl => setForm(f => {
+                    const imgs = [...(f.images || [])];
+                    imgs[i] = newUrl;
+                    return { ...f, images: imgs };
+                  })}
+                />
+                <button type="button" onClick={() => setForm(f => ({ ...f, images: f.images.filter((_, j) => j !== i) }))}
+                  style={{ background: '#e63946', color: '#fff', border: 'none', borderRadius: 4, padding: '0.3rem 0.6rem', cursor: 'pointer', flexShrink: 0 }}>✕</button>
+              </div>
+            ))}
+            <button type="button" className="btn btn-secondary btn-sm" style={{ marginTop: '0.25rem' }}
+              onClick={() => setForm(f => ({ ...f, images: [...(f.images || []), ''] }))}>
+              + Adicionar foto
+            </button>
 
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button type="submit" className="btn" disabled={loading}>

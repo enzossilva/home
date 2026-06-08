@@ -21,7 +21,13 @@ public class Product {
 
     private String description;
 
-    private String imageUrl;
+    private String imageUrl; // foto principal (backward compat)
+
+    @ElementCollection
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "image_url", length = 2000)
+    @OrderColumn(name = "ordem")
+    private List<String> images;
 
     @Column(nullable = false)
     private Integer stock = 0;
@@ -51,6 +57,9 @@ public class Product {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public List<String> getImages() { return images; }
+    public void setImages(List<String> images) { this.images = images; }
 
     public Integer getStock() { return stock; }
     public void setStock(Integer stock) { this.stock = stock; }

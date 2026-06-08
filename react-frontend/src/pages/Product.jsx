@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProducts, addToCart } from '../api';
 import { useUser } from '../context/UserContext';
@@ -17,6 +17,7 @@ export default function Product() {
   const [cartError, setCartError] = useState('');
   const [selectedSize, setSelectedSize] = useState(null);
   const [descOpen, setDescOpen] = useState(false);
+  const [activeImg, setActiveImg] = useState(0);
 
   useEffect(() => {
     getProducts()
@@ -59,10 +60,27 @@ export default function Product() {
 
       <div className="product-detail">
         <div className="product-detail-img">
-          {product.imageUrl
-            ? <img src={product.imageUrl} alt={product.name} onError={e => e.target.style.display = 'none'} />
-            : <div className="product-detail-no-img">Sem imagem</div>
-          }
+          {(() => {
+            const imgs = product.images && product.images.length > 0
+              ? product.images
+              : product.imageUrl ? [product.imageUrl] : [];
+            if (imgs.length === 0) return <div className="product-detail-no-img">Sem imagem</div>;
+            return (
+              <>
+                <img src={imgs[activeImg]} alt={product.name} onError={e => e.target.style.display = 'none'} />
+                {imgs.length > 1 && (
+                  <div className="product-thumbnails">
+                    {imgs.map((url, i) => (
+                      <img key={i} src={url} alt={`foto ${i+1}`}
+                        className={`product-thumb ${activeImg === i ? 'active' : ''}`}
+                        onClick={() => setActiveImg(i)}
+                        onError={e => e.target.style.display = 'none'} />
+                    ))}
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
 
         <div className="product-detail-info">

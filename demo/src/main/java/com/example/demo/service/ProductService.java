@@ -36,7 +36,8 @@ public class ProductService {
         Map<String, Integer> sizeStocks = product.getSizeStocks();
         product.setSizeStocks(null);
 
-        // Estoque total = soma dos tamanhos (ou direto se sem tamanhos)
+        syncPrimaryImage(product);
+
         if (sizeStocks != null && !sizeStocks.isEmpty()) {
             int total = sizeStocks.values().stream().mapToInt(v -> v != null ? v : 0).sum();
             product.setStock(total);
@@ -68,8 +69,9 @@ public class ProductService {
         product.setName(productDetails.getName());
         product.setPrice(productDetails.getPrice());
         product.setDescription(productDetails.getDescription());
-        product.setImageUrl(productDetails.getImageUrl());
+        product.setImages(productDetails.getImages());
         product.setCategory(productDetails.getCategory());
+        syncPrimaryImage(product);
 
         if (sizeStocks != null && !sizeStocks.isEmpty()) {
             int total = sizeStocks.values().stream().mapToInt(v -> v != null ? v : 0).sum();
@@ -81,6 +83,15 @@ public class ProductService {
         Product saved = productRepository.save(product);
         saveSizes(saved, sizeStocks);
         return productRepository.findById(saved.getId()).orElse(saved);
+    }
+
+    private void syncPrimaryImage(Product product) {
+        List<String> images = product.getImages();
+        if (images != null && !images.isEmpty()) {
+            product.setImageUrl(images.get(0));
+        } else if (product.getImageUrl() != null && !product.getImageUrl().isBlank()) {
+            product.setImages(new ArrayList<>(List.of(product.getImageUrl())));
+        }
     }
 
     private void saveSizes(Product product, Map<String, Integer> sizeStocks) {
