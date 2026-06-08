@@ -1,0 +1,21 @@
+react-frontend/src/index.css
+  s_c08cee8edcde8c::t_016d676ffef0ee 494-500,502
+react-frontend/src/pages/Product.jsx
+  s_c08cee8edcde8c::t_d4f19c6a0c9e44 69-74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "46680a2bf64e46bb98c2ec9011ccd3df635dad9c",
+  "prompts": {},
+  "sessions": {
+    "s_c08cee8edcde8c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1e706e13-b80c-459c-bb23-cb1dc154e2ea",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
