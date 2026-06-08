@@ -81,10 +81,13 @@ public class PaymentService {
         String status = extractJson(responseBody, "status");
         String id = extractJson(responseBody, "id");
 
-        // Salva mpPaymentId no pedido para o webhook encontrar depois
-        if (orderId != null && id != null) {
+        // Salva o ID do PAGAMENTO (não do pedido MP) para o webhook encontrar
+        String paymentId = extractPaymentId(responseBody);
+        String idToSave = paymentId != null ? paymentId : id;
+        if (orderId != null && idToSave != null) {
+            final String finalId = idToSave;
             orderRepository.findById(orderId).ifPresent(o -> {
-                o.setMpPaymentId(id);
+                o.setMpPaymentId(finalId);
                 orderRepository.save(o);
             });
         }
@@ -97,6 +100,15 @@ public class PaymentService {
         response.put("total", total);
         response.put("orderId", orderId);
         return response;
+    }
+
+    private String extractPaymentId(String json) {
+        String search = "\"payments\":[{\"id\":\"";
+        int start = json.indexOf(search);
+        if (start == -1) return null;
+        start += search.length();
+        int end = json.indexOf("\"", start);
+        return end == -1 ? null : json.substring(start, end);
     }
 
     private String extractJson(String json, String key) {
