@@ -1,0 +1,30 @@
+react-frontend/src/api.js
+  s_c08cee8edcde8c::t_bf9e107d0aa523 218-227
+react-frontend/src/pages/Admin.jsx
+  s_c08cee8edcde8c::t_3486400e706d57 3
+  s_c08cee8edcde8c::t_9a8ddc6527144f 353-368
+react-frontend/src/pages/Product.jsx
+  s_c08cee8edcde8c::t_4ba88cff5430e0 73-74
+  s_c08cee8edcde8c::t_9339aca11bc222 21
+  s_c08cee8edcde8c::t_2b4f5b8272c17c 148-152
+demo/src/main/java/com/example/demo/controller/OrderController.java
+  s_c08cee8edcde8c::t_46a54e46baa60c 84-90
+demo/src/main/java/com/example/demo/config/SecurityConfig.java
+  s_c08cee8edcde8c::t_8844c6ea3f0fb1 75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "ac097c3de2c637be9017469ef616933d6b07c033",
+  "prompts": {},
+  "sessions": {
+    "s_c08cee8edcde8c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1e706e13-b80c-459c-bb23-cb1dc154e2ea",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
