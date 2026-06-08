@@ -1,0 +1,20 @@
+demo/src/main/java/com/example/demo/service/PaymentService.java
+  s_c08cee8edcde8c::t_25a8c357d0d57d 84-88,90
+  s_c08cee8edcde8c::t_879f5c72173116 105-113
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "f2586618a541eac0ebaeb0493efef4d2db46f612",
+  "prompts": {},
+  "sessions": {
+    "s_c08cee8edcde8c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1e706e13-b80c-459c-bb23-cb1dc154e2ea",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
