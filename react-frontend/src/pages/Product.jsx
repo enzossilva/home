@@ -66,19 +66,12 @@ export default function Product() {
               : product.imageUrl ? [product.imageUrl] : [];
             if (imgs.length === 0) return <div className="product-detail-no-img">Sem imagem</div>;
             return (
-              <>
-                <img src={imgs[activeImg]} alt={product.name} onError={e => e.target.style.display = 'none'} />
-                {imgs.length > 1 && (
-                  <div className="product-thumbnails">
-                    {imgs.map((url, i) => (
-                      <img key={i} src={url} alt={`foto ${i+1}`}
-                        className={`product-thumb ${activeImg === i ? 'active' : ''}`}
-                        onClick={() => setActiveImg(i)}
-                        onError={e => e.target.style.display = 'none'} />
-                    ))}
-                  </div>
-                )}
-              </>
+              <div className="product-img-stack">
+                {imgs.map((url, i) => (
+                  <img key={i} src={url} alt={`${product.name} ${i+1}`}
+                    onError={e => e.target.style.display = 'none'} />
+                ))}
+              </div>
             );
           })()}
         </div>
