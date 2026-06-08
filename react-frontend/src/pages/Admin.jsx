@@ -369,35 +369,41 @@ export default function Admin() {
                 {order.status === 'PAID' && !order.trackingCode && (
                   <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {!order.buyerCpf && (
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.25rem' }}>
                         <input
-                          placeholder="CPF do comprador (obrigatório)"
+                          placeholder="CPF do comprador (só números)"
                           value={trackingInputs[`cpf_${order.id}`] || ''}
                           onChange={e => setTrackingInputs(t => ({ ...t, [`cpf_${order.id}`]: e.target.value }))}
                           style={{ flex: 1, padding: '0.4rem 0.6rem', border: '1px solid #ddd', fontSize: '0.83rem' }}
                         />
+                        <button
+                          onClick={async () => {
+                            const cpf = trackingInputs[`cpf_${order.id}`];
+                            if (!cpf?.trim()) { showMsg('Informe o CPF', 'error'); return; }
+                            try {
+                              const res = await fetch(`/orders/${order.id}/set-cpf`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('yz_token')}` },
+                                body: JSON.stringify({ cpf: cpf.trim() }),
+                              });
+                              if (res.ok) { showMsg('CPF salvo!'); loadOrders(); }
+                              else showMsg('Erro ao salvar CPF', 'error');
+                            } catch { showMsg('Erro ao salvar CPF', 'error'); }
+                          }}
+                          style={{ background: '#555', color: '#fff', border: 'none', padding: '0.4rem 0.75rem', cursor: 'pointer', fontSize: '0.83rem', whiteSpace: 'nowrap' }}
+                        >
+                          Salvar CPF
+                        </button>
                       </div>
                     )}
                     {/* Botão principal — gera etiqueta no Melhor Envio */}
                     <button
                       className="btn"
-                      onClick={async () => {
-                        if (!order.buyerCpf) {
-                          const cpf = trackingInputs[`cpf_${order.id}`];
-                          if (!cpf?.trim()) { showMsg('Informe o CPF do comprador', 'error'); return; }
-                          await fetch(`/orders/${order.id}/set-cpf`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('yz_token')}` },
-                            body: JSON.stringify({ cpf: cpf.trim() }),
-                          });
-                          await loadOrders();
-                        }
-                        handleGerarEtiqueta(order.id);
-                      }}
-                      disabled={gerandoEtiqueta[order.id]}
-                      style={{ background: '#111', color: '#fff', border: 'none', padding: '0.6rem 1rem', fontSize: '0.88rem' }}
+                      onClick={() => handleGerarEtiqueta(order.id)}
+                      disabled={gerandoEtiqueta[order.id] || !order.buyerCpf}
+                      style={{ background: order.buyerCpf ? '#111' : '#aaa', color: '#fff', border: 'none', padding: '0.6rem 1rem', fontSize: '0.88rem' }}
                     >
-                      {gerandoEtiqueta[order.id] ? 'Gerando etiqueta...' : '📦 Gerar etiqueta (Melhor Envio)'}
+                      {gerandoEtiqueta[order.id] ? 'Gerando etiqueta...' : !order.buyerCpf ? '📦 Salve o CPF primeiro' : '📦 Gerar etiqueta (Melhor Envio)'}
                     </button>
 
                     {/* Fallback — inserir código manual */}

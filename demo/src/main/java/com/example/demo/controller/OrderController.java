@@ -32,7 +32,14 @@ public class OrderController {
             @SuppressWarnings("unchecked")
             Map<String, String> address = (Map<String, String>) body.get("address");
 
-            double shippingCost = OrderService.calcularFrete(address.get("cep"), shippingMethod);
+            // Usa o frete calculado pelo frontend (Melhor Envio API)
+            // Fallback para cálculo estático se não vier
+            double shippingCost;
+            if (body.get("shippingCost") != null) {
+                shippingCost = Double.parseDouble(body.get("shippingCost").toString());
+            } else {
+                shippingCost = OrderService.calcularFrete(address.get("cep"), shippingMethod);
+            }
             Order order = orderService.createOrder(userId, address, shippingCost, shippingMethod);
             return ResponseEntity.ok(order);
         } catch (SecurityException e) {

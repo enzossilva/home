@@ -159,7 +159,7 @@ export default function Checkout() {
     setError('');
     setCreatingOrder(true);
     try {
-      const order = await createOrder(user.id, address, shippingMethod);
+      const order = await createOrder(user.id, address, shippingMethod, shippingCost);
       setOrderId(order.id);
       setShippingCost(order.shippingCost);
       setStep(2);

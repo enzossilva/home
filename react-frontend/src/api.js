@@ -143,11 +143,11 @@ export async function removeFromCart(cartItemId) {
 }
 
 // ── Orders ──────────────────────────────────────────────────
-export async function createOrder(userId, address, shippingMethod) {
+export async function createOrder(userId, address, shippingMethod, shippingCost) {
   const res = await fetch(`${BASE}orders`, {
     method: 'POST',
     headers: authHeaders(),
-    body: JSON.stringify({ userId, address, shippingMethod }),
+    body: JSON.stringify({ userId, address, shippingMethod, shippingCost }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.erro || 'Erro ao criar pedido');
