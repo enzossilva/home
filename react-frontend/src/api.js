@@ -215,6 +215,16 @@ export async function deleteLookbookItem(id) {
   if (!res.ok) throw new Error('Erro ao remover foto');
 }
 
+export async function markOrderAsPaid(orderId) {
+  const res = handleResponse(await fetch(`${BASE}orders/${orderId}/mark-paid`, {
+    method: 'POST',
+    headers: authHeaders(),
+  }));
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.erro || 'Erro ao marcar pedido como pago');
+  return data;
+}
+
 export async function gerarEtiqueta(orderId) {
   const res = handleResponse(await fetch(`${BASE}orders/${orderId}/etiqueta`, {
     method: 'POST',

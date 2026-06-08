@@ -18,6 +18,7 @@ export default function Product() {
   const [selectedSize, setSelectedSize] = useState(null);
   const [descOpen, setDescOpen] = useState(false);
   const [activeImg, setActiveImg] = useState(0);
+  const [lightbox, setLightbox] = useState(null);
 
   useEffect(() => {
     getProducts()
@@ -69,6 +70,8 @@ export default function Product() {
               <div className="product-img-stack">
                 {imgs.map((url, i) => (
                   <img key={i} src={url} alt={`${product.name} ${i+1}`}
+                    style={{ cursor: 'zoom-in' }}
+                    onClick={() => setLightbox(url)}
                     onError={e => e.target.style.display = 'none'} />
                 ))}
               </div>
@@ -142,6 +145,11 @@ export default function Product() {
           })()}
         </div>
       </div>
+      {lightbox && (
+        <div className="lookbook-lightbox" onClick={() => setLightbox(null)}>
+          <img src={lightbox} alt="foto" onClick={e => e.stopPropagation()} />
+        </div>
+      )}
     </main>
   );
 }

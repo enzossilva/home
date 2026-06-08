@@ -81,6 +81,16 @@ public class OrderController {
         }
     }
 
+    @PostMapping("/{id}/mark-paid")
+    public ResponseEntity<?> markAsPaid(@PathVariable Long id) {
+        try {
+            orderService.markAsPaid(id, "manual-admin");
+            return ResponseEntity.ok(Map.of("mensagem", "Pedido marcado como pago"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("erro", e.getMessage()));
+        }
+    }
+
     // ── Admin ──────────────────────────────────────────────
     @GetMapping("/admin/all")
     public ResponseEntity<?> getAllOrders() {

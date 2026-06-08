@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getProducts, addProduct, deleteProduct, updateProduct, getAllOrders, markAsShipped, getAdminStats, gerarEtiqueta, getLookbook, addLookbookItem, deleteLookbookItem } from '../api';
+import { getProducts, addProduct, deleteProduct, updateProduct, getAllOrders, markAsShipped, getAdminStats, gerarEtiqueta, getLookbook, addLookbookItem, deleteLookbookItem, markOrderAsPaid } from '../api';
 import { useUser } from '../context/UserContext';
 import ImageUpload from '../components/ImageUpload';
 
@@ -348,6 +348,22 @@ export default function Admin() {
                       {order.trackingCode}
                     </a>
                   </div>
+                )}
+
+                {order.status === 'PENDING' && (
+                  <button
+                    onClick={async () => {
+                      if (!confirm('Confirmar pagamento manualmente?')) return;
+                      try {
+                        await markOrderAsPaid(order.id);
+                        showMsg('Pedido marcado como pago!');
+                        loadOrders();
+                      } catch (err) { showMsg(err.message, 'error'); }
+                    }}
+                    style={{ marginTop: '0.75rem', background: '#27ae60', color: '#fff', border: 'none', padding: '0.5rem 1rem', cursor: 'pointer', fontSize: '0.85rem', borderRadius: 4 }}
+                  >
+                    ✓ Confirmar pagamento manualmente
+                  </button>
                 )}
 
                 {order.status === 'PAID' && !order.trackingCode && (
