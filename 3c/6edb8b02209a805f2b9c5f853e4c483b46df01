@@ -1,0 +1,25 @@
+react-frontend/src/pages/Admin.jsx
+  s_c08cee8edcde8c::t_20d94945ebef75 372,374,379-396,402-404,406
+react-frontend/src/api.js
+  s_c08cee8edcde8c::t_4c908c630c333f 146,150
+demo/src/main/java/com/example/demo/controller/OrderController.java
+  s_c08cee8edcde8c::t_62af34c148a2bb 35-42
+react-frontend/src/pages/Checkout.jsx
+  s_c08cee8edcde8c::t_89a84bee981c6d 162
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "3c6edb8b02209a805f2b9c5f853e4c483b46df01",
+  "prompts": {},
+  "sessions": {
+    "s_c08cee8edcde8c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1e706e13-b80c-459c-bb23-cb1dc154e2ea",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
