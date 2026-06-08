@@ -187,6 +187,14 @@ public class OrderService {
         }
     }
 
+    @Transactional
+    public void setBuyerCpf(Long orderId, String cpf) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        order.setBuyerCpf(cpf);
+        orderRepository.save(order);
+    }
+
     public void markAsShipped(Long orderId, String trackingCode) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));

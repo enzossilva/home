@@ -81,13 +81,15 @@ public class PaymentService {
         String status = extractJson(responseBody, "status");
         String id = extractJson(responseBody, "id");
 
-        // Salva o ID do PAGAMENTO (não do pedido MP) para o webhook encontrar
+        // Salva o ID do PAGAMENTO e o CPF do comprador no pedido
         String paymentId = extractPaymentId(responseBody);
         String idToSave = paymentId != null ? paymentId : id;
-        if (orderId != null && idToSave != null) {
+        final String cleanCpfFinal = cpf != null ? cpf.replaceAll("[^0-9]", "") : null;
+        if (orderId != null) {
             final String finalId = idToSave;
             orderRepository.findById(orderId).ifPresent(o -> {
-                o.setMpPaymentId(finalId);
+                if (finalId != null) o.setMpPaymentId(finalId);
+                if (cleanCpfFinal != null && !cleanCpfFinal.isBlank()) o.setBuyerCpf(cleanCpfFinal);
                 orderRepository.save(o);
             });
         }

@@ -83,7 +83,7 @@ public class EtiquetaService {
             +   "\"name\":\"" + escape(lojaNome) + "\","
             +   "\"phone\":\"" + lojaTelefone + "\","
             +   "\"email\":\"" + lojaEmail + "\","
-            +   "\"document\":\"" + lojaCpf + "\","
+            +   "\"document\":\"" + lojaCpf.replaceAll("[^0-9]", "") + "\","
             +   "\"address\":\"" + escape(lojaRua) + "\","
             +   "\"number\":\"" + lojaNumero + "\","
             +   "\"complement\":\"" + escape(lojaComplemento) + "\","

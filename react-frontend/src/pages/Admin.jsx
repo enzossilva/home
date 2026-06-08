@@ -368,10 +368,32 @@ export default function Admin() {
 
                 {order.status === 'PAID' && !order.trackingCode && (
                   <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {!order.buyerCpf && (
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <input
+                          placeholder="CPF do comprador (obrigatório)"
+                          value={trackingInputs[`cpf_${order.id}`] || ''}
+                          onChange={e => setTrackingInputs(t => ({ ...t, [`cpf_${order.id}`]: e.target.value }))}
+                          style={{ flex: 1, padding: '0.4rem 0.6rem', border: '1px solid #ddd', fontSize: '0.83rem' }}
+                        />
+                      </div>
+                    )}
                     {/* Botão principal — gera etiqueta no Melhor Envio */}
                     <button
                       className="btn"
-                      onClick={() => handleGerarEtiqueta(order.id)}
+                      onClick={async () => {
+                        if (!order.buyerCpf) {
+                          const cpf = trackingInputs[`cpf_${order.id}`];
+                          if (!cpf?.trim()) { showMsg('Informe o CPF do comprador', 'error'); return; }
+                          await fetch(`/orders/${order.id}/set-cpf`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('yz_token')}` },
+                            body: JSON.stringify({ cpf: cpf.trim() }),
+                          });
+                          await loadOrders();
+                        }
+                        handleGerarEtiqueta(order.id);
+                      }}
                       disabled={gerandoEtiqueta[order.id]}
                       style={{ background: '#111', color: '#fff', border: 'none', padding: '0.6rem 1rem', fontSize: '0.88rem' }}
                     >

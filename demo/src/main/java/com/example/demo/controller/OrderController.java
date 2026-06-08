@@ -81,6 +81,17 @@ public class OrderController {
         }
     }
 
+    @PostMapping("/{id}/set-cpf")
+    public ResponseEntity<?> setCpf(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        try {
+            String cpf = body.get("cpf").toString().replaceAll("[^0-9]", "");
+            orderService.setBuyerCpf(id, cpf);
+            return ResponseEntity.ok(Map.of("mensagem", "CPF salvo"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("erro", e.getMessage()));
+        }
+    }
+
     @PostMapping("/{id}/mark-paid")
     public ResponseEntity<?> markAsPaid(@PathVariable Long id) {
         try {
