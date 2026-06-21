@@ -1,0 +1,62 @@
+react-frontend/src/index.css
+  s_c08cee8edcde8c::t_e16af366219200 845-859
+react-frontend/vite.config.js
+  s_c08cee8edcde8c::t_e070516b7a49ea 16
+react-frontend/src/App.jsx
+  s_c08cee8edcde8c::t_b9d2b3030add0a 49
+  s_c08cee8edcde8c::t_c7abb77837d4c3 23
+demo/src/main/java/com/example/demo/repository/VideoRepository.java
+  s_c08cee8edcde8c::t_2fa2b0aa7f5390 1-10
+react-frontend/src/components/Header.jsx
+  s_c08cee8edcde8c::t_7f934d69a5c7ee 63
+react-frontend/src/api.js
+  s_c08cee8edcde8c::t_0a2bd612b40817 173,175-177,179-186,188-194
+  s_ac9cc02d43b4f3::t_3e37dd25228b33 21-28,32,41,50,58,68,79,90-92,101,110,116,125,133,143,148,153,162,167,172,178,187,195,201,210,218,226,234,243,253
+react-frontend/src/pages/Videos.jsx
+  s_c08cee8edcde8c::t_4fa90ceb45fade 1,3-18,20,22-58
+  s_ac9cc02d43b4f3::t_97848aa3d13e1c 2,19,21
+demo/src/main/java/com/example/demo/controller/VideoController.java
+  s_ac9cc02d43b4f3::t_e3fa79814f0601 3-4,7-9,18,21,23,25,29-32,36-40,44-50,52
+  s_c08cee8edcde8c::t_a73865a8edf578 1-2,5-6,10-17,19-20,22,24,26-28,33-35,41-43,51,53-54
+react-frontend/src/pages/Admin.jsx
+  s_c08cee8edcde8c::t_de11f6c5d51afa 184
+  s_c08cee8edcde8c::t_26c084aa5873cd 26-27
+  s_c08cee8edcde8c::t_3449e76b0425ab 311-351
+  s_c08cee8edcde8c::t_9d59dba5aa394c 43
+  s_c08cee8edcde8c::t_a404b09b390c9a 4
+demo/src/main/java/com/example/demo/config/SpaController.java
+  s_c08cee8edcde8c::t_8d4f0cd23d105a 17
+demo/src/main/java/com/example/demo/config/SecurityConfig.java
+  s_c08cee8edcde8c::t_7c3cbe1b5e522f 70-72
+demo/src/main/java/com/example/demo/model/Video.java
+  s_c08cee8edcde8c::t_703b7e255ed724 1-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "ed5b4d74de64fb77d734003f59c822eca8e52959",
+  "prompts": {},
+  "humans": {
+    "h_8cf93c1381bf4c": {
+      "author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  },
+  "sessions": {
+    "s_ac9cc02d43b4f3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c38cb6d7-7b76-4093-b8d8-93c97a8d2e18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    },
+    "s_c08cee8edcde8c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1e706e13-b80c-459c-bb23-cb1dc154e2ea",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
