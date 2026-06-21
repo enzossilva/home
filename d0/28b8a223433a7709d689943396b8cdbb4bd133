@@ -1,0 +1,26 @@
+demo/src/main/java/com/example/demo/controller/PaymentController.java
+  s_ac9cc02d43b4f3::t_bc4f6993f61a28 82
+  s_ac9cc02d43b4f3::t_9280eb423c2587 60
+  s_ac9cc02d43b4f3::t_5637f13dd8adfa 38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "d028b8a223433a7709d689943396b8cdbb4bd133",
+  "prompts": {},
+  "humans": {
+    "h_8cf93c1381bf4c": {
+      "author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  },
+  "sessions": {
+    "s_ac9cc02d43b4f3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c38cb6d7-7b76-4093-b8d8-93c97a8d2e18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
