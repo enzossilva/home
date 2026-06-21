@@ -35,7 +35,7 @@ public class PaymentController {
     }
 
     @PostMapping("/pix")
-    public ResponseEntity<?> gerarPix(@RequestBody Map<String, Object> body, HttpServletRequest request) {
+    public ResponseEntity<?> gerarPix(@RequestBody Map<String, Object> body, HttpServletRequest request) throws Exception {
         Long userId = authHelper.getUserId(request);
         Long orderId = body.get("orderId") != null ? Long.valueOf(body.get("orderId").toString()) : null;
         String email = body.getOrDefault("email", "").toString();
@@ -57,7 +57,7 @@ public class PaymentController {
     }
 
     @PostMapping("/boleto")
-    public ResponseEntity<?> gerarBoleto(@RequestBody Map<String, Object> body, HttpServletRequest request) {
+    public ResponseEntity<?> gerarBoleto(@RequestBody Map<String, Object> body, HttpServletRequest request) throws Exception {
         Long userId = authHelper.getUserId(request);
         Long orderId = body.get("orderId") != null ? Long.valueOf(body.get("orderId").toString()) : null;
         String email = body.getOrDefault("email", "").toString();
@@ -79,7 +79,7 @@ public class PaymentController {
     }
 
     @PostMapping("/card")
-    public ResponseEntity<?> pagarCartao(@RequestBody Map<String, Object> body, HttpServletRequest request) {
+    public ResponseEntity<?> pagarCartao(@RequestBody Map<String, Object> body, HttpServletRequest request) throws Exception {
         Long userId = authHelper.getUserId(request);
         Long orderId = body.get("orderId") != null ? Long.valueOf(body.get("orderId").toString()) : null;
         Object tokenObj = body.get("token");
