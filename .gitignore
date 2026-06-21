@@ -1,6 +1,10 @@
 # Credenciais locais — nunca subir para o GitHub
 demo/src/main/resources/application.properties
+demo/src/main/resources/application-prod.properties
 react-frontend/.env
+
+# Documentação interna / análises
+*.md
 
 # Build
 demo/target/
