@@ -1,0 +1,24 @@
+.gitignore
+  s_ac9cc02d43b4f3::t_e08ce2b6bbfa26 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "826d3670055ac1be707e87363a8b616b07747f74",
+  "prompts": {},
+  "humans": {
+    "h_8cf93c1381bf4c": {
+      "author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  },
+  "sessions": {
+    "s_ac9cc02d43b4f3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c38cb6d7-7b76-4093-b8d8-93c97a8d2e18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
