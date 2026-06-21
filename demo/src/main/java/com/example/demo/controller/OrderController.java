@@ -86,7 +86,7 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/etiqueta")
-    public ResponseEntity<?> gerarEtiqueta(@PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<?> gerarEtiqueta(@PathVariable Long id, HttpServletRequest request) throws Exception {
         authHelper.requireAdmin(request);
         logger.info("Gerando etiqueta para pedido: orderId={}", id);
         Map<String, String> result = orderService.gerarEtiqueta(id);
