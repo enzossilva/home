@@ -1,0 +1,24 @@
+demo/src/main/java/com/example/demo/dto/AddressDTO.java
+  s_ac9cc02d43b4f3::t_3bbeaf517187e1 1-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "df5ab911591bff0c4e29bed19fe674d207d06f3c",
+  "prompts": {},
+  "humans": {
+    "h_8cf93c1381bf4c": {
+      "author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  },
+  "sessions": {
+    "s_ac9cc02d43b4f3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c38cb6d7-7b76-4093-b8d8-93c97a8d2e18",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
