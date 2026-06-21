@@ -20,6 +20,7 @@ import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import NotFound from './pages/NotFound';
 import Lookbook from './pages/Lookbook';
+import Videos from './pages/Videos';
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
               <Route path="/privacidade" element={<Privacy />} />
               <Route path="/termos" element={<Terms />} />
               <Route path="/lookbook" element={<Lookbook />} />
+              <Route path="/videos" element={<Videos />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

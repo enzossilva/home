@@ -67,6 +67,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/lookbook").permitAll()
                 .requestMatchers(HttpMethod.POST, "/lookbook").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/lookbook/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/videos").permitAll()
+                .requestMatchers(HttpMethod.POST, "/videos").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/videos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/frete/calcular").permitAll()
                 .requestMatchers("/orders/webhook/mp").permitAll()
 

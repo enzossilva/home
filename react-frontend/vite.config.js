@@ -13,6 +13,7 @@ export default defineConfig({
       '/orders': 'http://localhost:8080',
       '/frete': 'http://localhost:8080',
       '/lookbook': 'http://localhost:8080',
+      '/videos': 'http://localhost:8080',
     }
   }
 })

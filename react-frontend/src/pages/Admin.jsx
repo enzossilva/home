@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProducts, addProduct, deleteProduct, updateProduct, getAllOrders, markAsShipped, getAdminStats, gerarEtiqueta, getLookbook, addLookbookItem, deleteLookbookItem, markOrderAsPaid } from '../api';
+import { getVideos, addVideo, deleteVideo } from '../api';
 import { useUser } from '../context/UserContext';
 import ImageUpload from '../components/ImageUpload';
 
@@ -22,6 +23,8 @@ export default function Admin() {
   const [stats, setStats] = useState(null);
   const [lookbook, setLookbook] = useState([]);
   const [lbForm, setLbForm] = useState({ imageUrl: '', title: '', ordem: '' });
+  const [videos, setVideos] = useState([]);
+  const [vidForm, setVidForm] = useState({ youtubeUrl: '', title: '', ordem: '' });
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [form, setForm] = useState(EMPTY);
@@ -37,6 +40,7 @@ export default function Admin() {
     loadOrders();
     getAdminStats().then(setStats).catch(() => {});
     getLookbook().then(setLookbook).catch(() => {});
+    getVideos().then(setVideos).catch(() => {});
   }, [user]);
 
   async function load() {
@@ -177,6 +181,7 @@ export default function Admin() {
         <button className={`payment-tab ${tab === 'dashboard' ? 'active' : ''}`} onClick={() => setTab('dashboard')}>Dashboard</button>
         <button className={`payment-tab ${tab === 'produtos' ? 'active' : ''}`} onClick={() => setTab('produtos')}>Produtos</button>
         <button className={`payment-tab ${tab === 'lookbook' ? 'active' : ''}`} onClick={() => setTab('lookbook')}>Lookbook</button>
+        <button className={`payment-tab ${tab === 'videos' ? 'active' : ''}`} onClick={() => setTab('videos')}>Videos</button>
         <button className={`payment-tab ${tab === 'pedidos' ? 'active' : ''}`} onClick={() => setTab('pedidos')}>
           Pedidos {orders.filter(o => o.status === 'PAID').length > 0 && (
             <span style={{ background: '#e63946', color: '#fff', borderRadius: '10px', padding: '1px 7px', fontSize: '0.75rem', marginLeft: '6px' }}>
@@ -300,6 +305,50 @@ export default function Admin() {
             ))}
           </div>
           {lookbook.length === 0 && <p className="empty">Nenhuma foto no lookbook ainda.</p>}
+        </div>
+      )}
+
+      {/* ABA VIDEOS */}
+      {tab === 'videos' && (
+        <div>
+          {message.text && <p className={message.type === 'error' ? 'error' : 'success'}>{message.text}</p>}
+          <div className="form-card" style={{ maxWidth: 500, marginBottom: '1.5rem' }}>
+            <h3>Adicionar vídeo</h3>
+            <label>URL do YouTube *</label>
+            <input value={vidForm.youtubeUrl} onChange={e => setVidForm(f => ({ ...f, youtubeUrl: e.target.value }))} placeholder="https://www.youtube.com/watch?v=..." />
+            <label>Título</label>
+            <input value={vidForm.title} onChange={e => setVidForm(f => ({ ...f, title: e.target.value }))} placeholder="Nome do vídeo" />
+            <label>Ordem</label>
+            <input type="number" value={vidForm.ordem} onChange={e => setVidForm(f => ({ ...f, ordem: e.target.value }))} placeholder="1, 2, 3..." />
+            <button className="btn" style={{ marginTop: '0.75rem', background: '#111', color: '#fff', border: 'none' }}
+              onClick={async () => {
+                if (!vidForm.youtubeUrl) { showMsg('URL obrigatória', 'error'); return; }
+                try {
+                  const v = await addVideo({ youtubeUrl: vidForm.youtubeUrl, title: vidForm.title, ordem: vidForm.ordem ? parseInt(vidForm.ordem) : null });
+                  setVideos(vs => [...vs, v]);
+                  setVidForm({ youtubeUrl: '', title: '', ordem: '' });
+                  showMsg('Vídeo adicionado!');
+                } catch (err) { showMsg(err.message, 'error'); }
+              }}>
+              Adicionar
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {videos.map(v => (
+              <div key={v.id} className="form-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem' }}>
+                <div style={{ flex: 1 }}>
+                  <strong style={{ fontSize: '0.88rem' }}>{v.title || v.youtubeUrl}</strong>
+                  <p style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>{v.youtubeUrl}</p>
+                </div>
+                <button onClick={async () => {
+                  await deleteVideo(v.id);
+                  setVideos(vs => vs.filter(x => x.id !== v.id));
+                }} style={{ background: '#e63946', color: '#fff', border: 'none', borderRadius: 4, padding: '0.3rem 0.6rem', cursor: 'pointer', fontSize: '0.75rem' }}>✕</button>
+              </div>
+            ))}
+            {videos.length === 0 && <p className="empty">Nenhum vídeo cadastrado ainda.</p>}
+          </div>
         </div>
       )}
 

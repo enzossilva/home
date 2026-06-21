@@ -18,11 +18,18 @@ function handleResponse(res) {
   return res;
 }
 
+async function parseResponse(res) {
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.message || 'Erro na requisição');
+  }
+  return json.data;
+}
+
 // ── Products ──────────────────────────────────────────────
 export async function getProducts() {
   const res = await fetch(`${BASE}products`);
-  if (!res.ok) throw new Error('Erro ao buscar produtos');
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function addProduct(product) {
@@ -31,9 +38,7 @@ export async function addProduct(product) {
     headers: authHeaders(),
     body: JSON.stringify(product),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.erro || 'Erro ao cadastrar produto');
-  return data;
+  return parseResponse(res);
 }
 
 export async function updateProduct(id, product) {
@@ -42,9 +47,7 @@ export async function updateProduct(id, product) {
     headers: authHeaders(),
     body: JSON.stringify(product),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.erro || 'Erro ao atualizar produto');
-  return data;
+  return parseResponse(res);
 }
 
 export async function deleteProduct(id) {
@@ -52,7 +55,7 @@ export async function deleteProduct(id) {
     method: 'DELETE',
     headers: authHeaders(),
   });
-  if (!res.ok) throw new Error('Erro ao deletar produto');
+  return parseResponse(res);
 }
 
 // ── Users ──────────────────────────────────────────────────
@@ -62,9 +65,7 @@ export async function register(name, email, password) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, email, password }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.erro || 'Erro ao cadastrar');
-  // Salva token automaticamente
+  const data = await parseResponse(res);
   if (data.token) localStorage.setItem('yz_token', data.token);
   return data;
 }
@@ -75,9 +76,7 @@ export async function login(email, password) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.erro || 'Email ou senha inválidos');
-  // Salva token automaticamente
+  const data = await parseResponse(res);
   if (data.token) localStorage.setItem('yz_token', data.token);
   return data;
 }
@@ -88,10 +87,9 @@ export async function updateProfile(userId, data) {
     headers: authHeaders(),
     body: JSON.stringify(data),
   }));
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.erro || 'Erro ao atualizar perfil');
-  if (json.token) localStorage.setItem('yz_token', json.token);
-  return json;
+  const result = await parseResponse(res);
+  if (result.token) localStorage.setItem('yz_token', result.token);
+  return result;
 }
 
 export async function requestPasswordReset(email) {
@@ -100,9 +98,7 @@ export async function requestPasswordReset(email) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.erro || 'Erro ao solicitar reset');
-  return data;
+  return parseResponse(res);
 }
 
 export async function resetPassword(token, password) {
@@ -111,16 +107,13 @@ export async function resetPassword(token, password) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ token, password }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.erro || 'Erro ao redefinir senha');
-  return data;
+  return parseResponse(res);
 }
 
 // ── Cart ───────────────────────────────────────────────────
 export async function getCart(userId) {
   const res = handleResponse(await fetch(`${BASE}cart/${userId}`, { headers: authHeaders() }));
-  if (!res.ok) throw new Error('Erro ao buscar carrinho');
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function addToCart(userId, productId, quantity = 1, size = null) {
@@ -129,9 +122,7 @@ export async function addToCart(userId, productId, quantity = 1, size = null) {
     headers: authHeaders(),
     body: JSON.stringify({ userId, productId, quantity, size }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.erro || 'Erro ao adicionar ao carrinho');
-  return data;
+  return parseResponse(res);
 }
 
 export async function removeFromCart(cartItemId) {
@@ -139,7 +130,7 @@ export async function removeFromCart(cartItemId) {
     method: 'DELETE',
     headers: authHeaders(),
   });
-  if (!res.ok) throw new Error('Erro ao remover item');
+  return parseResponse(res);
 }
 
 // ── Orders ──────────────────────────────────────────────────
@@ -149,21 +140,17 @@ export async function createOrder(userId, address, shippingMethod, shippingCost)
     headers: authHeaders(),
     body: JSON.stringify({ userId, address, shippingMethod, shippingCost }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.erro || 'Erro ao criar pedido');
-  return data;
+  return parseResponse(res);
 }
 
 export async function getOrder(id) {
   const res = await fetch(`${BASE}orders/${id}`, { headers: authHeaders() });
-  if (!res.ok) throw new Error('Erro ao buscar pedido');
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function getOrdersByUser(userId) {
   const res = await fetch(`${BASE}orders/user/${userId}`, { headers: authHeaders() });
-  if (!res.ok) throw new Error('Erro ao buscar pedidos');
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function cancelOrder(orderId) {
@@ -172,28 +159,46 @@ export async function cancelOrder(orderId) {
     headers: authHeaders(),
     body: JSON.stringify({}),
   }));
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.erro || 'Erro ao cancelar pedido');
-  return data;
+  return parseResponse(res);
 }
 
 export async function getAdminStats() {
   const res = handleResponse(await fetch(`${BASE}orders/admin/stats`, { headers: authHeaders() }));
-  if (!res.ok) throw new Error('Erro ao buscar estatísticas');
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function getAllOrders() {
   const res = await fetch(`${BASE}orders/admin/all`, { headers: authHeaders() });
-  if (!res.ok) throw new Error('Erro ao buscar pedidos');
-  return res.json();
+  return parseResponse(res);
+}
+
+// ── Videos ──────────────────────────────────────────────────
+export async function getVideos() {
+  const res = await fetch(`${BASE}videos`);
+  return parseResponse(res);
+}
+
+export async function addVideo(video) {
+  const res = await fetch(`${BASE}videos`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(video),
+  });
+  return parseResponse(res);
+}
+
+export async function deleteVideo(id) {
+  const res = await fetch(`${BASE}videos/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  return parseResponse(res);
 }
 
 // ── Lookbook ────────────────────────────────────────────────
 export async function getLookbook() {
   const res = await fetch(`${BASE}lookbook`);
-  if (!res.ok) throw new Error('Erro ao buscar lookbook');
-  return res.json();
+  return parseResponse(res);
 }
 
 export async function addLookbookItem(item) {
@@ -202,9 +207,7 @@ export async function addLookbookItem(item) {
     headers: authHeaders(),
     body: JSON.stringify(item),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.erro || 'Erro ao adicionar foto');
-  return data;
+  return parseResponse(res);
 }
 
 export async function deleteLookbookItem(id) {
@@ -212,7 +215,7 @@ export async function deleteLookbookItem(id) {
     method: 'DELETE',
     headers: authHeaders(),
   });
-  if (!res.ok) throw new Error('Erro ao remover foto');
+  return parseResponse(res);
 }
 
 export async function markOrderAsPaid(orderId) {
@@ -220,9 +223,7 @@ export async function markOrderAsPaid(orderId) {
     method: 'POST',
     headers: authHeaders(),
   }));
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.erro || 'Erro ao marcar pedido como pago');
-  return data;
+  return parseResponse(res);
 }
 
 export async function gerarEtiqueta(orderId) {
@@ -230,9 +231,7 @@ export async function gerarEtiqueta(orderId) {
     method: 'POST',
     headers: authHeaders(),
   }));
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.erro || 'Erro ao gerar etiqueta');
-  return data;
+  return parseResponse(res);
 }
 
 export async function markAsShipped(orderId, trackingCode) {
@@ -241,9 +240,7 @@ export async function markAsShipped(orderId, trackingCode) {
     headers: authHeaders(),
     body: JSON.stringify({ trackingCode }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.erro || 'Erro ao marcar como enviado');
-  return data;
+  return parseResponse(res);
 }
 
 // ── Payment ─────────────────────────────────────────────────
@@ -253,7 +250,5 @@ export async function gerarPix(userId, orderId, email, cpf, firstName, lastName)
     headers: authHeaders(),
     body: JSON.stringify({ userId, orderId, email, cpf, firstName, lastName }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detalhes || data.erro || 'Erro ao gerar PIX');
-  return data;
+  return parseResponse(res);
 }

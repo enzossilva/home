@@ -842,3 +842,18 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 .lookbook-lightbox-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; line-height: 1; }
 
 @media (max-width: 768px) { .lookbook-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ── Videos ── */
+.videos-page { padding: 2rem 0 2rem 2rem; overflow: hidden; }
+.videos-carousel { display: flex; gap: 1.25rem; overflow-x: auto; padding-bottom: 1rem; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+.videos-carousel::-webkit-scrollbar { height: 4px; }
+.videos-carousel::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+.video-card { flex: 0 0 300px; display: flex; flex-direction: column; gap: 0.5rem; scroll-snap-align: start; text-decoration: none; color: inherit; }
+.video-card:hover .video-thumb-wrap img { opacity: 0.85; }
+.video-card:hover .video-play-icon { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+.video-thumb-wrap { position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; background: #111; border-radius: 4px; }
+.video-thumb-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.2s; }
+.video-play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.5rem; color: #fff; opacity: 0; transition: all 0.2s; text-shadow: 0 2px 8px rgba(0,0,0,0.6); pointer-events: none; }
+.video-no-thumb { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #555; font-size: 2rem; }
+.video-title { font-size: 0.82rem; color: #333; line-height: 1.4; padding-right: 1rem; }
+@media (max-width: 768px) { .video-card { flex: 0 0 240px; } .videos-page { padding: 1.5rem 0 1.5rem 1rem; } }
