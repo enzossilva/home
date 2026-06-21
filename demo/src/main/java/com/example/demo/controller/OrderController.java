@@ -60,7 +60,9 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/set-cpf")
-    public ResponseEntity<?> setCpf(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    public ResponseEntity<?> setCpf(@PathVariable Long id, @RequestBody Map<String, String> body, HttpServletRequest request) {
+        Order order = orderService.getOrder(id);
+        authHelper.requireOwnerOrAdmin(request, order.getUser().getId());
         String cpf = body.get("cpf");
         logger.info("Definindo CPF para pedido: orderId={}", id);
         orderService.setBuyerCpf(id, cpf);
