@@ -93,11 +93,15 @@ public class OrderService {
         Double shippingCost = request.getShippingCost() != null ? request.getShippingCost()
                 : calcularFrete(request.getAddress().getCep(), request.getShippingMethod());
 
+        if (shippingCost == null) {
+            shippingCost = 0.0;
+        }
+
         Order order = new Order();
         order.setUser(user);
         order.setSubtotal(subtotal);
         order.setShippingCost(shippingCost);
-        order.setTotal(subtotal + shippingCost);
+        order.setTotal((subtotal != null ? subtotal : 0.0) + (shippingCost != null ? shippingCost : 0.0));
         order.setShippingMethod(request.getShippingMethod());
 
         // Mapeia endereço
