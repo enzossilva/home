@@ -36,10 +36,16 @@ public class PaymentService {
             Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
             total = order.getTotal();
+            if (total == null && order.getSubtotal() != null) {
+                total = order.getSubtotal() + (order.getShippingCost() != null ? order.getShippingCost() : 0.0);
+            }
+            if (total == null) {
+                throw new RuntimeException("Total do pedido #" + orderId + " não foi calculado. Verifique se o pedido foi criado corretamente.");
+            }
         } else {
             total = cartService.getCartTotal(userId);
         }
-        if (total == null || total <= 0) throw new RuntimeException("Carrinho vazio ou valor inválido");
+        if (total == null || total <= 0) throw new RuntimeException("Carrinho vazio ou valor inválido para pagamento PIX");
 
         String totalStr = String.format("%.2f", total).replace(",", ".");
 
@@ -131,6 +137,12 @@ public class PaymentService {
             Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
             total = order.getTotal();
+            if (total == null && order.getSubtotal() != null) {
+                total = order.getSubtotal() + (order.getShippingCost() != null ? order.getShippingCost() : 0.0);
+            }
+            if (total == null) {
+                throw new RuntimeException("Total do pedido #" + orderId + " não foi calculado. Verifique se o pedido foi criado corretamente.");
+            }
             if (order.getCep() != null) zipCode = order.getCep();
             if (order.getRua() != null) streetName = order.getRua();
             if (order.getNumero() != null) streetNumber = order.getNumero();
@@ -140,7 +152,7 @@ public class PaymentService {
         } else {
             total = cartService.getCartTotal(userId);
         }
-        if (total == null || total <= 0) throw new RuntimeException("Carrinho vazio ou valor inválido");
+        if (total == null || total <= 0) throw new RuntimeException("Carrinho vazio ou valor inválido para pagamento por boleto");
 
         String totalStr = String.format("%.2f", total).replace(",", ".");
         String cleanCpf = cpf.replaceAll("[^0-9]", "");
@@ -210,10 +222,16 @@ public class PaymentService {
             Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
             total = order.getTotal();
+            if (total == null && order.getSubtotal() != null) {
+                total = order.getSubtotal() + (order.getShippingCost() != null ? order.getShippingCost() : 0.0);
+            }
+            if (total == null) {
+                throw new RuntimeException("Total do pedido #" + orderId + " não foi calculado. Verifique se o pedido foi criado corretamente.");
+            }
         } else {
             total = cartService.getCartTotal(userId);
         }
-        if (total == null || total <= 0) throw new RuntimeException("Carrinho vazio ou valor inválido");
+        if (total == null || total <= 0) throw new RuntimeException("Carrinho vazio ou valor inválido para pagamento com cartão");
 
         int inst = installments != null ? installments : 1;
         String totalStr = String.format("%.2f", total).replace(",", ".");
