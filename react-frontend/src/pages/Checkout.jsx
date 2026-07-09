@@ -362,7 +362,7 @@ export default function Checkout() {
                 {result.type === 'pix' && (
                   <>
                     <h3>Pague via PIX</h3>
-                    <p className="pix-total">Total: <strong>R$ {Number(result.total).toFixed(2)}</strong></p>
+                    <p className="pix-total">Total: <strong>R$ {Number(result.total ?? 0).toFixed(2)}</strong></p>
                     {result.ticket_url && (
                       <a href={result.ticket_url} target="_blank" rel="noreferrer" className="btn" style={{ display: 'block', textAlign: 'center', marginBottom: '1rem' }}>
                         Ver QR Code PIX
@@ -387,7 +387,7 @@ export default function Checkout() {
                 {result.type === 'boleto' && (
                   <>
                     <h3>Boleto gerado!</h3>
-                    <p className="pix-total">Total: <strong>R$ {Number(result.total).toFixed(2)}</strong></p>
+                    <p className="pix-total">Total: <strong>R$ {Number(result.total ?? 0).toFixed(2)}</strong></p>
                     {result.boleto_url && (
                       <a href={result.boleto_url} target="_blank" rel="noreferrer" className="btn" style={{ marginTop: '1rem' }}>
                         Abrir boleto
