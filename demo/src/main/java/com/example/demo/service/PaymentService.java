@@ -100,6 +100,22 @@ public class PaymentService {
             });
         }
 
+        // Garante que o total retornado ao frontend nunca seja nulo.
+        // O total já foi calculado acima a partir do pedido ou do carrinho e foi
+        // enviado corretamente ao Mercado Pago como "total_amount". Se por algum
+        // motivo o valor local ainda for nulo, usa o "total_amount" confirmado
+        // pela API como fallback definitivo.
+        if (total == null || total <= 0) {
+            String totalAmountStr = extractJson(responseBody, "total_amount");
+            if (totalAmountStr != null) {
+                try {
+                    total = Double.parseDouble(totalAmountStr.replace(",", "."));
+                } catch (NumberFormatException ignored) {
+                    // mantém o valor anterior se o parse falhar
+                }
+            }
+        }
+
         Map<String, Object> response = new HashMap<>();
         response.put("id", id);
         response.put("status", status);
