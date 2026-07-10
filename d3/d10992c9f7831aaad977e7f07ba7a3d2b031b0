@@ -1,0 +1,12 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "d3d10992c9f7831aaad977e7f07ba7a3d2b031b0",
+  "prompts": {},
+  "humans": {
+    "h_8cf93c1381bf4c": {
+      "author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  }
+}
