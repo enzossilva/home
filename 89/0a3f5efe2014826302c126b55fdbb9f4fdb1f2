@@ -1,0 +1,21 @@
+demo/src/main/java/com/example/demo/service/EtiquetaService.java
+  s_8f73909c499026::t_3741d6a38ef5de 23,26
+demo/src/main/java/com/example/demo/service/FreteService.java
+  s_8f73909c499026::t_292e914da0898f 18,21,24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "890a3f5efe2014826302c126b55fdbb9f4fdb1f2",
+  "prompts": {},
+  "sessions": {
+    "s_8f73909c499026": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0a93598a-5714-4f6a-a08e-18f880d9d0ed",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "enzossilva <enzosilvaskt7@gmail.com>"
+    }
+  }
+}
