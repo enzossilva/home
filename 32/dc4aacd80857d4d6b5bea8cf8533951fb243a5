@@ -1,0 +1,23 @@
+react-frontend/src/index.css
+  s_8f73909c499026::t_23259819f07bce 341-342,344-362
+react-frontend/src/components/CartDrawer.jsx
+  s_8f73909c499026::t_0d1d6ccc462768 46,52,54,63-66,76-77,80
+react-frontend/src/pages/Product.jsx
+  s_8f73909c499026::t_8a4947cca07b40 124
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "32dc4aacd80857d4d6b5bea8cf8533951fb243a5",
+  "prompts": {},
+  "sessions": {
+    "s_8f73909c499026": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0a93598a-5714-4f6a-a08e-18f880d9d0ed",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "enzossilva <enzosilvaskt7@gmail.com>"
+    }
+  }
+}
