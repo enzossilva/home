@@ -121,7 +121,7 @@ export default function Product() {
             const needsSize = hasSizes && !selectedSize;
             const outOfStock = product.stock === 0;
             return (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1.5rem' }}>
+              <div style={{ marginTop: '1.5rem' }}>
                 <button
                   className={`btn ${added ? 'btn-success' : ''}`}
                   onClick={handleAddToCart}
@@ -130,16 +130,6 @@ export default function Product() {
                 >
                   {outOfStock ? 'ESGOTADO' : added ? 'ADICIONADO!' : needsSize ? 'SELECIONE UM TAMANHO' : 'ADICIONAR AO CARRINHO'}
                 </button>
-                {!outOfStock && (
-                  <button
-                    className="btn"
-                    onClick={handleBuy}
-                    disabled={needsSize}
-                    style={{ padding: '1rem', fontSize: '0.95rem', width: '100%', letterSpacing: '0.05em', background: '#111', color: '#fff', borderRadius: '0', border: 'none' }}
-                  >
-                    {needsSize ? 'SELECIONE UM TAMANHO' : 'COMPRE JÁ'}
-                  </button>
-                )}
               </div>
             );
           })()}
