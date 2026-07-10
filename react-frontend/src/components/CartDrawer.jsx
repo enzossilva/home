@@ -43,15 +43,15 @@ export default function CartDrawer() {
       {open && <div className="drawer-overlay" onClick={closeCart} />}
       <div className={`cart-drawer ${open ? 'cart-drawer-open' : ''}`}>
         <div className="cart-drawer-header">
-          <span className="cart-drawer-title">Cart {items.length > 0 && <span className="cart-drawer-count">{items.length}</span>}</span>
+          <span className="cart-drawer-title">YOUR CART</span>
           <button className="cart-drawer-close" onClick={closeCart}>✕</button>
         </div>
 
         <div className="cart-drawer-body">
           {loading ? (
-            <p className="loading">Carregando...</p>
+            <p className="loading" style={{ color: '#888', fontSize: '0.8rem' }}>Carregando...</p>
           ) : items.length === 0 ? (
-            <p className="empty">Seu carrinho está vazio.</p>
+            <p className="empty" style={{ color: '#666', fontSize: '0.8rem' }}>Seu carrinho está vazio.</p>
           ) : (
             items.map(item => (
               <div key={item.id} className="drawer-item">
@@ -60,11 +60,11 @@ export default function CartDrawer() {
                   : <div className="drawer-item-no-img" />
                 }
                 <div className="drawer-item-info">
-                  <strong>{item.product?.name}</strong>
-                  {item.size && <span className="drawer-item-size">Tam: {item.size}</span>}
-                  <span>R$ {Number(item.product?.price).toFixed(2)}</span>
+                  <span className="drawer-item-name">{item.product?.name}</span>
+                  {item.size && <span className="drawer-item-size">SIZE: {item.size}</span>}
+                  <span className="drawer-item-price">R$ {Number(item.product?.price).toFixed(2)}</span>
+                  <button className="drawer-item-remove" onClick={() => handleRemove(item.id)}>REMOVE</button>
                 </div>
-                <button className="drawer-item-remove" onClick={() => handleRemove(item.id)}>🗑</button>
               </div>
             ))
           )}
@@ -73,11 +73,11 @@ export default function CartDrawer() {
         {items.length > 0 && (
           <div className="cart-drawer-footer">
             <div className="drawer-total">
-              <span>Total estimado</span>
-              <strong>R$ {Number(total).toFixed(2)}</strong>
+              <span>ESTIMATED TOTAL</span>
+              <span>R$ {Number(total).toFixed(2)}</span>
             </div>
             <button className="btn drawer-checkout-btn" onClick={handleCheckout}>
-              FINALIZAR A COMPRA
+              CHECKOUT
             </button>
           </div>
         )}
