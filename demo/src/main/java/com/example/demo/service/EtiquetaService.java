@@ -33,21 +33,21 @@ public class EtiquetaService {
         return base + path;
     }
 
-    @Value("${LOJA_NOME}") private String lojaNome;
-    @Value("${LOJA_CPF}") private String lojaCpf;
-    @Value("${LOJA_TELEFONE}") private String lojaTelefone;
-    @Value("${LOJA_EMAIL}") private String lojaEmail;
-    @Value("${LOJA_CEP}") private String lojaCep;
-    @Value("${LOJA_RUA}") private String lojaRua;
-    @Value("${LOJA_NUMERO}") private String lojaNumero;
-    @Value("${LOJA_COMPLEMENTO:}") private String lojaComplemento;
-    @Value("${LOJA_BAIRRO}") private String lojaBairro;
-    @Value("${LOJA_CIDADE}") private String lojaCidade;
-    @Value("${LOJA_ESTADO}") private String lojaEstado;
-    @Value("${PACOTE_PESO}") private double pacotePeso;
-    @Value("${PACOTE_ALTURA}") private int pacoteAltura;
-    @Value("${PACOTE_LARGURA}") private int pacoteLargura;
-    @Value("${PACOTE_COMPRIMENTO}") private int pacoteComprimento;
+    @Value("${loja.nome}") private String lojaNome;
+    @Value("${loja.cpf}") private String lojaCpf;
+    @Value("${loja.telefone}") private String lojaTelefone;
+    @Value("${loja.email}") private String lojaEmail;
+    @Value("${loja.cep}") private String lojaCep;
+    @Value("${loja.rua}") private String lojaRua;
+    @Value("${loja.numero}") private String lojaNumero;
+    @Value("${loja.complemento:}") private String lojaComplemento;
+    @Value("${loja.bairro}") private String lojaBairro;
+    @Value("${loja.cidade}") private String lojaCidade;
+    @Value("${loja.estado}") private String lojaEstado;
+    @Value("${loja.pacote.peso:0.5}") private double pacotePeso;
+    @Value("${loja.pacote.altura:10}") private int pacoteAltura;
+    @Value("${loja.pacote.largura:15}") private int pacoteLargura;
+    @Value("${loja.pacote.comprimento:20}") private int pacoteComprimento;
 
     private final HttpClient http = HttpClient.newHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper();
