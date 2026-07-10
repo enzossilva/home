@@ -6,14 +6,10 @@ function getVideoId(url) {
   return match ? match[1] : null;
 }
 
-function getThumbnail(url) {
-  const id = getVideoId(url);
-  return id ? `https://img.youtube.com/vi/${id}/maxresdefault.jpg` : null;
-}
-
 export default function Videos() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [openId, setOpenId] = useState(null);
 
   useEffect(() => {
     getVideos()
@@ -29,26 +25,46 @@ export default function Videos() {
       {videos.length === 0 ? (
         <p className="empty" style={{ textAlign: 'center', padding: '4rem' }}>Em breve.</p>
       ) : (
-        <div className="videos-carousel">
+        <div className="videos-list">
           {videos.map(video => {
-            const thumb = getThumbnail(video.youtubeUrl);
+            const vid = getVideoId(video.youtubeUrl);
+            const isOpen = openId === video.id;
             return (
-              <a
-                key={video.id}
-                href={video.youtubeUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="video-card"
-              >
-                <div className="video-thumb-wrap">
-                  {thumb
-                    ? <img src={thumb} alt={video.title || 'Video'} />
-                    : <div className="video-no-thumb">▶</div>
-                  }
-                  <div className="video-play-icon">▶</div>
+              <article key={video.id} className="video-item">
+                <div className="video-embed-wrap">
+                  {vid ? (
+                    <iframe
+                      src={`https://www.youtube.com/embed/${vid}`}
+                      title={video.title || 'Video'}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <div className="video-no-embed">URL inválida</div>
+                  )}
                 </div>
-                {video.title && <p className="video-title">{video.title}</p>}
-              </a>
+
+                <div className="video-meta">
+                  {video.title && <h2 className="video-meta-title">{video.title}</h2>}
+                  {video.description && (
+                    <button
+                      className={`video-desc-toggle ${isOpen ? 'open' : ''}`}
+                      onClick={() => setOpenId(isOpen ? null : video.id)}
+                      aria-label="Descrição"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+
+                {video.description && (
+                  <div className={`video-desc-body ${isOpen ? 'open' : ''}`}>
+                    <p>{video.description}</p>
+                  </div>
+                )}
+              </article>
             );
           })}
         </div>

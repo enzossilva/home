@@ -15,9 +15,11 @@ async function gerarPix(userId, orderId, email, cpf, firstName, lastName) {
     method: 'POST', headers: authH(),
     body: JSON.stringify({ userId, orderId, email, cpf, firstName, lastName }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detalhes || data.erro || 'Erro ao gerar PIX');
-  return data;
+  const json = await res.json();
+  if (!res.ok || json?.success === false) {
+    throw new Error(json?.message || json?.detalhes || json?.erro || 'Erro ao gerar PIX');
+  }
+  return json?.data ?? json;
 }
 
 async function gerarBoleto(userId, orderId, email, cpf, firstName, lastName) {
@@ -25,9 +27,11 @@ async function gerarBoleto(userId, orderId, email, cpf, firstName, lastName) {
     method: 'POST', headers: authH(),
     body: JSON.stringify({ userId, orderId, email, cpf, firstName, lastName }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detalhes || data.erro || 'Erro ao gerar boleto');
-  return data;
+  const json = await res.json();
+  if (!res.ok || json?.success === false) {
+    throw new Error(json?.message || json?.detalhes || json?.erro || 'Erro ao gerar boleto');
+  }
+  return json?.data ?? json;
 }
 
 async function pagarCartao(userId, orderId, token, paymentMethodId, installments, email, cpf, firstName, lastName, cardType) {
@@ -35,15 +39,17 @@ async function pagarCartao(userId, orderId, token, paymentMethodId, installments
     method: 'POST', headers: authH(),
     body: JSON.stringify({ userId, orderId, token, paymentMethodId, installments, email, cpf, firstName, lastName, cardType }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detalhes || data.erro || 'Erro ao processar cartão');
-  return data;
+  const json = await res.json();
+  if (!res.ok || json?.success === false) {
+    throw new Error(json?.message || json?.detalhes || json?.erro || 'Erro ao processar cartão');
+  }
+  return json?.data ?? json;
 }
 
 async function getPublicKey() {
   const res = await fetch(`${BASE}payment/public-key`);
-  const data = await res.json();
-  return data.publicKey;
+  const json = await res.json();
+  return json?.data?.publicKey ?? json?.publicKey;
 }
 
 function detectBrand(number) {
@@ -362,7 +368,7 @@ export default function Checkout() {
                 {result.type === 'pix' && (
                   <>
                     <h3>Pague via PIX</h3>
-                    <p className="pix-total">Total: <strong>R$ {Number(result.total ?? 0).toFixed(2)}</strong></p>
+                    <p className="pix-total">Total: <strong>R$ {(Number.isFinite(Number(result.total)) ? Number(result.total) : total).toFixed(2)}</strong></p>
                     {result.ticket_url && (
                       <a href={result.ticket_url} target="_blank" rel="noreferrer" className="btn" style={{ display: 'block', textAlign: 'center', marginBottom: '1rem' }}>
                         Ver QR Code PIX
@@ -387,7 +393,7 @@ export default function Checkout() {
                 {result.type === 'boleto' && (
                   <>
                     <h3>Boleto gerado!</h3>
-                    <p className="pix-total">Total: <strong>R$ {Number(result.total ?? 0).toFixed(2)}</strong></p>
+                    <p className="pix-total">Total: <strong>R$ {(Number.isFinite(Number(result.total)) ? Number(result.total) : total).toFixed(2)}</strong></p>
                     {result.boleto_url && (
                       <a href={result.boleto_url} target="_blank" rel="noreferrer" className="btn" style={{ marginTop: '1rem' }}>
                         Abrir boleto
