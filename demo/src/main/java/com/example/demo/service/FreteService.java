@@ -15,13 +15,13 @@ import java.util.Map;
 @Service
 public class FreteService {
 
-    @Value("${ME_TOKEN}")
+    @Value("${melhorenvio.token}")
     private String token;
 
-    @Value("${LOJA_CEP}")
+    @Value("${loja.cep}")
     private String cepOrigem;
 
-    @Value("${ME_SANDBOX:false}")
+    @Value("${melhorenvio.sandbox:false}")
     private boolean sandbox;
 
     private String meUrl(String path) {
