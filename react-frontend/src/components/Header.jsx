@@ -17,7 +17,7 @@ export default function Header() {
   const searchRef = useRef(null);
   const menuRef = useRef(null);
   const location = useLocation();
-  const isHome = location.pathname === '/';
+  const isHome = location.pathname === '/shop';
 
   function toggleSearch() {
     setSearchOpen(o => {
@@ -58,12 +58,12 @@ export default function Header() {
   return (
     <header className={`header ${isHome && !scrolled ? 'header-hero' : ''}`}>
       <nav className="header-nav-left">
-        <Link to="/">Shop</Link>
+        <Link to="/shop">Shop</Link>
         <Link to="/lookbook">Lookbook</Link>
         <Link to="/videos">Videos</Link>
       </nav>
       <Link to="/" className="header-logo">
-        <img src="/logo.svg" alt="Young Zone" className="header-logo-img" />
+        <img src="/logo.png" alt="Young Zone" className="header-logo-img" />
       </Link>
       <nav className="header-nav">
         {/* Busca */}

@@ -88,8 +88,10 @@ public class PaymentService {
         String id = extractJson(responseBody, "id");
 
         // Salva o ID do PAGAMENTO e o CPF do comprador no pedido
+        // O MP envia o ID numérico no webhook (ex: "167205876627"), extraído da ticket_url
+        String numericPaymentId = extractNumericPaymentId(ticketUrl);
         String paymentId = extractPaymentId(responseBody);
-        String idToSave = paymentId != null ? paymentId : id;
+        String idToSave = numericPaymentId != null ? numericPaymentId : (paymentId != null ? paymentId : id);
         final String cleanCpfFinal = cpf != null ? cpf.replaceAll("[^0-9]", "") : null;
         if (orderId != null) {
             final String finalId = idToSave;
@@ -124,6 +126,19 @@ public class PaymentService {
         response.put("total", total);
         response.put("orderId", orderId);
         return response;
+    }
+
+    private String extractNumericPaymentId(String ticketUrl) {
+        if (ticketUrl == null) return null;
+        String marker = "/payments/";
+        int start = ticketUrl.indexOf(marker);
+        if (start == -1) return null;
+        start += marker.length();
+        int end = ticketUrl.indexOf("/", start);
+        if (end == -1) end = ticketUrl.indexOf("?", start);
+        if (end == -1) return null;
+        String candidate = ticketUrl.substring(start, end);
+        return candidate.matches("\\d+") ? candidate : null;
     }
 
     private String extractPaymentId(String json) {

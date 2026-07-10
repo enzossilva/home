@@ -14,6 +14,10 @@ public class Video {
     private String youtubeUrl;
 
     private String title;
+
+    @Column(length = 1000)
+    private String description;
+
     private Integer ordem;
 
     public Long getId() { return id; }
@@ -23,6 +27,9 @@ public class Video {
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
     public Integer getOrdem() { return ordem; }
     public void setOrdem(Integer ordem) { this.ordem = ordem; }

@@ -24,7 +24,7 @@ export default function Admin() {
   const [lookbook, setLookbook] = useState([]);
   const [lbForm, setLbForm] = useState({ imageUrl: '', title: '', ordem: '' });
   const [videos, setVideos] = useState([]);
-  const [vidForm, setVidForm] = useState({ youtubeUrl: '', title: '', ordem: '' });
+  const [vidForm, setVidForm] = useState({ youtubeUrl: '', title: '', description: '', ordem: '' });
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [form, setForm] = useState(EMPTY);
@@ -318,15 +318,17 @@ export default function Admin() {
             <input value={vidForm.youtubeUrl} onChange={e => setVidForm(f => ({ ...f, youtubeUrl: e.target.value }))} placeholder="https://www.youtube.com/watch?v=..." />
             <label>Título</label>
             <input value={vidForm.title} onChange={e => setVidForm(f => ({ ...f, title: e.target.value }))} placeholder="Nome do vídeo" />
+            <label>Descrição</label>
+            <textarea rows={3} value={vidForm.description} onChange={e => setVidForm(f => ({ ...f, description: e.target.value }))} placeholder="Descrição opcional..." style={{ resize: 'vertical' }} />
             <label>Ordem</label>
             <input type="number" value={vidForm.ordem} onChange={e => setVidForm(f => ({ ...f, ordem: e.target.value }))} placeholder="1, 2, 3..." />
             <button className="btn" style={{ marginTop: '0.75rem', background: '#111', color: '#fff', border: 'none' }}
               onClick={async () => {
                 if (!vidForm.youtubeUrl) { showMsg('URL obrigatória', 'error'); return; }
                 try {
-                  const v = await addVideo({ youtubeUrl: vidForm.youtubeUrl, title: vidForm.title, ordem: vidForm.ordem ? parseInt(vidForm.ordem) : null });
+                  const v = await addVideo({ youtubeUrl: vidForm.youtubeUrl, title: vidForm.title, description: vidForm.description, ordem: vidForm.ordem ? parseInt(vidForm.ordem) : null });
                   setVideos(vs => [...vs, v]);
-                  setVidForm({ youtubeUrl: '', title: '', ordem: '' });
+                  setVidForm({ youtubeUrl: '', title: '', description: '', ordem: '' });
                   showMsg('Vídeo adicionado!');
                 } catch (err) { showMsg(err.message, 'error'); }
               }}>
