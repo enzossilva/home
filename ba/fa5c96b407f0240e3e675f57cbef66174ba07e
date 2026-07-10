@@ -1,0 +1,89 @@
+react-frontend/src/components/Header.jsx
+  s_2830d3225bf23a::t_328825b127ca86 66
+  s_2830d3225bf23a::t_480cbd3128cb0c 61
+  s_2830d3225bf23a::t_92db433b4aec93 20
+react-frontend/src/index.css
+  s_2830d3225bf23a::t_3b1250c611593c 888-903,909-916,918-919,921-991,995-996,998,1000-1005,1008,1010-1012,1017-1035,1038-1048,1050-1053
+  s_2830d3225bf23a::t_dc35abf413fe2f 1016
+  s_2830d3225bf23a::t_cb364664816c28 43
+  s_2830d3225bf23a::t_a9bafe48075102 79,84
+  s_2830d3225bf23a::t_419f69b6d4d0eb 830-886
+  s_2830d3225bf23a::t_d841b3e7986451 63-64
+  s_2830d3225bf23a::t_d3c937e1dd8b16 904-908,917,920
+  s_2830d3225bf23a::t_c19e7293925924 992-994,997,999,1006-1007,1009
+  s_2830d3225bf23a::t_cc3b4871b99694 1013-1015
+  s_2830d3225bf23a::t_9f80c7eed5a0b9 73-74
+  s_2830d3225bf23a::t_b7ea31ab32843d 16-17
+  s_2830d3225bf23a::t_1507771786e096 1056-1141
+demo/src/main/java/com/example/demo/service/EtiquetaService.java
+  s_c3a5ddd38fc2f4::t_6eb4144f476455 3-4,8-9,53,60-61,136-138,140-145,152-154,161-163,171-173,176-179,199-211,218-315
+  s_c3a5ddd38fc2f4::t_afe0e2c71c6ae2 23,26,36-50
+  s_c3a5ddd38fc2f4::t_dc576be086c9b2 5
+demo/src/main/java/com/example/demo/model/Video.java
+  s_2830d3225bf23a::t_ec8e952c96dcdf 17-20,31-32
+react-frontend/src/pages/Home.jsx
+  s_2830d3225bf23a::t_12f48aebca42d4 1-2,5,8-9,12-20,23-34,36
+demo/src/main/java/com/example/demo/service/FreteService.java
+  s_c3a5ddd38fc2f4::t_55fd673d8488a9 18,21,24
+react-frontend/src/pages/Admin.jsx
+  s_2830d3225bf23a::t_75dd3b331eb681 27
+  s_2830d3225bf23a::t_ddb142c34d6e5a 321-322
+  s_2830d3225bf23a::t_c908654ef2c645 329,331
+demo/src/main/java/com/example/demo/controller/HeroController.java
+  s_2830d3225bf23a::t_db134846fbc4dd 1-37
+demo/src/main/java/com/example/demo/service/PaymentService.java
+  s_8f73909c499026::t_8dbbabd7e59b26 91-92,94
+  s_8f73909c499026::t_f238de33c3b2bd 131-143
+react-frontend/src/App.jsx
+  s_2830d3225bf23a::t_8fad38a9fb022c 22
+  s_2830d3225bf23a::t_097e971173a47a 37
+demo/src/main/java/com/example/demo/model/HeroConfig.java
+  s_2830d3225bf23a::t_94d8636c5d339b 1-20
+react-frontend/src/pages/Lookbook.jsx
+  s_2830d3225bf23a::t_e3b3c599ab1ba2 41,61
+  s_2830d3225bf23a::t_c728936dfcecae 1,7,17-32,39-40,42-43,46-60,62,65-78,80-81,87,90
+  s_2830d3225bf23a::t_68fb1bd06656c8 12
+react-frontend/src/pages/Videos.jsx
+  s_2830d3225bf23a::t_67edf9fa8e4274 12,28,30-31,33-44,46-67
+demo/src/main/java/com/example/demo/repository/HeroConfigRepository.java
+  s_2830d3225bf23a::t_403a5f96ecc67c 1-6
+demo/src/main/java/com/example/demo/exception/ExternalServiceException.java
+  s_c3a5ddd38fc2f4::t_6eb4144f476455 1-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "bafa5c96b407f0240e3e675f57cbef66174ba07e",
+  "prompts": {},
+  "humans": {
+    "h_8cf93c1381bf4c": {
+      "author": "earaujossilv <enzo.araujossilv@mercadolivre.com>"
+    }
+  },
+  "sessions": {
+    "s_2830d3225bf23a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b993e0b7-2f72-4dca-aa07-bd99b1b5b00e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "enzossilva <enzosilvaskt7@gmail.com>"
+    },
+    "s_8f73909c499026": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0a93598a-5714-4f6a-a08e-18f880d9d0ed",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "enzossilva <enzosilvaskt7@gmail.com>"
+    },
+    "s_c3a5ddd38fc2f4": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "6e75f1a8-b3b2-4519-8865-146c470ff5cc",
+        "model": "gpt-5.3-codex"
+      },
+      "human_author": "enzossilva <enzosilvaskt7@gmail.com>"
+    }
+  }
+}
