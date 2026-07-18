@@ -32,6 +32,7 @@ public class OrderService {
     private final ProductSizeRepository productSizeRepository;
     private final EmailService emailService;
     private final EtiquetaService etiquetaService;
+    private final TrackingCodeService trackingCodeService;
 
     public OrderService(OrderRepository orderRepository,
                         UserRepository userRepository,
@@ -39,7 +40,8 @@ public class OrderService {
                         ProductRepository productRepository,
                         ProductSizeRepository productSizeRepository,
                         EmailService emailService,
-                        EtiquetaService etiquetaService) {
+                        EtiquetaService etiquetaService,
+                        TrackingCodeService trackingCodeService) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.cartService = cartService;
@@ -47,6 +49,7 @@ public class OrderService {
         this.productSizeRepository = productSizeRepository;
         this.emailService = emailService;
         this.etiquetaService = etiquetaService;
+        this.trackingCodeService = trackingCodeService;
     }
 
     @Transactional
@@ -58,7 +61,18 @@ public class OrderService {
             throw new BusinessException("Apenas pedidos pagos podem gerar etiqueta");
         }
 
-        Map<String, String> result = etiquetaService.gerarEtiqueta(order);
+        Map<String, String> result;
+        try {
+            result = etiquetaService.gerarEtiqueta(order);
+        } catch (Exception e) {
+            // Fallback: gera código de rastreio local quando o Melhor Envio falha
+            // (ex: CEP não coberto pela transportadora)
+            logger.warn("Falha ao gerar etiqueta via Melhor Envio para pedido {}, usando rastreio local", orderId, e);
+            String trackingCode = trackingCodeService.gerarCodigoRastreio();
+            result = new HashMap<>();
+            result.put("trackingCode", trackingCode);
+            result.put("labelUrl", null);
+        }
 
         // Salva tracking e marca como SHIPPED
         order.setTrackingCode(result.get("trackingCode"));
