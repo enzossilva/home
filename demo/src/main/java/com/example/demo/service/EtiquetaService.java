@@ -20,7 +20,7 @@ import java.util.Map;
 @Service
 public class EtiquetaService {
 
-    @Value("${melhorenvio.token}")
+    @Value("${melhorenvio.token:}")
     private String token;
 
     @Value("${melhorenvio.sandbox:false}")
