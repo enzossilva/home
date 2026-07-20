@@ -1,0 +1,59 @@
+react-frontend/src/index.css
+  s_b4f9e4afb913fa::t_e484bbf01852d9 184
+  s_b4f9e4afb913fa::t_97a5b98dcc7715 637-638
+  s_b4f9e4afb913fa::t_87f6a414dc038b 780-782
+  s_b4f9e4afb913fa::t_0002580b254597 13
+  s_b4f9e4afb913fa::t_bc73887958b813 740,742-743,750-751
+  s_b4f9e4afb913fa::t_37e6e8193e8aab 1131
+  s_b4f9e4afb913fa::t_09fa529f6917b4 767-769,772-773,775-776
+  s_b4f9e4afb913fa::t_4b8cd16b23c8cf 326,329
+  s_b4f9e4afb913fa::t_799e686d9c7484 445,449
+  s_b4f9e4afb913fa::t_8f54780ee0a3b4 280,282
+  s_b4f9e4afb913fa::t_d6c81366255b74 527
+  s_b4f9e4afb913fa::t_29b575f40d181c 617-618,620-621,624-626
+  s_b4f9e4afb913fa::t_528e25ccbb6544 479
+  s_b4f9e4afb913fa::t_5d19729e884171 411,414
+  s_df5e902b67f1d4::t_b6e74071196571 4-10
+  s_b4f9e4afb913fa::t_81837c814d460c 487,492
+  s_b4f9e4afb913fa::t_423538a828ecdf 719,724
+  s_b4f9e4afb913fa::t_e9d3cbc20f774f 154-155,161,167,170-171
+  s_b4f9e4afb913fa::t_14735a402baeb2 380,383
+  s_b4f9e4afb913fa::t_5a17c5084497dc 214
+  s_b4f9e4afb913fa::t_7098d95e64110e 690
+  s_b4f9e4afb913fa::t_1d0f5f4871a0e3 547-551,553
+  s_b4f9e4afb913fa::t_42f89da1698481 1113
+  s_b4f9e4afb913fa::t_b109c53e5e0719 396
+  s_b4f9e4afb913fa::t_ffd432a8ca1a2d 305,310-311,317
+  s_b4f9e4afb913fa::t_95f5ca7aced437 631-632
+  s_b4f9e4afb913fa::t_4c7b55c121f75c 1147,1149
+  s_b4f9e4afb913fa::t_f635c2e9df6e16 462
+  s_b4f9e4afb913fa::t_59c55ac5920525 238-239
+  s_b4f9e4afb913fa::t_163ed4393c7a6a 135-136,138-140
+  s_b4f9e4afb913fa::t_2985b8cd8b1c1f 589,591-592,599
+react-frontend/index.html
+  s_df5e902b67f1d4::t_364af4bf399af7 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "cc934a8d3faea0e5398d0cd52afd2f7453bff1f3",
+  "prompts": {},
+  "sessions": {
+    "s_b4f9e4afb913fa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e0b74b5a-6d9b-43f1-bef2-6471789aa3d3",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "enzossilva <enzosilvaskt7@gmail.com>"
+    },
+    "s_df5e902b67f1d4": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "2422ca06-e1d0-48c2-a46e-a197bd13fabb",
+        "model": "default"
+      },
+      "human_author": "enzossilva <enzosilvaskt7@gmail.com>"
+    }
+  }
+}
