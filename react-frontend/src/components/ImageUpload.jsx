@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { fileToTransparentPng, urlToTransparentDataUrl } from '../utils/imageBg';
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
@@ -7,6 +8,7 @@ export default function ImageUpload({ value, onChange }) {
   const inputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [preview, setPreview] = useState(value || '');
 
   async function handleFile(e) {
     const file = e.target.files?.[0];
@@ -25,8 +27,18 @@ export default function ImageUpload({ value, onChange }) {
     setUploading(true);
     setError('');
     try {
+      let uploadFile = file;
+      try {
+        const stripped = await fileToTransparentPng(file);
+        uploadFile = new File([stripped], file.name.replace(/\.\w+$/, '') + '.png', {
+          type: 'image/png',
+        });
+      } catch {
+        // upload original if strip fails
+      }
+
       const form = new FormData();
-      form.append('file', file);
+      form.append('file', uploadFile);
       form.append('upload_preset', UPLOAD_PRESET);
       form.append('folder', 'young-zone');
 
@@ -38,6 +50,7 @@ export default function ImageUpload({ value, onChange }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error?.message || 'Erro no upload');
       onChange(data.secure_url);
+      setPreview(data.secure_url);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -46,12 +59,33 @@ export default function ImageUpload({ value, onChange }) {
     }
   }
 
+  async function handleUrlChange(raw) {
+    onChange(raw);
+    setPreview(raw);
+    if (!raw) return;
+    try {
+      const transparent = await urlToTransparentDataUrl(raw);
+      setPreview(transparent);
+    } catch {
+      setPreview(raw);
+    }
+  }
+
   return (
     <div className="image-upload">
-      {value && (
+      {(preview || value) && (
         <div className="image-upload-preview">
-          <img src={value} alt="Preview" />
-          <button type="button" className="image-upload-remove" onClick={() => onChange('')}>✕</button>
+          <img src={preview || value} alt="Preview" />
+          <button
+            type="button"
+            className="image-upload-remove"
+            onClick={() => {
+              onChange('');
+              setPreview('');
+            }}
+          >
+            ✕
+          </button>
         </div>
       )}
 
@@ -75,7 +109,7 @@ export default function ImageUpload({ value, onChange }) {
         <input
           type="url"
           value={value}
-          onChange={e => onChange(e.target.value)}
+          onChange={e => handleUrlChange(e.target.value)}
           placeholder="https://... (URL da imagem)"
           style={{ flex: 1, padding: '0.4rem 0.6rem', border: '1px solid #ddd', fontSize: '0.85rem', borderRadius: 4 }}
         />

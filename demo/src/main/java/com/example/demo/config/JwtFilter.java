@@ -32,6 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // Skip JWT processing para static assets
         return path.startsWith("/assets/")
                 || path.equals("/favicon.ico")
+                || path.equals("/img-proxy")
                 || path.endsWith(".js")
                 || path.endsWith(".css")
                 || path.endsWith(".ico")

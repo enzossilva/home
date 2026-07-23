@@ -71,6 +71,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/videos").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/videos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/frete/calcular").permitAll()
+                .requestMatchers(HttpMethod.GET, "/img-proxy").permitAll()
                 .requestMatchers("/orders/webhook/mp").permitAll()
 
                 // Só ADMIN
