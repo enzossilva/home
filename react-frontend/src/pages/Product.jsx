@@ -17,7 +17,7 @@ export default function Product() {
   const [cartError, setCartError] = useState('');
   const [selectedSize, setSelectedSize] = useState(null);
   const [descOpen, setDescOpen] = useState(false);
-  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(true);
   const [lightbox, setLightbox] = useState(null);
 
   useEffect(() => {

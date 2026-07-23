@@ -41,7 +41,7 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
           </marker>
         </defs>
 
-        {/* —— Contorno camiseta (crew neck, só traço) —— */}
+        {/* crew-neck tee silhouette (not polo) */}
         <g fill="none" stroke="#fff" strokeWidth="1.15" strokeLinejoin="round" strokeLinecap="round">
           {/* Silhueta: ombros, mangas curtas, corpo, bainha */}
           <path d="
