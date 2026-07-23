@@ -11,8 +11,8 @@ export const CAMISETA_MEASUREMENTS = [
 const DEFAULT_CHART = '/size-chart-camiseta.png';
 
 /**
- * Guia de medidas: vetor de referência + listas de cm
- * (manga / peito / comprimento), no estilo anterior.
+ * Guia de medidas: vetor (já com as setas) + infos no mesmo modelo de antes
+ * (MANGA / PEITO à esquerda, COMPRIMENTO à direita).
  */
 export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMENTS }) {
   if (imageUrl) {
@@ -26,16 +26,24 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
   const fmt = v => Number(v).toFixed(1).replace(/\.0$/, '');
 
   return (
-    <div className="size-chart size-chart-with-legend">
-      <div className="size-chart-col size-chart-col-left">
+    <div className="size-chart size-chart-frame">
+      <img
+        src={DEFAULT_CHART}
+        alt="Guia de medidas da camiseta"
+        className="size-chart-img size-chart-img-bg"
+      />
+
+      <div className="size-chart-block size-chart-manga">
         <p className="size-chart-label">MANGA</p>
         {measurements.map(m => (
           <p key={`manga-${m.size}`} className="size-chart-value">
             {m.size} = {fmt(m.manga)} cm
           </p>
         ))}
+      </div>
 
-        <p className="size-chart-label size-chart-label-spaced">PEITO</p>
+      <div className="size-chart-block size-chart-peito">
+        <p className="size-chart-label">PEITO</p>
         {measurements.map(m => (
           <p key={`peito-${m.size}`} className="size-chart-value">
             {m.size} = {fmt(m.peito)} cm
@@ -43,21 +51,16 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
         ))}
       </div>
 
-      <img
-        src={DEFAULT_CHART}
-        alt="Guia de medidas da camiseta: manga, peito e comprimento"
-        className="size-chart-img"
-      />
-
-      <div className="size-chart-col size-chart-col-right">
+      <div className="size-chart-block size-chart-comp">
         <p className="size-chart-label">COMPRIMENTO</p>
         {measurements.map(m => (
           <p key={`comp-${m.size}`} className="size-chart-value">
             {m.size} = {fmt(m.comprimento)} cm
           </p>
         ))}
-        <p className="size-chart-note">Medidas em cm. Podem variar ± 0,5 cm.</p>
       </div>
+
+      <p className="size-chart-note">Medidas em cm. Podem variar ± 0,5 cm.</p>
     </div>
   );
 }
