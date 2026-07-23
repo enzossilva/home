@@ -17,7 +17,6 @@ export default function Product() {
   const [cartError, setCartError] = useState('');
   const [selectedSize, setSelectedSize] = useState(null);
   const [descOpen, setDescOpen] = useState(false);
-  const [sizeGuideOpen, setSizeGuideOpen] = useState(true);
   const [lightbox, setLightbox] = useState(null);
 
   useEffect(() => {
@@ -44,6 +43,10 @@ export default function Product() {
 
   if (loading) return <main className="container"><p className="loading">Carregando...</p></main>;
   if (error)   return <main className="container"><p className="error">{error}</p></main>;
+
+  const hasSizes = product.productSizes && product.productSizes.length > 0;
+  const needsSize = hasSizes && !selectedSize;
+  const outOfStock = product.stock === 0;
 
   return (
     <main className="container">
@@ -95,11 +98,9 @@ export default function Product() {
               R$ {Number(product.price).toFixed(2)}
             </span>
           </p>
-          <p className="product-detail-stock">
-            {product.stock > 0 ? `${product.stock} em estoque` : 'Esgotado'}
-          </p>
+          {outOfStock && <p className="product-detail-stock">Esgotado</p>}
 
-          {product.productSizes && product.productSizes.length > 0 && (
+          {hasSizes && (
             <div>
               <p className="sizes-label">Tamanho</p>
               <div className="sizes-buttons">
@@ -109,7 +110,7 @@ export default function Product() {
                     className={`size-btn ${selectedSize === ps.size ? 'size-btn-selected' : ''} ${ps.stock === 0 ? 'size-btn-esgotado' : ''}`}
                     onClick={() => ps.stock > 0 && setSelectedSize(ps.size)}
                     disabled={ps.stock === 0}
-                    title={ps.stock === 0 ? 'Esgotado' : `${ps.stock} disponíveis`}
+                    title={ps.stock === 0 ? 'Esgotado' : undefined}
                   >
                     {ps.size}
                   </button>
@@ -118,40 +119,22 @@ export default function Product() {
             </div>
           )}
 
-          <div className="product-dropdown size-guide-dropdown">
-            <button
-              type="button"
-              className="product-dropdown-btn"
-              onClick={() => setSizeGuideOpen(o => !o)}
-            >
-              Guia de tamanhos <span>{sizeGuideOpen ? '▲' : '▼'}</span>
-            </button>
-            {sizeGuideOpen && (
-              <div className="product-dropdown-body size-guide-body">
-                <SizeChart imageUrl={product.sizeChartUrl || null} />
-              </div>
-            )}
-          </div>
-
           {cartError && <p className="error">{cartError}</p>}
 
-          {(() => {
-            const hasSizes = product.productSizes && product.productSizes.length > 0;
-            const needsSize = hasSizes && !selectedSize;
-            const outOfStock = product.stock === 0;
-            return (
-              <div style={{ marginTop: '1.5rem' }}>
-                <button
-                  className={`btn ${added ? 'btn-success' : ''}`}
-                  onClick={handleAddToCart}
-                  disabled={outOfStock || needsSize}
-                  style={{ padding: '1rem', fontSize: '0.95rem', width: '100%', letterSpacing: '0.05em', background: '#111', color: '#fff', borderRadius: '0', border: 'none' }}
-                >
-                  {outOfStock ? 'ESGOTADO' : added ? 'ADICIONADO!' : needsSize ? 'SELECIONE UM TAMANHO' : 'ADICIONAR AO CARRINHO'}
-                </button>
-              </div>
-            );
-          })()}
+          <div className="product-add-wrap">
+            <button
+              className={`btn ${added ? 'btn-success' : ''}`}
+              onClick={handleAddToCart}
+              disabled={outOfStock || needsSize}
+              style={{ padding: '1rem', fontSize: '0.95rem', width: '100%', letterSpacing: '0.05em', background: '#111', color: '#fff', borderRadius: '0', border: 'none' }}
+            >
+              {outOfStock ? 'ESGOTADO' : added ? 'ADICIONADO!' : needsSize ? 'SELECIONE UM TAMANHO' : 'ADICIONAR AO CARRINHO'}
+            </button>
+          </div>
+
+          <div className="size-guide-block">
+            <SizeChart imageUrl={product.sizeChartUrl || null} />
+          </div>
         </div>
       </div>
       {lightbox && (
