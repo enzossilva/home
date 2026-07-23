@@ -1,12 +1,10 @@
 /**
- * Flood-fill studio background → fully transparent (binary alpha).
- * Semi-transparent leftovers look like a faint gray box on black pages.
+ * Flood-fill studio background → fully transparent.
+ * Cleans white fringe on edges without eating light-colored garments.
  */
 export function stripStudioBackground(imageData, {
-  cornerLumMin = 140,
-  colorTolerance = 72,
-  fringeLum = 235,
-  erodePasses = 2,
+  cornerLumMin = 150,
+  colorTolerance = 58,
 } = {}) {
   const { data, width, height } = imageData;
   const visited = new Uint8Array(width * height);
@@ -65,49 +63,59 @@ export function stripStudioBackground(imageData, {
     }
   }
 
-  // Kill near-white leftovers anywhere (JPEG noise / soft fringe)
+  // Remove white fringe: near-white pixels that touch transparent background
+  const fringe = [];
   for (let i = 0; i < width * height; i++) {
     const p = i * 4;
     if (data[p + 3] === 0) continue;
+
+    const x = i % width;
+    const y = (i / width) | 0;
+    const touchesBg =
+      (x > 0 && bgMask[i - 1]) ||
+      (x < width - 1 && bgMask[i + 1]) ||
+      (y > 0 && bgMask[i - width]) ||
+      (y < height - 1 && bgMask[i + width]) ||
+      x === 0 || x === width - 1 || y === 0 || y === height - 1;
+
+    if (!touchesBg) continue;
+
     const lum = 0.299 * data[p] + 0.587 * data[p + 1] + 0.114 * data[p + 2];
-    if (lum >= fringeLum) {
-      data[p + 3] = 0;
-      bgMask[i] = 1;
-    }
+    // Anti-aliased halo from white studio is very bright
+    if (lum >= 210) fringe.push(i);
+  }
+  for (const i of fringe) {
+    data[i * 4 + 3] = 0;
+    bgMask[i] = 1;
   }
 
-  // Erode opaque edge touching background (removes gray halo box)
-  for (let pass = 0; pass < erodePasses; pass++) {
-    const toClear = [];
-    for (let i = 0; i < width * height; i++) {
-      if (data[i * 4 + 3] === 0) continue;
-      const x = i % width;
-      const y = (i / width) | 0;
-      let bgNeighbors = 0;
-      if (x === 0 || bgMask[i - 1]) bgNeighbors++;
-      if (x === width - 1 || bgMask[i + 1]) bgNeighbors++;
-      if (y === 0 || bgMask[i - width]) bgNeighbors++;
-      if (y === height - 1 || bgMask[i + width]) bgNeighbors++;
-
-      const p = i * 4;
-      const lum = 0.299 * data[p] + 0.587 * data[p + 1] + 0.114 * data[p + 2];
-      // Only erode light edge pixels (halo), keep dark print ink
-      if (bgNeighbors >= 1 && lum > 200) toClear.push(i);
-      else if (bgNeighbors >= 2 && lum > 160) toClear.push(i);
-    }
-    for (const i of toClear) {
-      data[i * 4 + 3] = 0;
-      bgMask[i] = 1;
-    }
+  // Second pass: kill remaining bright halo 1px deeper
+  const fringe2 = [];
+  for (let i = 0; i < width * height; i++) {
+    const p = i * 4;
+    if (data[p + 3] === 0) continue;
+    const x = i % width;
+    const y = (i / width) | 0;
+    const touchesBg =
+      (x > 0 && bgMask[i - 1]) ||
+      (x < width - 1 && bgMask[i + 1]) ||
+      (y > 0 && bgMask[i - width]) ||
+      (y < height - 1 && bgMask[i + width]);
+    if (!touchesBg) continue;
+    const lum = 0.299 * data[p] + 0.587 * data[p + 1] + 0.114 * data[p + 2];
+    if (lum >= 230) fringe2.push(i);
+  }
+  for (const i of fringe2) {
+    data[i * 4 + 3] = 0;
+    bgMask[i] = 1;
   }
 
-  // Binary alpha: no semi-transparent haze on black UI
+  // Binary alpha — kill gray haze on black UI (semi-transparent white)
   for (let i = 0; i < data.length; i += 4) {
     if (data[i + 3] === 0) continue;
-    if (data[i + 3] < 250) {
+    if (data[i + 3] < 240) {
       const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-      if (lum > 150) data[i + 3] = 0;
-      else data[i + 3] = 255;
+      data[i + 3] = lum > 200 ? 0 : 255;
     } else {
       data[i + 3] = 255;
     }
@@ -125,7 +133,6 @@ function canvasFromImageData(imageData) {
   return canvas;
 }
 
-/** Crop to opaque content so leftover transparent padding is gone */
 function cropToOpaque(canvas) {
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   const { width, height } = canvas;
@@ -142,7 +149,7 @@ function cropToOpaque(canvas) {
     }
   }
   if (maxX < 0) return canvas;
-  const pad = 2;
+  const pad = 4;
   minX = Math.max(0, minX - pad);
   minY = Math.max(0, minY - pad);
   maxX = Math.min(width - 1, maxX + pad);
@@ -180,10 +187,6 @@ export async function fileToTransparentPng(file) {
   return canvasToPngBlob(cropToOpaque(canvas));
 }
 
-/**
- * Load any image URL (via same-origin proxy when needed) and return a PNG data URL
- * with studio background removed.
- */
 export async function urlToTransparentDataUrl(src) {
   if (!src) return src;
 
