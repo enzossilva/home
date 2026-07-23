@@ -138,8 +138,9 @@ export default function Product() {
         </div>
       </div>
       {lightbox && (
-        <div className="lookbook-lightbox" onClick={() => setLightbox(null)}>
-          <img src={lightbox} alt="foto" onClick={e => e.stopPropagation()} />
+        <div className="lb-lightbox" onClick={() => setLightbox(null)} role="dialog" aria-modal="true">
+          <button type="button" className="lb-lightbox-close" onClick={() => setLightbox(null)}>✕</button>
+          <img src={lightbox} alt={product.name} onClick={e => e.stopPropagation()} />
         </div>
       )}
     </main>
