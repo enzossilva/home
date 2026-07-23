@@ -781,22 +781,22 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
   gap: 0.12rem;
 }
 
-/* Manga — canto superior esquerdo, perto da seta da manga */
+/* Manga — canto superior esquerdo (como SLEEVE no exemplo) */
 .size-chart-manga {
-  top: 4%;
-  left: 4%;
+  top: 3%;
+  left: 5%;
 }
 
-/* Peito — dentro do torso, abaixo da seta horizontal */
+/* Peito — dentro do torso, abaixo da seta horizontal (como CHEST) */
 .size-chart-peito {
-  top: 44%;
-  left: 28%;
+  top: 46%;
+  left: 30%;
 }
 
-/* Comprimento — canto inferior direito, dentro da camisa */
+/* Comprimento — canto inferior direito dentro da camisa (como LENGTH) */
 .size-chart-comp {
-  top: 68%;
-  left: 58%;
+  top: 70%;
+  left: 56%;
 }
 
 .size-chart-label,
