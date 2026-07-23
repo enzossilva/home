@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getProducts, addToCart } from '../api';
 import { useUser } from '../context/UserContext';
 import { useCartDrawer } from '../context/CartDrawerContext';
+import ProductImage from '../components/ProductImage';
 
 
 export default function Product() {
@@ -69,10 +70,13 @@ export default function Product() {
             return (
               <div className="product-img-stack">
                 {imgs.map((url, i) => (
-                  <img key={i} src={url} alt={`${product.name} ${i+1}`}
-                    style={{ cursor: 'zoom-in' }}
+                  <ProductImage
+                    key={i}
+                    src={url}
+                    alt={`${product.name} ${i + 1}`}
+                    className="product-detail-photo"
                     onClick={() => setLightbox(url)}
-                    onError={e => e.target.style.display = 'none'} />
+                  />
                 ))}
               </div>
             );
