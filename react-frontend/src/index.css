@@ -625,7 +625,7 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
   flex-direction: column;
   gap: 0.85rem;
   /* Desce o bloco de infos em relação à foto (desktop) */
-  padding-top: clamp(4rem, 18vh, 10rem);
+  padding-top: clamp(8rem, 32vh, 16rem);
 }
 
 .product-detail-info h1 {
