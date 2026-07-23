@@ -7,7 +7,11 @@ export default function ProductCard({ product }) {
   return (
     <div className="card card-clickable" onClick={() => navigate(`/product/${product.id}`)}>
       {product.imageUrl
-        ? <ProductImage src={product.imageUrl} alt={product.name} className="card-img" />
+        ? (
+          <div className="card-img-wrap">
+            <ProductImage src={product.imageUrl} alt={product.name} className="card-img" />
+          </div>
+        )
         : <div className="card-no-img">Sem imagem</div>
       }
       <div className="card-body">

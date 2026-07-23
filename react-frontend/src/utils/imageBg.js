@@ -211,7 +211,8 @@ export async function urlToTransparentDataUrl(src) {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       stripStudioBackground(imageData);
       const cleaned = canvasFromImageData(imageData);
-      return cropToOpaque(cleaned).toDataURL('image/png');
+      // Keep original canvas size on display to avoid layout jump when image loads
+      return cleaned.toDataURL('image/png');
     } catch (err) {
       lastError = err;
     }

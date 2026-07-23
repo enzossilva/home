@@ -176,7 +176,9 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  gap: 3rem;
+  padding-top: 1rem;
+  padding-bottom: 2rem;
 }
 
 /* ── Product Card ── */
@@ -197,20 +199,28 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 
 .card-clickable:hover .card-img { opacity: 0.85; }
 
+.card-img-wrap {
+  width: 100%;
+  height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
 .card-img {
   width: 100%;
-  height: auto;
-  max-height: 420px;
+  height: 100%;
   object-fit: contain;
+  object-position: center center;
   background: transparent;
   display: block;
-  /* Soft edge so black garments stay visible on black page */
   filter: drop-shadow(0 0 0.6px rgba(255, 255, 255, 0.45));
 }
 
 .card-no-img {
   width: 100%;
-  height: 360px;
+  height: 380px;
   background: transparent;
   display: flex;
   align-items: center;
@@ -220,10 +230,10 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 }
 
 .card-body {
-  padding: 0.75rem 0 0;
+  padding: 1.25rem 0 0.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.35rem;
   align-items: center;
   text-align: center;
 }
@@ -498,7 +508,8 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
   cursor: pointer;
   font-size: 0.95rem;
   color: #aaa;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  margin-top: 0.5rem;
   padding: 0;
   font-family: inherit;
 }
@@ -509,6 +520,7 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
   gap: 3rem;
   align-items: flex-start;
   flex-wrap: wrap;
+  padding-top: 0.5rem;
 }
 
 .product-detail-img {
@@ -520,16 +532,20 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 .product-img-stack {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 2rem;
 }
 
 .product-img-stack img,
 .product-detail-photo {
   width: 100%;
+  min-height: 320px;
+  max-height: 560px;
   display: block;
   object-fit: contain;
+  object-position: center center;
   background: transparent;
   cursor: zoom-in;
+  filter: drop-shadow(0 0 0.6px rgba(255, 255, 255, 0.45));
 }
 
 .product-thumbnails { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
