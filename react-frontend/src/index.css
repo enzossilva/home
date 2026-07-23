@@ -729,12 +729,13 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 .size-btn-esgotado:hover { border-color: #ccc; }
 
 /* ── Size chart / guia de tamanhos ── */
-.size-guide-dropdown {
-  margin-top: 0.75rem;
+.product-add-wrap {
+  margin-top: 1.5rem;
 }
 
-.size-guide-body {
-  padding-top: 1rem !important;
+.size-guide-block {
+  margin-top: 2rem;
+  padding-top: 0.5rem;
 }
 
 .size-chart {
