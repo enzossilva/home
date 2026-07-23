@@ -41,47 +41,42 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
           </marker>
         </defs>
 
-        {/* —— Contorno da peça (só traço branco) —— */}
+        {/* —— Contorno camiseta (crew neck, só traço) —— */}
         <g fill="none" stroke="#fff" strokeWidth="1.15" strokeLinejoin="round" strokeLinecap="round">
-          {/* Ombros + mangas + corpo */}
+          {/* Silhueta: ombros, mangas curtas, corpo, bainha */}
           <path d="
-            M168 78
-            L148 98
-            L118 88
-            L72 128
-            L72 158
-            L108 172
-            L108 400
-            L312 400
-            L312 172
-            L348 158
-            L348 128
-            L302 88
-            L272 98
-            L252 78
-            L238 102
-            L210 94
-            L182 102
+            M155 92
+            L128 108
+            L78 118
+            L78 168
+            L118 178
+            L118 400
+            L302 400
+            L302 178
+            L342 168
+            L342 118
+            L292 108
+            L265 92
+            L248 118
+            L210 110
+            L172 118
             Z
           " />
-          {/* Gola */}
-          <path d="M168 78 L182 102 Q210 118 238 102 L252 78" />
-          <path d="M186 104 Q210 122 234 104" />
-          {/* Placket / botões (traço leve) */}
-          <line x1="210" y1="118" x2="210" y2="168" strokeOpacity="0.55" />
-          <circle cx="210" cy="130" r="2.2" strokeOpacity="0.55" />
-          <circle cx="210" cy="148" r="2.2" strokeOpacity="0.55" />
-          {/* Bainha inferior */}
-          <line x1="108" y1="400" x2="312" y2="400" />
-          {/* Costura manga esquerda */}
-          <line x1="108" y1="172" x2="108" y2="400" strokeOpacity="0.35" />
-          <line x1="312" y1="172" x2="312" y2="400" strokeOpacity="0.35" />
+          {/* Gola redonda (crew) — abertura */}
+          <path d="M172 118 Q210 148 248 118" />
+          {/* Linha interna da gola */}
+          <path d="M180 122 Q210 142 240 122" strokeOpacity="0.5" />
+          {/* Bainha */}
+          <line x1="118" y1="400" x2="302" y2="400" />
+          {/* Costura lateral (leve) */}
+          <line x1="118" y1="178" x2="118" y2="400" strokeOpacity="0.3" />
+          <line x1="302" y1="178" x2="302" y2="400" strokeOpacity="0.3" />
         </g>
 
         {/* —— MANGA (seta vermelha diagonal) —— */}
         <line
-          x1="118" y1="96"
-          x2="78" y2="148"
+          x1="128" y1="112"
+          x2="82" y2="160"
           stroke="#e63946"
           strokeWidth="1.2"
           markerStart="url(#arrow-start)"
@@ -104,8 +99,8 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
 
         {/* —— PEITO (seta horizontal) —— */}
         <line
-          x1="118" y1="210"
-          x2="302" y2="210"
+          x1="128" y1="210"
+          x2="292" y2="210"
           stroke="#e63946"
           strokeWidth="1.2"
           markerStart="url(#arrow-start)"
@@ -128,29 +123,29 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
 
         {/* —— COMPRIMENTO (seta vertical) —— */}
         <line
-          x1="330" y1="88"
-          x2="330" y2="400"
+          x1="322" y1="100"
+          x2="322" y2="400"
           stroke="#e63946"
           strokeWidth="1.2"
           markerStart="url(#arrow-start)"
           markerEnd="url(#arrow)"
         />
         <text
-          x="348"
+          x="340"
           y="230"
           fill="#e63946"
           fontSize="9"
           fontFamily="Anton, Impact, Arial Narrow, sans-serif"
           letterSpacing="1.5"
-          transform="rotate(90 348 230)"
+          transform="rotate(90 340 230)"
         >
           COMPRIMENTO
         </text>
         {measurements.map((m, i) => (
           <text
             key={`comp-${m.size}`}
-            x="348"
-            y={100 + i * 13}
+            x="340"
+            y={110 + i * 13}
             fill="rgba(255,255,255,0.72)"
             fontSize="8"
             fontFamily="Anton, Impact, Arial Narrow, sans-serif"
