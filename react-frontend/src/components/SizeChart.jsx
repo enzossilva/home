@@ -87,7 +87,7 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
           markerStart="url(#arrow-start)"
           markerEnd="url(#arrow)"
         />
-        <text x="24" y="88" fill="#e63946" fontSize="9" fontFamily="ui-sans-serif, system-ui, sans-serif" letterSpacing="1.5">MANGA</text>
+        <text x="24" y="88" fill="#e63946" fontSize="9" fontFamily="Anton, Impact, Arial Narrow, sans-serif" letterSpacing="1.5">MANGA</text>
         {measurements.map((m, i) => (
           <text
             key={`manga-${m.size}`}
@@ -95,7 +95,7 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
             y={104 + i * 13}
             fill="rgba(255,255,255,0.72)"
             fontSize="8"
-            fontFamily="ui-sans-serif, system-ui, sans-serif"
+            fontFamily="Anton, Impact, Arial Narrow, sans-serif"
             letterSpacing="0.5"
           >
             {m.size} {fmt(m.manga)} cm
@@ -111,7 +111,7 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
           markerStart="url(#arrow-start)"
           markerEnd="url(#arrow)"
         />
-        <text x="188" y="200" fill="#e63946" fontSize="9" fontFamily="ui-sans-serif, system-ui, sans-serif" letterSpacing="1.5">PEITO</text>
+        <text x="188" y="200" fill="#e63946" fontSize="9" fontFamily="Anton, Impact, Arial Narrow, sans-serif" letterSpacing="1.5">PEITO</text>
         {measurements.map((m, i) => (
           <text
             key={`peito-${m.size}`}
@@ -119,7 +119,7 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
             y={228 + i * 13}
             fill="rgba(255,255,255,0.72)"
             fontSize="8"
-            fontFamily="ui-sans-serif, system-ui, sans-serif"
+            fontFamily="Anton, Impact, Arial Narrow, sans-serif"
             letterSpacing="0.5"
           >
             {m.size} {fmt(m.peito)} cm
@@ -140,7 +140,7 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
           y="230"
           fill="#e63946"
           fontSize="9"
-          fontFamily="ui-sans-serif, system-ui, sans-serif"
+          fontFamily="Anton, Impact, Arial Narrow, sans-serif"
           letterSpacing="1.5"
           transform="rotate(90 348 230)"
         >
@@ -153,7 +153,7 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
             y={100 + i * 13}
             fill="rgba(255,255,255,0.72)"
             fontSize="8"
-            fontFamily="ui-sans-serif, system-ui, sans-serif"
+            fontFamily="Anton, Impact, Arial Narrow, sans-serif"
             letterSpacing="0.5"
           >
             {m.size} {fmt(m.comprimento)} cm
@@ -166,7 +166,7 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
           textAnchor="middle"
           fill="rgba(255,255,255,0.35)"
           fontSize="7.5"
-          fontFamily="ui-sans-serif, system-ui, sans-serif"
+          fontFamily="Anton, Impact, Arial Narrow, sans-serif"
           letterSpacing="0.4"
         >
           Medidas em cm. Podem variar ± 0,5 cm.
