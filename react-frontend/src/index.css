@@ -742,15 +742,15 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 .size-chart {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
-/* Quadro único = vetor + textos na posição da referência */
+/* Quadro compacto: camiseta maior, textos menores */
 .size-chart-frame {
   position: relative;
   width: 100%;
-  max-width: 380px;
-  aspect-ratio: 1 / 1.15;
+  max-width: 300px;
+  aspect-ratio: 1 / 1.08;
   background: #000;
   overflow: hidden;
 }
@@ -764,12 +764,13 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 
 .size-chart-img-bg {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  left: 50%;
+  top: 52%;
+  width: 118%;
   max-width: none;
-  height: 100%;
+  height: 118%;
+  transform: translate(-50%, -50%);
   object-fit: contain;
-  object-position: center 42%;
   pointer-events: none;
 }
 
@@ -778,30 +779,30 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.12rem;
+  gap: 0.02rem;
 }
 
-/* Manga — canto superior esquerdo (como SLEEVE no exemplo) */
+/* Manga — canto superior esquerdo */
 .size-chart-manga {
-  top: 3%;
-  left: 5%;
+  top: 2%;
+  left: 3%;
 }
 
-/* Peito — dentro do torso, abaixo da seta horizontal (como CHEST) */
+/* Peito — dentro do torso, abaixo da seta horizontal */
 .size-chart-peito {
-  top: 46%;
-  left: 30%;
+  top: 48%;
+  left: 28%;
 }
 
-/* Comprimento — canto inferior direito dentro da camisa (como LENGTH) */
+/* Comprimento — canto inferior direito */
 .size-chart-comp {
-  top: 70%;
-  left: 56%;
+  top: 72%;
+  left: 54%;
 }
 
 .size-chart-label,
 .size-chart-value {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
   font-weight: 300;
   color: #fff;
   margin: 0;
@@ -809,23 +810,23 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 }
 
 .size-chart-label {
-  font-size: clamp(0.62rem, 2.3vw, 0.78rem);
-  letter-spacing: 0.18em;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.08rem;
   font-weight: 400;
 }
 
 .size-chart-value {
-  font-size: clamp(0.58rem, 2.1vw, 0.72rem);
-  letter-spacing: 0.06em;
-  line-height: 1.35;
-  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.55rem;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .size-chart-svg {
   width: 100%;
-  max-width: 380px;
+  max-width: 300px;
   height: auto;
   display: block;
 }
