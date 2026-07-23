@@ -11,8 +11,8 @@ export const CAMISETA_MEASUREMENTS = [
 const DEFAULT_CHART = '/size-chart-camiseta.png';
 
 /**
- * Guia de medidas: vetor (já com as setas) + infos no mesmo modelo de antes
- * (MANGA / PEITO à esquerda, COMPRIMENTO à direita).
+ * Guia de medidas: vetor com setas + textos leves nas mesmas
+ * posições da referência (manga canto esq., peito no torso, comprimento canto dir.).
  */
 export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMENTS }) {
   if (imageUrl) {
@@ -59,8 +59,6 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
           </p>
         ))}
       </div>
-
-      <p className="size-chart-note">Medidas em cm. Podem variar ± 0,5 cm.</p>
     </div>
   );
 }
