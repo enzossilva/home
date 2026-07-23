@@ -94,7 +94,18 @@ export default function Product() {
               {descOpen && <p className="product-dropdown-body">{product.description}</p>}
             </div>
           )}
-          <p className="product-detail-price">R$ {Number(product.price).toFixed(2)}</p>
+          <p className="product-detail-price">
+            {product.originalPrice != null && Number(product.originalPrice) > Number(product.price) && (
+              <span className="product-detail-price-old">R$ {Number(product.originalPrice).toFixed(2)}</span>
+            )}
+            <span className={
+              product.originalPrice != null && Number(product.originalPrice) > Number(product.price)
+                ? 'product-detail-price-sale'
+                : undefined
+            }>
+              R$ {Number(product.price).toFixed(2)}
+            </span>
+          </p>
           <p className="product-detail-stock">
             {product.stock > 0 ? `${product.stock} em estoque` : 'Esgotado'}
           </p>

@@ -85,6 +85,7 @@ public class ProductService {
 
         product.setName(productDetails.getName());
         product.setPrice(productDetails.getPrice());
+        product.setOriginalPrice(productDetails.getOriginalPrice());
         product.setDescription(productDetails.getDescription());
         product.setImages(productDetails.getImages());
         product.setCategory(productDetails.getCategory());
@@ -109,6 +110,14 @@ public class ProductService {
         }
         if (product.getPrice() == null || product.getPrice() <= 0) {
             throw new ValidationException("Preço deve ser maior que zero");
+        }
+        if (product.getOriginalPrice() != null) {
+            if (product.getOriginalPrice() <= 0) {
+                throw new ValidationException("Preço original deve ser maior que zero");
+            }
+            if (product.getOriginalPrice() <= product.getPrice()) {
+                throw new ValidationException("Preço original (De) deve ser maior que o preço promocional (Por)");
+            }
         }
     }
 

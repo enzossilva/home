@@ -19,6 +19,9 @@ public class Product {
     @Column(nullable = false)
     private Double price;
 
+    /** Preço anterior (opcional) para exibir promoção: De X / Por Y */
+    private Double originalPrice;
+
     private String description;
 
     private String imageUrl; // foto principal (backward compat)
@@ -51,6 +54,9 @@ public class Product {
 
     public Double getPrice() { return price; }
     public void setPrice(Double price) { this.price = price; }
+
+    public Double getOriginalPrice() { return originalPrice; }
+    public void setOriginalPrice(Double originalPrice) { this.originalPrice = originalPrice; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }

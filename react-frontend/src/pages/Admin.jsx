@@ -5,7 +5,7 @@ import { getVideos, addVideo, deleteVideo } from '../api';
 import { useUser } from '../context/UserContext';
 import ImageUpload from '../components/ImageUpload';
 
-const EMPTY = { name: '', price: '', stock: '', category: '', description: '', images: [], sizeStocks: {} };
+const EMPTY = { name: '', price: '', originalPrice: '', stock: '', category: '', description: '', images: [], sizeStocks: {} };
 const ALL_SIZES = ['PP', 'P', 'M', 'G', 'GG', 'XGG'];
 
 const STATUS_LABEL = {
@@ -108,6 +108,7 @@ export default function Admin() {
     setForm({
       name: p.name,
       price: p.price,
+      originalPrice: p.originalPrice ?? '',
       stock: p.stock,
       category: p.category || '',
       description: p.description || '',
@@ -137,6 +138,9 @@ export default function Admin() {
     const payload = {
       name: form.name,
       price: parseFloat(form.price),
+      originalPrice: form.originalPrice !== '' && form.originalPrice != null
+        ? parseFloat(form.originalPrice)
+        : null,
       stock: totalStock,
       category: form.category,
       description: form.description,
@@ -500,6 +504,21 @@ export default function Admin() {
                 <input name="price" type="number" step="0.01" min="0" value={form.price} onChange={handleChange} placeholder="0.00" required />
               </div>
               <div>
+                <label>Preço de (R$)</label>
+                <input
+                  name="originalPrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={form.originalPrice}
+                  onChange={handleChange}
+                  placeholder="opcional — promoção"
+                />
+                <span style={{ fontSize: '0.75rem', color: '#888', display: 'block', marginTop: '0.25rem' }}>
+                  Valor riscado na loja (ex.: De R$ 120)
+                </span>
+              </div>
+              <div>
                 <label>Estoque *</label>
                 <input name="stock" type="number" min="0" value={form.stock} onChange={handleChange} placeholder="0" required />
               </div>
@@ -605,7 +624,13 @@ export default function Admin() {
               }
               <div className="row-info">
                 <strong>{p.name}</strong>
-                <span>{p.category && `${p.category} — `}R$ {Number(p.price).toFixed(2)} — Estoque: {p.stock}</span>
+                <span>
+                  {p.category && `${p.category} — `}
+                  {p.originalPrice != null && Number(p.originalPrice) > Number(p.price)
+                    ? <>De R$ {Number(p.originalPrice).toFixed(2)} → </>
+                    : null}
+                  R$ {Number(p.price).toFixed(2)} — Estoque: {p.stock}
+                </span>
               </div>
               <div style={{ display: 'flex', gap: '0.4rem' }}>
                 <button className="btn btn-secondary btn-sm" onClick={() => startEdit(p)}>Editar</button>
