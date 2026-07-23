@@ -9,8 +9,8 @@ export const CAMISETA_MEASUREMENTS = [
 ];
 
 /**
- * Guia de medidas: só traços (wireframe).
- * Camiseta crew-neck — gola baixa, manga um pouco mais longa.
+ * Guia de medidas no modelo de referência:
+ * contorno fino branco + 3 setas vermelhas (manga / peito / comprimento no centro).
  */
 export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMENTS }) {
   if (imageUrl) {
@@ -22,143 +22,137 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
   }
 
   const fmt = v => Number(v).toFixed(1).replace(/\.0$/, '');
+  const font = 'Anton, Impact, Arial Narrow, sans-serif';
 
   return (
     <div className="size-chart">
       <svg
         className="size-chart-svg"
-        viewBox="0 0 420 480"
+        viewBox="0 0 360 520"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
         aria-label="Guia de medidas da camiseta"
       >
         <defs>
-          <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" fill="#e63946" />
+          <marker id="arr" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+            <path d="M0,0 L5,2.5 L0,5 Z" fill="#e53935" />
           </marker>
-          <marker id="arrow-start" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto-start-reverse">
-            <path d="M0,0 L6,3 L0,6 Z" fill="#e63946" />
+          <marker id="arr-rev" markerWidth="5" markerHeight="5" refX="0.5" refY="2.5" orient="auto-start-reverse">
+            <path d="M0,0 L5,2.5 L0,5 Z" fill="#e53935" />
           </marker>
         </defs>
 
-        {/* Silhueta: gola mais baixa + mangas mais longas */}
-        <g fill="none" stroke="#fff" strokeWidth="1.15" strokeLinejoin="round" strokeLinecap="round">
+        {/*
+          Contorno clássico de camiseta (front flat),
+          no estilo da referência: gola redonda, manga curta, bainha reta.
+          Coordenadas centrais: CX=180
+        */}
+        <g fill="none" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round" strokeLinecap="round">
+          {/* Corpo + mangas em um path contínuo */}
           <path d="
-            M152 78
-            L122 96
-            L58 112
-            L52 210
-            L112 222
-            L112 400
-            L308 400
-            L308 222
-            L368 210
-            L362 112
-            L298 96
-            L268 78
-            L250 128
-            L210 118
-            L170 128
+            M 132 78
+            L 108 102
+            L 48 118
+            L 48 168
+            L 98 182
+            L 98 430
+            L 262 430
+            L 262 182
+            L 312 168
+            L 312 118
+            L 252 102
+            L 228 78
+            L 210 108
+            L 180 100
+            L 150 108
             Z
           " />
-          {/* Gola crew baixa/aberta */}
-          <path d="M170 128 Q210 175 250 128" />
-          <path d="M178 132 Q210 168 242 132" strokeOpacity="0.45" />
-          <line x1="112" y1="400" x2="308" y2="400" />
-          <line x1="112" y1="222" x2="112" y2="400" strokeOpacity="0.3" />
-          <line x1="308" y1="222" x2="308" y2="400" strokeOpacity="0.3" />
+          {/* Abertura da gola (crew) */}
+          <path d="M 150 108 Q 180 138 210 108" />
+          {/* Bainha */}
+          <line x1="98" y1="430" x2="262" y2="430" />
         </g>
 
-        {/* MANGA */}
+        {/* —— MANGA: diagonal no ombro/manga esquerdos —— */}
         <line
-          x1="118" y1="100"
-          x2="58" y2="200"
-          stroke="#e63946"
-          strokeWidth="1.2"
-          markerStart="url(#arrow-start)"
-          markerEnd="url(#arrow)"
+          x1="110" y1="100"
+          x2="52" y2="160"
+          stroke="#e53935"
+          strokeWidth="1.35"
+          markerStart="url(#arr-rev)"
+          markerEnd="url(#arr)"
         />
-        <text x="18" y="88" fill="#e63946" fontSize="9" fontFamily="Anton, Impact, Arial Narrow, sans-serif" letterSpacing="1.5">MANGA</text>
+        <text x="8" y="72" fill="#fff" fontSize="10" fontFamily={font} letterSpacing="1.6">MANGA</text>
         {measurements.map((m, i) => (
           <text
             key={`manga-${m.size}`}
-            x="18"
-            y={104 + i * 13}
-            fill="rgba(255,255,255,0.72)"
-            fontSize="8"
-            fontFamily="Anton, Impact, Arial Narrow, sans-serif"
-            letterSpacing="0.5"
+            x="8"
+            y={88 + i * 14}
+            fill="rgba(255,255,255,0.78)"
+            fontSize="9"
+            fontFamily={font}
+            letterSpacing="0.6"
           >
-            {m.size} {fmt(m.manga)} cm
+            {m.size} = {fmt(m.manga)} cm
           </text>
         ))}
 
-        {/* PEITO */}
+        {/* —— PEITO: horizontal de cava a cava —— */}
         <line
-          x1="122" y1="248"
-          x2="298" y2="248"
-          stroke="#e63946"
-          strokeWidth="1.2"
-          markerStart="url(#arrow-start)"
-          markerEnd="url(#arrow)"
+          x1="98" y1="200"
+          x2="262" y2="200"
+          stroke="#e53935"
+          strokeWidth="1.35"
+          markerStart="url(#arr-rev)"
+          markerEnd="url(#arr)"
         />
-        <text x="188" y="238" fill="#e63946" fontSize="9" fontFamily="Anton, Impact, Arial Narrow, sans-serif" letterSpacing="1.5">PEITO</text>
+        <text x="8" y="220" fill="#fff" fontSize="10" fontFamily={font} letterSpacing="1.6">PEITO</text>
         {measurements.map((m, i) => (
           <text
             key={`peito-${m.size}`}
-            x="168"
-            y={266 + i * 13}
-            fill="rgba(255,255,255,0.72)"
-            fontSize="8"
-            fontFamily="Anton, Impact, Arial Narrow, sans-serif"
-            letterSpacing="0.5"
+            x="8"
+            y={236 + i * 14}
+            fill="rgba(255,255,255,0.78)"
+            fontSize="9"
+            fontFamily={font}
+            letterSpacing="0.6"
           >
-            {m.size} {fmt(m.peito)} cm
+            {m.size} = {fmt(m.peito)} cm
           </text>
         ))}
 
-        {/* COMPRIMENTO */}
+        {/* —— COMPRIMENTO: vertical no CENTRO (gola → bainha) —— */}
         <line
-          x1="326" y1="88"
-          x2="326" y2="400"
-          stroke="#e63946"
-          strokeWidth="1.2"
-          markerStart="url(#arrow-start)"
-          markerEnd="url(#arrow)"
+          x1="180" y1="108"
+          x2="180" y2="430"
+          stroke="#e53935"
+          strokeWidth="1.35"
+          markerStart="url(#arr-rev)"
+          markerEnd="url(#arr)"
         />
-        <text
-          x="344"
-          y="230"
-          fill="#e63946"
-          fontSize="9"
-          fontFamily="Anton, Impact, Arial Narrow, sans-serif"
-          letterSpacing="1.5"
-          transform="rotate(90 344 230)"
-        >
-          COMPRIMENTO
-        </text>
+        <text x="272" y="360" fill="#fff" fontSize="10" fontFamily={font} letterSpacing="1.6">COMPRIMENTO</text>
         {measurements.map((m, i) => (
           <text
             key={`comp-${m.size}`}
-            x="344"
-            y={100 + i * 13}
-            fill="rgba(255,255,255,0.72)"
-            fontSize="8"
-            fontFamily="Anton, Impact, Arial Narrow, sans-serif"
-            letterSpacing="0.5"
+            x="272"
+            y={376 + i * 14}
+            fill="rgba(255,255,255,0.78)"
+            fontSize="9"
+            fontFamily={font}
+            letterSpacing="0.6"
           >
-            {m.size} {fmt(m.comprimento)} cm
+            {m.size} = {fmt(m.comprimento)} cm
           </text>
         ))}
 
         <text
-          x="210"
-          y="455"
+          x="180"
+          y="505"
           textAnchor="middle"
-          fill="rgba(255,255,255,0.35)"
-          fontSize="7.5"
-          fontFamily="Anton, Impact, Arial Narrow, sans-serif"
-          letterSpacing="0.4"
+          fill="rgba(255,255,255,0.32)"
+          fontSize="8"
+          fontFamily={font}
+          letterSpacing="0.5"
         >
           Medidas em cm. Podem variar ± 0,5 cm.
         </text>
