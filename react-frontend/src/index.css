@@ -742,14 +742,53 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 .size-chart {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .size-chart-img {
   width: 100%;
-  max-width: 420px;
+  max-width: 360px;
   height: auto;
   display: block;
+  background: #000;
+}
+
+.size-chart-legend {
+  max-width: 360px;
+}
+
+.size-chart-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Anton, Impact, Arial Narrow, sans-serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+}
+
+.size-chart-table th,
+.size-chart-table td {
+  padding: 0.35rem 0.4rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.size-chart-table th {
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+}
+
+.size-chart-table td {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.size-chart-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.04em;
 }
 
 .size-chart-svg {
@@ -900,6 +939,12 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 
 /* ── Feedback ── */
 .error   { color: #e74c3c; font-size: 0.9rem; margin: 0.25rem 0; }
+.password-hint {
+  font-size: 0.78rem;
+  color: #888;
+  line-height: 1.4;
+  margin: 0.35rem 0 0.75rem;
+}
 .success { color: #27ae60; font-size: 0.9rem; margin: 0.25rem 0; }
 .loading { color: #888; }
 

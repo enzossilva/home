@@ -57,7 +57,11 @@ export default function Profile() {
           <p style={{ fontSize: '0.83rem', color: '#888', marginBottom: '0.5rem' }}>Deixe em branco para manter a senha atual</p>
 
           <label>Nova senha</label>
-          <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Mínimo 6 caracteres" />
+          <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Mínimo 8 caracteres" minLength={8} />
+          <p className="password-hint">
+            A senha deve seguir o padrão: mínimo 8 caracteres, com letra maiúscula,
+            minúscula, número e caractere especial (@ $ ! % * ? &amp;).
+          </p>
 
           <label>Confirmar nova senha</label>
           <input name="confirm" type="password" value={form.confirm} onChange={handleChange} placeholder="Repita a nova senha" />

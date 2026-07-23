@@ -55,8 +55,13 @@ export default function Register() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder="••••••••"
+            minLength={8}
             required
           />
+          <p className="password-hint">
+            A senha deve seguir o padrão: mínimo 8 caracteres, com letra maiúscula,
+            minúscula, número e caractere especial (@ $ ! % * ? &amp;).
+          </p>
           <button type="submit" className="btn" disabled={loading}>
             {loading ? 'Cadastrando...' : 'Cadastrar'}
           </button>

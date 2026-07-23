@@ -20,7 +20,7 @@ export default function ResetPassword() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (password !== confirm) { setError('As senhas não coincidem.'); return; }
-    if (password.length < 6) { setError('A senha deve ter pelo menos 6 caracteres.'); return; }
+    if (password.length < 8) { setError('A senha deve ter pelo menos 8 caracteres.'); return; }
     setLoading(true);
     setError('');
     try {
@@ -55,9 +55,14 @@ export default function ResetPassword() {
                   type="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mínimo 8 caracteres"
+                  minLength={8}
                   required
                 />
+                <p className="password-hint">
+                  A senha deve seguir o padrão: mínimo 8 caracteres, com letra maiúscula,
+                  minúscula, número e caractere especial (@ $ ! % * ? &amp;).
+                </p>
                 <label>Confirmar senha</label>
                 <input
                   type="password"
