@@ -37,6 +37,10 @@ public class Product {
 
     private String category;
 
+    /** URL opcional de guia de tamanhos custom. Se vazio, usa o SVG padrão de camiseta. */
+    @Column(length = 2000)
+    private String sizeChartUrl;
+
     // Lista de tamanhos com estoque individual
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
@@ -72,6 +76,9 @@ public class Product {
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+
+    public String getSizeChartUrl() { return sizeChartUrl; }
+    public void setSizeChartUrl(String sizeChartUrl) { this.sizeChartUrl = sizeChartUrl; }
 
     public List<ProductSize> getProductSizes() { return productSizes; }
     public void setProductSizes(List<ProductSize> productSizes) { this.productSizes = productSizes; }

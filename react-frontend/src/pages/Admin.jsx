@@ -5,7 +5,7 @@ import { getVideos, addVideo, deleteVideo } from '../api';
 import { useUser } from '../context/UserContext';
 import ImageUpload from '../components/ImageUpload';
 
-const EMPTY = { name: '', price: '', originalPrice: '', stock: '', category: '', description: '', images: [], sizeStocks: {} };
+const EMPTY = { name: '', price: '', originalPrice: '', stock: '', category: '', description: '', images: [], sizeStocks: {}, sizeChartUrl: '' };
 const ALL_SIZES = ['PP', 'P', 'M', 'G', 'GG', 'XGG'];
 
 const STATUS_LABEL = {
@@ -114,6 +114,7 @@ export default function Admin() {
       description: p.description || '',
       images: p.images && p.images.length > 0 ? p.images : (p.imageUrl ? [p.imageUrl] : []),
       sizeStocks,
+      sizeChartUrl: p.sizeChartUrl || '',
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -147,6 +148,7 @@ export default function Admin() {
       imageUrl: images[0] || null,
       images: images.length > 0 ? images : null,
       sizeStocks: hasSizes ? sizeStocks : null,
+      sizeChartUrl: form.sizeChartUrl?.trim() ? form.sizeChartUrl.trim() : null,
     };
     try {
       if (editId) {
@@ -598,6 +600,17 @@ export default function Admin() {
               onClick={() => setForm(f => ({ ...f, images: [...(f.images || []), ''] }))}>
               + Adicionar foto
             </button>
+
+            <label style={{ marginTop: '1rem' }}>
+              Guia de tamanhos (opcional)
+              <span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#888', display: 'block' }}>
+                Deixe vazio para usar o guia padrão de camiseta
+              </span>
+            </label>
+            <ImageUpload
+              value={form.sizeChartUrl}
+              onChange={url => setForm(f => ({ ...f, sizeChartUrl: url }))}
+            />
 
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button type="submit" className="btn" disabled={loading}>

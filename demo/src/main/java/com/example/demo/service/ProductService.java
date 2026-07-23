@@ -89,6 +89,7 @@ public class ProductService {
         product.setDescription(productDetails.getDescription());
         product.setImages(productDetails.getImages());
         product.setCategory(productDetails.getCategory());
+        product.setSizeChartUrl(productDetails.getSizeChartUrl());
         syncPrimaryImage(product);
 
         if (sizeStocks != null && !sizeStocks.isEmpty()) {

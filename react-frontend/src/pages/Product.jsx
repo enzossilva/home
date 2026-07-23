@@ -1,16 +1,15 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProducts, addToCart } from '../api';
 import { useUser } from '../context/UserContext';
-import { useCartDrawer } from '../context/CartDrawerContext';
 import ProductImage from '../components/ProductImage';
+import SizeChart from '../components/SizeChart';
 
 
 export default function Product() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useUser();
-  const { openCart } = useCartDrawer();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -18,7 +17,7 @@ export default function Product() {
   const [cartError, setCartError] = useState('');
   const [selectedSize, setSelectedSize] = useState(null);
   const [descOpen, setDescOpen] = useState(false);
-  const [activeImg, setActiveImg] = useState(0);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [lightbox, setLightbox] = useState(null);
 
   useEffect(() => {
@@ -38,16 +37,6 @@ export default function Product() {
       await addToCart(user.id, product.id, 1, selectedSize);
       setAdded(true);
       setTimeout(() => setAdded(false), 2500);
-    } catch (e) {
-      setCartError(e.message);
-    }
-  }
-
-  async function handleBuy() {
-    if (!user) { navigate('/login'); return; }
-    try {
-      await addToCart(user.id, product.id, 1, selectedSize);
-      openCart();
     } catch (e) {
       setCartError(e.message);
     }
@@ -128,6 +117,21 @@ export default function Product() {
               </div>
             </div>
           )}
+
+          <div className="product-dropdown size-guide-dropdown">
+            <button
+              type="button"
+              className="product-dropdown-btn"
+              onClick={() => setSizeGuideOpen(o => !o)}
+            >
+              Guia de tamanhos <span>{sizeGuideOpen ? '▲' : '▼'}</span>
+            </button>
+            {sizeGuideOpen && (
+              <div className="product-dropdown-body size-guide-body">
+                <SizeChart imageUrl={product.sizeChartUrl || null} />
+              </div>
+            )}
+          </div>
 
           {cartError && <p className="error">{cartError}</p>}
 
