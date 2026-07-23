@@ -9,8 +9,8 @@ export const CAMISETA_MEASUREMENTS = [
 ];
 
 /**
- * Guia de medidas: só traços (wireframe), no estilo técnico da referência.
- * Se `imageUrl` for passado, usa a imagem custom.
+ * Guia de medidas: só traços (wireframe).
+ * Camiseta crew-neck — gola baixa, manga um pouco mais longa.
  */
 export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMENTS }) {
   if (imageUrl) {
@@ -41,52 +41,48 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
           </marker>
         </defs>
 
-        {/* crew-neck tee silhouette (not polo) */}
+        {/* Silhueta: gola mais baixa + mangas mais longas */}
         <g fill="none" stroke="#fff" strokeWidth="1.15" strokeLinejoin="round" strokeLinecap="round">
-          {/* Silhueta: ombros, mangas curtas, corpo, bainha */}
           <path d="
-            M155 92
-            L128 108
-            L78 118
-            L78 168
-            L118 178
-            L118 400
-            L302 400
-            L302 178
-            L342 168
-            L342 118
-            L292 108
-            L265 92
-            L248 118
-            L210 110
-            L172 118
+            M152 78
+            L122 96
+            L58 112
+            L52 210
+            L112 222
+            L112 400
+            L308 400
+            L308 222
+            L368 210
+            L362 112
+            L298 96
+            L268 78
+            L250 128
+            L210 118
+            L170 128
             Z
           " />
-          {/* Gola redonda (crew) — abertura */}
-          <path d="M172 118 Q210 148 248 118" />
-          {/* Linha interna da gola */}
-          <path d="M180 122 Q210 142 240 122" strokeOpacity="0.5" />
-          {/* Bainha */}
-          <line x1="118" y1="400" x2="302" y2="400" />
-          {/* Costura lateral (leve) */}
-          <line x1="118" y1="178" x2="118" y2="400" strokeOpacity="0.3" />
-          <line x1="302" y1="178" x2="302" y2="400" strokeOpacity="0.3" />
+          {/* Gola crew baixa/aberta */}
+          <path d="M170 128 Q210 175 250 128" />
+          <path d="M178 132 Q210 168 242 132" strokeOpacity="0.45" />
+          <line x1="112" y1="400" x2="308" y2="400" />
+          <line x1="112" y1="222" x2="112" y2="400" strokeOpacity="0.3" />
+          <line x1="308" y1="222" x2="308" y2="400" strokeOpacity="0.3" />
         </g>
 
-        {/* —— MANGA (seta vermelha diagonal) —— */}
+        {/* MANGA */}
         <line
-          x1="128" y1="112"
-          x2="82" y2="160"
+          x1="118" y1="100"
+          x2="58" y2="200"
           stroke="#e63946"
           strokeWidth="1.2"
           markerStart="url(#arrow-start)"
           markerEnd="url(#arrow)"
         />
-        <text x="24" y="88" fill="#e63946" fontSize="9" fontFamily="Anton, Impact, Arial Narrow, sans-serif" letterSpacing="1.5">MANGA</text>
+        <text x="18" y="88" fill="#e63946" fontSize="9" fontFamily="Anton, Impact, Arial Narrow, sans-serif" letterSpacing="1.5">MANGA</text>
         {measurements.map((m, i) => (
           <text
             key={`manga-${m.size}`}
-            x="24"
+            x="18"
             y={104 + i * 13}
             fill="rgba(255,255,255,0.72)"
             fontSize="8"
@@ -97,21 +93,21 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
           </text>
         ))}
 
-        {/* —— PEITO (seta horizontal) —— */}
+        {/* PEITO */}
         <line
-          x1="128" y1="210"
-          x2="292" y2="210"
+          x1="122" y1="248"
+          x2="298" y2="248"
           stroke="#e63946"
           strokeWidth="1.2"
           markerStart="url(#arrow-start)"
           markerEnd="url(#arrow)"
         />
-        <text x="188" y="200" fill="#e63946" fontSize="9" fontFamily="Anton, Impact, Arial Narrow, sans-serif" letterSpacing="1.5">PEITO</text>
+        <text x="188" y="238" fill="#e63946" fontSize="9" fontFamily="Anton, Impact, Arial Narrow, sans-serif" letterSpacing="1.5">PEITO</text>
         {measurements.map((m, i) => (
           <text
             key={`peito-${m.size}`}
             x="168"
-            y={228 + i * 13}
+            y={266 + i * 13}
             fill="rgba(255,255,255,0.72)"
             fontSize="8"
             fontFamily="Anton, Impact, Arial Narrow, sans-serif"
@@ -121,31 +117,31 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
           </text>
         ))}
 
-        {/* —— COMPRIMENTO (seta vertical) —— */}
+        {/* COMPRIMENTO */}
         <line
-          x1="322" y1="100"
-          x2="322" y2="400"
+          x1="326" y1="88"
+          x2="326" y2="400"
           stroke="#e63946"
           strokeWidth="1.2"
           markerStart="url(#arrow-start)"
           markerEnd="url(#arrow)"
         />
         <text
-          x="340"
+          x="344"
           y="230"
           fill="#e63946"
           fontSize="9"
           fontFamily="Anton, Impact, Arial Narrow, sans-serif"
           letterSpacing="1.5"
-          transform="rotate(90 340 230)"
+          transform="rotate(90 344 230)"
         >
           COMPRIMENTO
         </text>
         {measurements.map((m, i) => (
           <text
             key={`comp-${m.size}`}
-            x="340"
-            y={110 + i * 13}
+            x="344"
+            y={100 + i * 13}
             fill="rgba(255,255,255,0.72)"
             fontSize="8"
             fontFamily="Anton, Impact, Arial Narrow, sans-serif"
