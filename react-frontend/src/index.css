@@ -245,7 +245,6 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
   object-position: center center;
   background: transparent;
   display: block;
-  filter: drop-shadow(0 0 0.6px rgba(255, 255, 255, 0.45));
 }
 
 .card-no-img {
@@ -598,7 +597,6 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
   object-position: center center;
   background: transparent;
   cursor: zoom-in;
-  filter: drop-shadow(0 0 0.6px rgba(255, 255, 255, 0.45));
 }
 
 .product-thumbnails { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }

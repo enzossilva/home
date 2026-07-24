@@ -67,7 +67,7 @@ export default function Product() {
                     src={url}
                     alt={`${product.name} ${i + 1}`}
                     className="product-detail-photo"
-                    onClick={() => setLightbox(url)}
+                    onClick={e => setLightbox(e.currentTarget.src)}
                   />
                 ))}
               </div>
