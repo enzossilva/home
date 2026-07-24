@@ -1096,7 +1096,7 @@ body.home-landing .header { display: none; }
   gap: 3rem;
 }
 .home-hero-logo {
-  height: 72px;
+  height: clamp(110px, 22vw, 160px);
   width: auto;
   filter: brightness(0) invert(1);
   opacity: 0;
