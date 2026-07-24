@@ -28,6 +28,9 @@ export default function Lookbook() {
           e.target.classList.add('in-view');
           const idx = slideRefs.current.indexOf(e.target);
           if (idx >= 0) setCurrent(idx);
+        } else {
+          // Remove para o efeito de rolagem repetir ao voltar na imagem
+          e.target.classList.remove('in-view');
         }
       }),
       { threshold: 0.45 }
