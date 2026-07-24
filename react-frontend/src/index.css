@@ -802,7 +802,7 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 .size-chart-value {
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
   font-weight: 300;
-  color: #fff;
+  color: rgba(255, 255, 255, 0.42);
   margin: 0;
   white-space: nowrap;
 }
@@ -813,12 +813,14 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
   text-transform: uppercase;
   margin-bottom: 0.08rem;
   font-weight: 400;
+  color: rgba(255, 255, 255, 0.48);
 }
 
 .size-chart-value {
   font-size: 0.55rem;
   letter-spacing: 0.02em;
   line-height: 1.2;
+  color: rgba(255, 255, 255, 0.38);
 }
 
 .size-chart-svg {
