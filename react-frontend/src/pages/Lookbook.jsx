@@ -1,10 +1,12 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
 export default function Lookbook() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
+  const [current, setCurrent] = useState(0);
   const slideRefs = useRef([]);
+  const wrapRef = useRef(null);
 
   useEffect(() => {
     fetch('/lookbook')
@@ -22,7 +24,11 @@ export default function Lookbook() {
     if (!items.length) return;
     const observer = new IntersectionObserver(
       entries => entries.forEach(e => {
-        if (e.isIntersecting) e.target.classList.add('in-view');
+        if (e.isIntersecting) {
+          e.target.classList.add('in-view');
+          const idx = slideRefs.current.indexOf(e.target);
+          if (idx >= 0) setCurrent(idx);
+        }
       }),
       { threshold: 0.45 }
     );
@@ -30,11 +36,36 @@ export default function Lookbook() {
     return () => observer.disconnect();
   }, [items]);
 
+  const goTo = useCallback((index) => {
+    const el = slideRefs.current[index];
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+    setCurrent(index);
+  }, []);
+
+  const goPrev = useCallback((e) => {
+    e?.stopPropagation();
+    if (current > 0) goTo(current - 1);
+  }, [current, goTo]);
+
+  const goNext = useCallback((e) => {
+    e?.stopPropagation();
+    if (current < items.length - 1) goTo(current + 1);
+  }, [current, items.length, goTo]);
+
   useEffect(() => {
-    function onKey(e) { if (e.key === 'Escape') setSelected(null); }
+    function onKey(e) {
+      if (selected) {
+        if (e.key === 'Escape') setSelected(null);
+        return;
+      }
+      if (e.key === 'ArrowLeft') goPrev();
+      if (e.key === 'ArrowRight') goNext();
+      if (e.key === 'Escape') setSelected(null);
+    }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [selected, goPrev, goNext]);
 
   if (loading) return (
     <div className="lb-loading">
@@ -44,7 +75,7 @@ export default function Lookbook() {
 
   return (
     <>
-      <div className="lb-wrap">
+      <div className="lb-wrap" ref={wrapRef}>
         {items.length === 0 ? (
           <div className="lb-empty">Em breve.</div>
         ) : items.map((item, i) => (
@@ -75,6 +106,33 @@ export default function Lookbook() {
           </section>
         ))}
       </div>
+
+      {items.length > 1 && (
+        <div className="lb-nav-arrows" aria-hidden="false">
+          <button
+            type="button"
+            className="lb-arrow lb-arrow-prev"
+            onClick={goPrev}
+            disabled={current <= 0}
+            aria-label="Imagem anterior"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            className="lb-arrow lb-arrow-next"
+            onClick={goNext}
+            disabled={current >= items.length - 1}
+            aria-label="Próxima imagem"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {selected && (
         <div className="lb-lightbox" onClick={() => setSelected(null)}>

@@ -1290,9 +1290,54 @@ body.lookbook-mode .header .search-input::placeholder { color: rgba(255,255,255,
 .lb-lightbox-close { position: absolute; top: 1.5rem; right: 2rem; background: none; border: none; color: rgba(255,255,255,0.4); font-size: 1rem; cursor: pointer; letter-spacing: 0.1em; transition: color 0.2s; }
 .lb-lightbox-close:hover { color: #fff; }
 
+/* Setas desktop — navegar com mouse */
+.lb-nav-arrows {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lb-nav-arrows {
+    display: block;
+    pointer-events: none;
+  }
+
+  .lb-arrow {
+    pointer-events: auto;
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.75);
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s, opacity 0.2s, border-color 0.2s;
+  }
+
+  .lb-arrow:hover:not(:disabled) {
+    color: #fff;
+    background: rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+
+  .lb-arrow:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+
+  .lb-arrow-prev { left: 1.25rem; }
+  .lb-arrow-next { right: 1.25rem; }
+}
+
 @media (max-width: 768px) {
   .lb-caption { left: 1.5rem; bottom: 2.5rem; }
   .lb-counter { right: 1.5rem; bottom: 2.5rem; }
+  .lb-nav-arrows { display: none !important; }
 }
 
 /* ── Videos ── */
