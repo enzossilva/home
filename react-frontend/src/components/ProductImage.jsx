@@ -1,35 +1,13 @@
-import { useEffect, useState } from 'react';
-import { urlToTransparentDataUrl } from '../utils/imageBg';
-
 /**
- * Product photo with studio background removed (transparent PNG).
+ * Product photo — uses the stored image as-is (same as zoom),
+ * without client-side reprocessing that adds a white fringe.
  */
 export default function ProductImage({ src, alt, className, onClick, style }) {
-  const [url, setUrl] = useState(src);
-
-  useEffect(() => {
-    if (!src) {
-      setUrl('');
-      return;
-    }
-
-    let cancelled = false;
-    setUrl(src);
-
-    urlToTransparentDataUrl(src)
-      .then(dataUrl => {
-        if (!cancelled) setUrl(dataUrl);
-      })
-      .catch(() => {
-        if (!cancelled) setUrl(src);
-      });
-
-    return () => { cancelled = true; };
-  }, [src]);
+  if (!src) return null;
 
   return (
     <img
-      src={url || src}
+      src={src}
       alt={alt}
       className={className}
       onClick={onClick}
