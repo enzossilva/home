@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -22,6 +23,9 @@ public class PaymentService {
     private final CartService cartService;
     private final OrderService orderService;
     private final OrderRepository orderRepository;
+    private final HttpClient http = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(8))
+            .build();
 
     public PaymentService(CartService cartService, UserService userService,
                           OrderService orderService, OrderRepository orderRepository) {
@@ -64,6 +68,7 @@ public class PaymentService {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.mercadopago.com/v1/orders"))
+                .timeout(Duration.ofSeconds(20))
                 .header("accept", "application/json")
                 .header("content-type", "application/json")
                 .header("Authorization", "Bearer " + accessToken)
@@ -71,7 +76,7 @@ public class PaymentService {
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
 
-        HttpResponse<String> httpResponse = HttpClient.newHttpClient()
+        HttpResponse<String> httpResponse = http
                 .send(request, HttpResponse.BodyHandlers.ofString());
 
         System.out.println("=== PIX ORDERS API === status=" + httpResponse.statusCode() + " body=" + httpResponse.body());
@@ -207,6 +212,7 @@ public class PaymentService {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.mercadopago.com/v1/orders"))
+                .timeout(Duration.ofSeconds(20))
                 .header("accept", "application/json")
                 .header("content-type", "application/json")
                 .header("Authorization", "Bearer " + accessToken)
@@ -214,7 +220,7 @@ public class PaymentService {
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
 
-        HttpResponse<String> httpResponse = HttpClient.newHttpClient()
+        HttpResponse<String> httpResponse = http
                 .send(request, HttpResponse.BodyHandlers.ofString());
 
         System.out.println("=== BOLETO ORDERS API === status=" + httpResponse.statusCode() + " body=" + httpResponse.body());
@@ -288,6 +294,7 @@ public class PaymentService {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.mercadopago.com/v1/orders"))
+                .timeout(Duration.ofSeconds(20))
                 .header("accept", "application/json")
                 .header("content-type", "application/json")
                 .header("Authorization", "Bearer " + accessToken)
@@ -295,7 +302,7 @@ public class PaymentService {
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
 
-        HttpResponse<String> httpResponse = HttpClient.newHttpClient()
+        HttpResponse<String> httpResponse = http
                 .send(request, HttpResponse.BodyHandlers.ofString());
 
         System.out.println("=== CARD ORDERS API === status=" + httpResponse.statusCode() + " body=" + httpResponse.body());

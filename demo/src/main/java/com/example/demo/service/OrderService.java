@@ -146,12 +146,8 @@ public class OrderService {
 
         logger.info("Pedido criado: orderId={}, userId={}, total={}", finalOrder.getId(), userId, finalOrder.getTotal());
 
-        // Email de confirmação
-        try {
-            emailService.enviarConfirmacaoPedido(finalOrder);
-        } catch (Exception e) {
-            logger.error("Erro ao enviar email de confirmação para order {}", finalOrder.getId(), e);
-        }
+        // Email fora do caminho crítico — não bloqueia a resposta do pedido
+        emailService.enviarConfirmacaoPedidoAsync(finalOrder);
 
         return finalOrder;
     }

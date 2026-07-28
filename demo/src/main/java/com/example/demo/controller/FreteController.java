@@ -1,12 +1,10 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.ApiResponse;
-import com.example.demo.service.CorreiosService;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,15 +20,6 @@ import java.util.Map;
 public class FreteController {
     private static final Logger logger = LoggerFactory.getLogger(FreteController.class);
 
-    private final CorreiosService correiosService;
-
-    @Value("${loja.cep}")
-    private String cepOrigem;
-
-    public FreteController(CorreiosService correiosService) {
-        this.correiosService = correiosService;
-    }
-
     @GetMapping("/calcular")
     public ResponseEntity<?> calcular(
             @RequestParam @NotBlank(message = "CEP é obrigatório")
@@ -42,10 +31,7 @@ public class FreteController {
 
         logger.info("Calculando frete: cep={}", cep);
 
-        // Consulta a integração com os Correios (ainda em construção). Enquanto o
-        // cálculo real não é implementado, usamos um fallback de preço fixo.
-        correiosService.calcularFrete(cepOrigem, cep);
-
+        // Tabela local rápida — evita chamar Correios e travar o checkout.
         List<Map<String, Object>> resultado = freteFallback(cep);
         return ResponseEntity.ok(ApiResponse.success(resultado));
     }

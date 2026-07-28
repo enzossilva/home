@@ -135,11 +135,16 @@ export async function removeFromCart(cartItemId) {
 
 // ── Orders ──────────────────────────────────────────────────
 export async function createOrder(userId, address, shippingMethod, shippingCost) {
-  const res = await fetch(`${BASE}orders`, {
-    method: 'POST',
-    headers: authHeaders(),
-    body: JSON.stringify({ userId, address, shippingMethod, shippingCost }),
-  });
+  let res;
+  try {
+    res = await fetch(`${BASE}orders`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ userId, address, shippingMethod, shippingCost }),
+    });
+  } catch {
+    throw new Error('Falha de conexão ao criar o pedido. Tente novamente.');
+  }
   return parseResponse(res);
 }
 

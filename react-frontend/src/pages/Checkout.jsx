@@ -76,7 +76,10 @@ async function buscarOpcoesFrete(cep) {
   try {
     const res = await fetch(`/frete/calcular?cep=${cep.replace(/[^0-9]/g, '')}`);
     if (!res.ok) return null;
-    return await res.json(); // [{ service, name, price, days }]
+    const json = await res.json();
+    // API devolve { success, data: [...] }
+    const list = Array.isArray(json) ? json : (json?.data ?? null);
+    return Array.isArray(list) ? list : null;
   } catch {
     return null;
   }
@@ -165,13 +168,14 @@ export default function Checkout() {
     setError('');
     setCreatingOrder(true);
     try {
-      const order = await createOrder(user.id, address, shippingMethod, shippingCost);
+      const cost = shippingCost != null ? shippingCost : 0;
+      const order = await createOrder(user.id, address, shippingMethod, cost);
       setOrderId(order.id);
       setShippingCost(order.shippingCost);
       setStep(2);
       window.scrollTo({ top: 0 });
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Falha ao criar o pedido. Tente novamente.');
     } finally {
       setCreatingOrder(false);
     }

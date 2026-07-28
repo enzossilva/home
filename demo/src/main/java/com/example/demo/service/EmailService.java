@@ -10,6 +10,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.internet.MimeMessage;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class EmailService {
@@ -22,6 +23,31 @@ public class EmailService {
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
+    }
+
+    /** Dispara o email em background para não travar o checkout. */
+    public void enviarConfirmacaoPedidoAsync(Order order) {
+        if (order == null || order.getUser() == null) return;
+        // Copia dados necessários enquanto a sessão/transação ainda está ativa
+        final Long orderId = order.getId();
+        final String to = order.getUser().getEmail();
+        final String html = buildConfirmacaoHtml(order);
+        final String subject = "Pedido #" + orderId + " confirmado — Young Zone";
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                MimeMessage msg = mailSender.createMimeMessage();
+                MimeMessageHelper h = new MimeMessageHelper(msg, true, "UTF-8");
+                h.setFrom(from);
+                h.setTo(to);
+                h.setSubject(subject);
+                h.setText(html, true);
+                mailSender.send(msg);
+                logger.info("Email de confirmação enviado: orderId={}, email={}", orderId, to);
+            } catch (Exception e) {
+                logger.error("Erro ao enviar email de confirmação para orderId={}", orderId, e);
+            }
+        });
     }
 
     public void enviarConfirmacaoPedido(Order order) {
