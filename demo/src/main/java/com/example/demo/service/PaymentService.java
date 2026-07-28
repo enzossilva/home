@@ -155,13 +155,46 @@ public class PaymentService {
         return end == -1 ? null : json.substring(start, end);
     }
 
+    /**
+     * Extrai string JSON e decodifica escapes (\u0026 → &, etc.).
+     * Sem isso a ticket_url do boleto quebra no navegador ("Pagamento não encontrado").
+     */
     private String extractJson(String json, String key) {
         String search = "\"" + key + "\":\"";
         int start = json.indexOf(search);
         if (start == -1) return null;
         start += search.length();
-        int end = json.indexOf("\"", start);
-        return end == -1 ? null : json.substring(start, end);
+        StringBuilder sb = new StringBuilder();
+        for (int i = start; i < json.length(); i++) {
+            char c = json.charAt(i);
+            if (c == '\\' && i + 1 < json.length()) {
+                char n = json.charAt(i + 1);
+                if (n == 'u' && i + 5 < json.length()) {
+                    try {
+                        sb.append((char) Integer.parseInt(json.substring(i + 2, i + 6), 16));
+                        i += 5;
+                        continue;
+                    } catch (NumberFormatException ignored) {
+                        // cai no append literal abaixo
+                    }
+                } else if (n == '"' || n == '\\' || n == '/') {
+                    sb.append(n);
+                    i++;
+                    continue;
+                } else if (n == 'n') {
+                    sb.append('\n');
+                    i++;
+                    continue;
+                } else if (n == 't') {
+                    sb.append('\t');
+                    i++;
+                    continue;
+                }
+            }
+            if (c == '"') break;
+            sb.append(c);
+        }
+        return sb.toString();
     }
 
     public Map<String, Object> createBoletoPayment(Long userId, Long orderId, String email, String cpf, String firstName, String lastName) throws Exception {
@@ -233,19 +266,28 @@ public class PaymentService {
         String status = extractJson(responseBody, "status");
         String id = extractJson(responseBody, "id");
         String ticketUrl = extractJson(responseBody, "ticket_url");
+        String digitableLine = extractJson(responseBody, "digitable_line");
+        String barcodeContent = extractJson(responseBody, "barcode_content");
 
-        // Salva mpPaymentId no pedido para o webhook encontrar depois
-        if (orderId != null && id != null) {
+        // Salva o ID numérico do pagamento (webhook MP) — não o ORD...
+        String numericPaymentId = extractNumericPaymentId(ticketUrl);
+        String idToSave = numericPaymentId != null ? numericPaymentId : id;
+        if (orderId != null && idToSave != null) {
             orderRepository.findById(orderId).ifPresent(o -> {
-                o.setMpPaymentId(id);
+                o.setMpPaymentId(idToSave);
+                if (cpf != null && !cpf.isBlank()) {
+                    o.setBuyerCpf(cpf.replaceAll("[^0-9]", ""));
+                }
                 orderRepository.save(o);
             });
         }
 
         Map<String, Object> response = new HashMap<>();
-        response.put("id", id);
+        response.put("id", idToSave != null ? idToSave : id);
         response.put("status", status);
         response.put("boleto_url", ticketUrl);
+        response.put("digitable_line", digitableLine);
+        response.put("barcode_content", barcodeContent);
         response.put("total", total);
         response.put("orderId", orderId);
         return response;

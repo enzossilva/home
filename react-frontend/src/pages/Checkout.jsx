@@ -399,9 +399,32 @@ export default function Checkout() {
                     <h3>Boleto gerado!</h3>
                     <p className="pix-total">Total: <strong>R$ {(Number.isFinite(Number(result.total)) ? Number(result.total) : total).toFixed(2)}</strong></p>
                     {result.boleto_url && (
-                      <a href={result.boleto_url} target="_blank" rel="noreferrer" className="btn" style={{ marginTop: '1rem' }}>
+                      <a
+                        href={String(result.boleto_url).replace(/\\u0026/gi, '&')}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn"
+                        style={{ marginTop: '1rem', display: 'block', textAlign: 'center' }}
+                      >
                         Abrir boleto
                       </a>
+                    )}
+                    {result.digitable_line && (
+                      <>
+                        <p className="pix-hint" style={{ marginTop: '1rem' }}>Linha digitável:</p>
+                        <div className="pix-code">{result.digitable_line}</div>
+                        <button
+                          type="button"
+                          className={`btn ${copied ? 'btn-success' : ''}`}
+                          onClick={() => {
+                            navigator.clipboard.writeText(result.digitable_line);
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                          }}
+                        >
+                          {copied ? 'Copiado!' : 'Copiar linha digitável'}
+                        </button>
+                      </>
                     )}
                     {result.orderId && (
                       <button className="btn btn-secondary" onClick={() => navigate(`/pedido/${result.orderId}`)} style={{ marginTop: '0.75rem', width: '100%' }}>
