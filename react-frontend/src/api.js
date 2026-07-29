@@ -19,9 +19,15 @@ function handleResponse(res) {
 }
 
 async function parseResponse(res) {
-  const json = await res.json();
-  if (!res.ok || !json.success) {
-    throw new Error(json.message || 'Erro na requisição');
+  const text = await res.text();
+  let json;
+  try {
+    json = text ? JSON.parse(text) : null;
+  } catch {
+    throw new Error(text?.trim() || `Erro HTTP ${res.status}`);
+  }
+  if (!res.ok || !json?.success) {
+    throw new Error(json?.message || text || 'Erro na requisição');
   }
   return json.data;
 }

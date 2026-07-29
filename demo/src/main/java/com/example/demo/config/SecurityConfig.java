@@ -18,6 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -113,14 +114,29 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of(
-            "https://*.up.railway.app",
-            "http://localhost:*",
-            "https://localhost:*",
-            frontendUrl
-        ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+        List<String> origins = new ArrayList<>();
+        origins.add("https://*.up.railway.app");
+        origins.add("http://localhost:*");
+        origins.add("https://localhost:*");
+        origins.add("https://youngszone.com.br");
+        origins.add("https://www.youngszone.com.br");
+
+        if (frontendUrl != null && !frontendUrl.isBlank()) {
+            String cleaned = frontendUrl.trim().replaceAll("/+$", "");
+            origins.add(cleaned);
+            if (cleaned.contains("://www.")) {
+                origins.add(cleaned.replace("://www.", "://"));
+            } else if (cleaned.startsWith("https://")) {
+                origins.add(cleaned.replaceFirst("https://", "https://www."));
+            } else if (cleaned.startsWith("http://")) {
+                origins.add(cleaned.replaceFirst("http://", "http://www."));
+            }
+        }
+
+        config.setAllowedOriginPatterns(origins);
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
