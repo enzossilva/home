@@ -80,13 +80,14 @@ public class EmailService {
     }
 
     public void enviarResetSenha(com.example.demo.model.User user, String resetToken) {
+        String base = frontendUrl == null ? "" : frontendUrl.replaceAll("/$", "");
+        String resetUrl = base + "/reset-senha?token=" + resetToken;
         try {
-            String base = frontendUrl == null ? "" : frontendUrl.replaceAll("/$", "");
-            String resetUrl = base + "/reset-senha?token=" + resetToken;
             send(user.getEmail(), "Redefinição de senha — Young Zone", buildResetSenhaHtml(user, resetUrl));
-            logger.info("Email de reset de senha enviado: email={}", user.getEmail());
+            logger.info("Email de reset de senha enviado: email={} urlBase={}", user.getEmail(), base);
         } catch (Exception e) {
             logger.error("Erro ao enviar email de reset: email={}", user.getEmail(), e);
+            throw new RuntimeException("Falha ao enviar email de reset", e);
         }
     }
 

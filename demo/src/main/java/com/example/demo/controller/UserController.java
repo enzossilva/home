@@ -49,15 +49,14 @@ public class UserController {
 
     @PostMapping("/reset-request")
     public ResponseEntity<?> resetRequest(@RequestBody Map<String, String> body) {
-        String email = body.get("email");
+        String email = body != null ? body.get("email") : null;
         logger.info("Solicitação de reset de senha: {}", email);
         userService.requestPasswordReset(email);
-        // Responde igual mesmo se email não existir (segurança - user enumeration prevention)
         return ResponseEntity.ok(ApiResponse.success(null, "Se o email estiver cadastrado, você receberá um link em breve"));
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         logger.info("Reset de senha com token");
         userService.resetPassword(request.getToken(), request.getNewPassword());
         return ResponseEntity.ok(ApiResponse.success(null, "Senha redefinida com sucesso"));
@@ -91,13 +90,3 @@ public class UserController {
     }
 }
 
-class ResetPasswordRequest {
-    private String token;
-    private String newPassword;
-
-    public String getToken() { return token; }
-    public void setToken(String token) { this.token = token; }
-
-    public String getNewPassword() { return newPassword; }
-    public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
-}

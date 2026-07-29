@@ -74,16 +74,30 @@ public class UserService {
 
     @Transactional
     public void requestPasswordReset(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário", null));
+        if (email == null || email.isBlank()) {
+            throw new ValidationException("Email é obrigatório");
+        }
+        String normalized = email.trim();
+        var opt = userRepository.findByEmail(normalized);
+        if (opt.isEmpty()) {
+            // Não revela se o email existe
+            logger.info("Reset solicitado para email não cadastrado: {}", normalized);
+            return;
+        }
 
+        User user = opt.get();
         String token = SecurityUtils.generateSecureToken();
         user.setResetToken(token);
         user.setResetTokenExpiry(LocalDateTime.now().plusHours(RESET_TOKEN_EXPIRY_HOURS));
         userRepository.save(user);
 
-        logger.info("Token de reset gerado para: {}", email);
-        emailService.enviarResetSenha(user, token);
+        logger.info("Token de reset gerado para: {}", normalized);
+        try {
+            emailService.enviarResetSenha(user, token);
+        } catch (Exception e) {
+            logger.error("Falha ao enviar email de reset: {}", normalized, e);
+            throw new BusinessException("Não foi possível enviar o email de redefinição. Tente novamente em instantes.");
+        }
     }
 
     @Transactional

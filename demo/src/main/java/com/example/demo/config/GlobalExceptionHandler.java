@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +45,13 @@ public class GlobalExceptionHandler {
         logger.warn("Argumento ilegal: {}", e.getMessage());
         ApiResponse<?> response = ApiResponse.error(e.getMessage(), "INVALID_ARGUMENT");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Void> handleNoResource(NoResourceFoundException e) {
+        // favicon.ico e assets inexistentes — não poluir log com ERROR
+        logger.debug("Recurso estático não encontrado: {}", e.getResourcePath());
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(Exception.class)
