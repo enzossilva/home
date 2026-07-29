@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getOrder, cancelOrder } from '../api';
+import { getOrder, cancelOrder, syncOrderPayment } from '../api';
 import { useUser } from '../context/UserContext';
 
 const STATUS_LABEL = {
@@ -24,6 +24,25 @@ export default function OrderConfirmation() {
       .then(setOrder)
       .catch(() => setError('Pedido não encontrado.'));
   }, [id]);
+
+  // Enquanto PENDING, consulta o MP a cada 5s e atualiza para PAID automaticamente
+  useEffect(() => {
+    if (!order || order.status !== 'PENDING') return;
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const sync = await syncOrderPayment(order.id);
+        if (cancelled) return;
+        if (sync?.status && sync.status !== order.status) {
+          const fresh = await getOrder(order.id);
+          if (!cancelled) setOrder(fresh);
+        }
+      } catch { /* ignora erros transitórios */ }
+    };
+    const idInterval = setInterval(tick, 5000);
+    tick();
+    return () => { cancelled = true; clearInterval(idInterval); };
+  }, [order?.id, order?.status]);
 
   async function handleCancel() {
     if (!confirm('Tem certeza que deseja cancelar este pedido?')) return;

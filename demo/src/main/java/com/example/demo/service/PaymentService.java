@@ -2,27 +2,42 @@ package com.example.demo.service;
 
 import com.example.demo.model.Order;
 import com.example.demo.repository.OrderRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class PaymentService {
+    private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
 
     @Value("${mercadopago.access-token}")
     private String accessToken;
 
+    @Value("${app.public.url:}")
+    private String publicUrl;
+
+    @Value("${app.frontend.url:}")
+    private String frontendUrl;
+
     private final CartService cartService;
     private final OrderService orderService;
     private final OrderRepository orderRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient http = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(8))
             .build();
@@ -32,6 +47,17 @@ public class PaymentService {
         this.cartService = cartService;
         this.orderService = orderService;
         this.orderRepository = orderRepository;
+    }
+
+    /** URL que o Mercado Pago chama quando o pagamento muda de status. */
+    private String notificationUrlJsonField() {
+        String base = (publicUrl != null && !publicUrl.isBlank()) ? publicUrl : frontendUrl;
+        if (base == null || base.isBlank() || base.contains("localhost")) {
+            logger.warn("app.public.url / FRONTEND_URL não configurados — webhook MP não será registrado no pagamento");
+            return "";
+        }
+        String url = base.replaceAll("/+$", "") + "/orders/webhook/mp";
+        return ",\"notification_url\":\"" + url + "\"";
     }
 
     public Map<String, Object> createPixPayment(Long userId, Long orderId, String email, String cpf, String firstName, String lastName) throws Exception {
@@ -52,13 +78,15 @@ public class PaymentService {
         if (total == null || total <= 0) throw new RuntimeException("Carrinho vazio ou valor inválido para pagamento PIX");
 
         String totalStr = String.format("%.2f", total).replace(",", ".");
+        String extRef = orderId != null ? String.valueOf(orderId) : UUID.randomUUID().toString();
 
         // Exatamente como a doc do MP: POST /v1/orders
         String body = "{"
             + "\"type\":\"online\","
             + "\"total_amount\":\"" + totalStr + "\","
-            + "\"external_reference\":\"" + UUID.randomUUID() + "\","
-            + "\"processing_mode\":\"automatic\","
+            + "\"external_reference\":\"" + extRef + "\","
+            + "\"processing_mode\":\"automatic\""
+            + notificationUrlJsonField() + ","
             + "\"payer\":{\"email\":\"" + email + "\"},"
             + "\"transactions\":{\"payments\":[{"
             +   "\"amount\":\"" + totalStr + "\","
@@ -225,12 +253,14 @@ public class PaymentService {
 
         String totalStr = String.format("%.2f", total).replace(",", ".");
         String cleanCpf = cpf.replaceAll("[^0-9]", "");
+        String extRef = orderId != null ? String.valueOf(orderId) : UUID.randomUUID().toString();
 
         String body = "{"
             + "\"type\":\"online\","
             + "\"total_amount\":\"" + totalStr + "\","
-            + "\"external_reference\":\"" + UUID.randomUUID() + "\","
-            + "\"processing_mode\":\"automatic\","
+            + "\"external_reference\":\"" + extRef + "\","
+            + "\"processing_mode\":\"automatic\""
+            + notificationUrlJsonField() + ","
             + "\"payer\":{"
             +   "\"email\":\"" + email + "\","
             +   "\"first_name\":\"" + firstName + "\","
@@ -314,12 +344,14 @@ public class PaymentService {
 
         int inst = installments != null ? installments : 1;
         String totalStr = String.format("%.2f", total).replace(",", ".");
+        String extRef = orderId != null ? String.valueOf(orderId) : UUID.randomUUID().toString();
 
         String body = "{"
             + "\"type\":\"online\","
             + "\"total_amount\":\"" + totalStr + "\","
-            + "\"external_reference\":\"" + UUID.randomUUID() + "\","
-            + "\"processing_mode\":\"automatic\","
+            + "\"external_reference\":\"" + extRef + "\","
+            + "\"processing_mode\":\"automatic\""
+            + notificationUrlJsonField() + ","
             + "\"payer\":{\"email\":\"" + email + "\","
             +   "\"first_name\":\"" + firstName + "\","
             +   "\"last_name\":\"" + lastName + "\"},"
@@ -368,5 +400,240 @@ public class PaymentService {
         }
 
         return response;
+    }
+
+    /**
+     * Webhook MP: consulta o pagamento/pedido na API e marca o pedido local como PAID.
+     * Aceita formatos clássicos (payment.*) e Orders API (order.* / topic query).
+     */
+    public void handleMercadoPagoWebhook(Map<String, Object> body, String topic, String typeParam, String idParam) {
+        String resourceId = idParam;
+        String kind = topic != null ? topic : typeParam;
+
+        if (body != null) {
+            if (resourceId == null || resourceId.isBlank()) {
+                Object data = body.get("data");
+                if (data instanceof Map<?, ?> dataMap && dataMap.get("id") != null) {
+                    resourceId = dataMap.get("id").toString();
+                } else if (body.get("id") != null) {
+                    resourceId = body.get("id").toString();
+                }
+            }
+            if (kind == null || kind.isBlank()) {
+                Object t = body.get("type");
+                if (t == null) t = body.get("topic");
+                if (t == null) t = body.get("action");
+                if (t != null) kind = t.toString();
+            }
+        }
+
+        if (resourceId == null || resourceId.isBlank()) {
+            logger.warn("Webhook MP sem id de recurso: body={}", body);
+            return;
+        }
+
+        logger.info("Webhook MP processando resourceId={} kind={}", resourceId, kind);
+
+        // 1) Tenta API de payments clássica
+        if (tryMarkFromPaymentApi(resourceId)) {
+            // se não marcou PAID, ainda tenta Orders e busca
+        }
+
+        // 2) Tenta Orders API (id ORD...)
+        tryMarkFromOrdersApi(resourceId);
+
+        // 3) Match direto pelo mpPaymentId já salvo
+        orderRepository.findByMpPaymentId(resourceId).ifPresent(o -> {
+            if ("PENDING".equals(o.getStatus())) {
+                orderService.markAsPaid(o.getId(), resourceId);
+                logger.info("Pedido #{} marcado PAID via mpPaymentId direto", o.getId());
+            }
+        });
+
+        // 4) Se o body/query trouxer external_reference numérico, busca e marca
+        String extFromBody = null;
+        if (body != null && body.get("external_reference") != null) {
+            extFromBody = body.get("external_reference").toString();
+        }
+        if (extFromBody != null && extFromBody.matches("\\d+")) {
+            searchAndMarkByExternalReference(extFromBody);
+        }
+    }
+
+    private boolean tryMarkFromPaymentApi(String paymentId) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.mercadopago.com/v1/payments/" + paymentId))
+                    .timeout(Duration.ofSeconds(15))
+                    .header("Authorization", "Bearer " + accessToken)
+                    .GET()
+                    .build();
+            HttpResponse<String> res = http.send(request, HttpResponse.BodyHandlers.ofString());
+            if (res.statusCode() >= 400) {
+                logger.debug("Payment API {} -> {}", paymentId, res.statusCode());
+                return false;
+            }
+            String json = res.body();
+            String status = extractJson(json, "status");
+            String extRef = extractJson(json, "external_reference");
+            logger.info("Payment {} status={} external_reference={}", paymentId, status, extRef);
+
+            if (!isPaidStatus(status)) return true; // encontrado, mas ainda não pago
+
+            Long orderId = resolveOrderId(paymentId, extRef);
+            if (orderId != null) {
+                try {
+                    orderService.markAsPaid(orderId, paymentId);
+                    logger.info("Pedido #{} marcado PAID via Payment API", orderId);
+                } catch (Exception e) {
+                    logger.info("Pedido #{} já processado ou erro: {}", orderId, e.getMessage());
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            logger.warn("Falha ao consultar Payment API {}: {}", paymentId, e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean tryMarkFromOrdersApi(String orderMpId) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.mercadopago.com/v1/orders/" + orderMpId))
+                    .timeout(Duration.ofSeconds(15))
+                    .header("Authorization", "Bearer " + accessToken)
+                    .header("accept", "application/json")
+                    .GET()
+                    .build();
+            HttpResponse<String> res = http.send(request, HttpResponse.BodyHandlers.ofString());
+            if (res.statusCode() >= 400) {
+                logger.debug("Orders API {} -> {}", orderMpId, res.statusCode());
+                return false;
+            }
+            String json = res.body();
+            String status = extractJson(json, "status");
+            String extRef = extractJson(json, "external_reference");
+            String ticketUrl = extractJson(json, "ticket_url");
+            String numericPayId = extractNumericPaymentId(ticketUrl);
+            logger.info("Order MP {} status={} external_reference={}", orderMpId, status, extRef);
+
+            if (!isPaidStatus(status)) return true;
+
+            String mpId = numericPayId != null ? numericPayId : orderMpId;
+            Long orderId = resolveOrderId(mpId, extRef);
+            if (orderId != null) {
+                try {
+                    orderService.markAsPaid(orderId, mpId);
+                    logger.info("Pedido #{} marcado PAID via Orders API", orderId);
+                } catch (Exception e) {
+                    logger.info("Pedido #{} já processado ou erro: {}", orderId, e.getMessage());
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            logger.warn("Falha ao consultar Orders API {}: {}", orderMpId, e.getMessage());
+            return false;
+        }
+    }
+
+    private Long resolveOrderId(String mpPaymentId, String externalReference) {
+        if (mpPaymentId != null) {
+            var byMp = orderRepository.findByMpPaymentId(mpPaymentId);
+            if (byMp.isPresent()) return byMp.get().getId();
+        }
+        if (externalReference != null && externalReference.matches("\\d+")) {
+            try {
+                Long id = Long.parseLong(externalReference);
+                if (orderRepository.findById(id).isPresent()) return id;
+            } catch (NumberFormatException ignored) {}
+        }
+        return null;
+    }
+
+    private boolean isPaidStatus(String status) {
+        if (status == null) return false;
+        String s = status.toLowerCase();
+        return s.equals("approved") || s.equals("paid") || s.equals("processed")
+                || s.equals("accredited");
+    }
+
+    /**
+     * Consulta o Mercado Pago pelo pedido local e marca PAID se o pagamento estiver aprovado.
+     * Usado pelo webhook, pela tela do pedido e pelo admin (sem depender só da notificação).
+     */
+    public Map<String, Object> syncOrderPaymentStatus(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+
+        Map<String, Object> out = new HashMap<>();
+        String before = order.getStatus();
+        out.put("orderId", orderId);
+        out.put("statusBefore", before);
+
+        if (before != null && List.of("PAID", "SHIPPED", "DELIVERED").contains(before)) {
+            out.put("status", before);
+            out.put("updated", false);
+            return out;
+        }
+
+        if (order.getMpPaymentId() != null && !order.getMpPaymentId().isBlank()) {
+            tryMarkFromPaymentApi(order.getMpPaymentId());
+            order = orderRepository.findById(orderId).orElse(order);
+            if ("PENDING".equals(order.getStatus())) {
+                tryMarkFromOrdersApi(order.getMpPaymentId());
+            }
+        }
+
+        order = orderRepository.findById(orderId).orElse(order);
+        if ("PENDING".equals(order.getStatus())) {
+            searchAndMarkByExternalReference(String.valueOf(orderId));
+        }
+
+        order = orderRepository.findById(orderId).orElse(order);
+        out.put("status", order.getStatus());
+        out.put("updated", !before.equals(order.getStatus()));
+        return out;
+    }
+
+    private void searchAndMarkByExternalReference(String orderIdStr) {
+        try {
+            String q = URLEncoder.encode(orderIdStr, StandardCharsets.UTF_8);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.mercadopago.com/v1/payments/search?external_reference=" + q + "&sort=date_created&criteria=desc"))
+                    .timeout(Duration.ofSeconds(15))
+                    .header("Authorization", "Bearer " + accessToken)
+                    .GET()
+                    .build();
+            HttpResponse<String> res = http.send(request, HttpResponse.BodyHandlers.ofString());
+            if (res.statusCode() >= 400) {
+                logger.warn("Busca MP por external_reference={} -> {}", orderIdStr, res.statusCode());
+                return;
+            }
+            JsonNode root = objectMapper.readTree(res.body());
+            JsonNode results = root.path("results");
+            if (!results.isArray()) return;
+
+            for (JsonNode payment : results) {
+                String status = payment.path("status").asText(null);
+                JsonNode idNode = payment.get("id");
+                String paymentId = idNode == null || idNode.isNull() ? null : idNode.asText();
+                String extRef = payment.path("external_reference").asText(null);
+                logger.info("Search MP payment id={} status={} extRef={}", paymentId, status, extRef);
+                if (!isPaidStatus(status)) continue;
+
+                Long orderId = resolveOrderId(paymentId, extRef != null ? extRef : orderIdStr);
+                if (orderId != null) {
+                    try {
+                        orderService.markAsPaid(orderId, paymentId != null ? paymentId : orderIdStr);
+                        logger.info("Pedido #{} marcado PAID via busca external_reference", orderId);
+                    } catch (Exception e) {
+                        logger.info("Pedido #{} já processado ou erro: {}", orderId, e.getMessage());
+                    }
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("Falha na busca MP por external_reference {}: {}", orderIdStr, e.getMessage());
+        }
     }
 }

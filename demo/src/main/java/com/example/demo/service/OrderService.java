@@ -273,7 +273,7 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+        return orderRepository.findAllByOrderByCreatedAtDesc();
     }
 
     @Transactional(readOnly = true)
@@ -330,29 +330,8 @@ public class OrderService {
 
     @Transactional
     public void processWebhookMP(Map<String, Object> body) {
-        try {
-            String action = (String) body.getOrDefault("action", "");
-
-            if ("payment.updated".equals(action) || "payment.created".equals(action)) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> data = (Map<String, Object>) body.get("data");
-
-                if (data != null && data.containsKey("id")) {
-                    String mpId = data.get("id").toString();
-
-                    // Encontra pedido pendente com este ID
-                    orderRepository.findAll().stream()
-                            .filter(o -> mpId.equals(o.getMpPaymentId()) && "PENDING".equals(o.getStatus()))
-                            .findFirst()
-                            .ifPresent(o -> markAsPaid(o.getId(), mpId));
-
-                    logger.info("Webhook processado: mpPaymentId={}", mpId);
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Erro ao processar webhook MP", e);
-            // Webhook sempre retorna 200 para evitar retentativas
-        }
+        // Mantido por compatibilidade — a lógica real está em PaymentService
+        logger.info("processWebhookMP chamado (delegar via controller)");
     }
 
     /**

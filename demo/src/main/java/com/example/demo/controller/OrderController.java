@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
 import java.util.Map;
@@ -22,10 +23,13 @@ public class OrderController {
 
     private final OrderService orderService;
     private final AuthHelper authHelper;
+    private final com.example.demo.service.PaymentService paymentService;
 
-    public OrderController(OrderService orderService, AuthHelper authHelper) {
+    public OrderController(OrderService orderService, AuthHelper authHelper,
+                           com.example.demo.service.PaymentService paymentService) {
         this.orderService = orderService;
         this.authHelper = authHelper;
+        this.paymentService = paymentService;
     }
 
     @PostMapping
@@ -69,6 +73,15 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.success(null, "CPF salvo com sucesso"));
     }
 
+    @PostMapping("/{id}/sync-payment")
+    public ResponseEntity<?> syncPayment(@PathVariable Long id, HttpServletRequest request) {
+        Order order = orderService.getOrder(id);
+        authHelper.requireOwnerOrAdmin(request, order.getUser().getId());
+        logger.info("Sincronizando pagamento do pedido: orderId={}", id);
+        Map<String, Object> result = paymentService.syncOrderPaymentStatus(id);
+        return ResponseEntity.ok(ApiResponse.success(result, "Pagamento sincronizado"));
+    }
+
     @PostMapping("/{id}/mark-paid")
     public ResponseEntity<?> markAsPaid(@PathVariable Long id, HttpServletRequest request) {
         authHelper.requireAdmin(request);
@@ -110,11 +123,19 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.success(stats));
     }
 
-    @PostMapping("/webhook/mp")
-    public ResponseEntity<?> webhookMP(@RequestBody Map<String, Object> body) {
-        logger.info("Webhook Mercado Pago recebido");
-        orderService.processWebhookMP(body);
-        // Retorna 200 OK mesmo em erro para evitar retentativas
+    @RequestMapping(value = "/webhook/mp", method = {RequestMethod.POST, RequestMethod.GET})
+    public ResponseEntity<?> webhookMP(@RequestBody(required = false) Map<String, Object> body,
+                                       @RequestParam(required = false) String topic,
+                                       @RequestParam(required = false) String type,
+                                       @RequestParam(required = false) String id,
+                                       @RequestParam(required = false) String data_id) {
+        String resourceId = id != null ? id : data_id;
+        logger.info("Webhook Mercado Pago recebido topic={} type={} id={} body={}", topic, type, resourceId, body);
+        try {
+            paymentService.handleMercadoPagoWebhook(body, topic, type, resourceId);
+        } catch (Exception e) {
+            logger.error("Erro ao processar webhook MP", e);
+        }
         return ResponseEntity.ok(ApiResponse.success(null, "Webhook processado"));
     }
 }

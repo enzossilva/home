@@ -231,6 +231,14 @@ export async function markOrderAsPaid(orderId) {
   return parseResponse(res);
 }
 
+export async function syncOrderPayment(orderId) {
+  const res = handleResponse(await fetch(`${BASE}orders/${orderId}/sync-payment`, {
+    method: 'POST',
+    headers: authHeaders(),
+  }));
+  return parseResponse(res);
+}
+
 export async function gerarEtiqueta(orderId) {
   const res = handleResponse(await fetch(`${BASE}orders/${orderId}/etiqueta`, {
     method: 'POST',

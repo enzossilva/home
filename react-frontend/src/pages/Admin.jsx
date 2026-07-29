@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getProducts, addProduct, deleteProduct, updateProduct, getAllOrders, markAsShipped, getAdminStats, gerarEtiqueta, getLookbook, addLookbookItem, deleteLookbookItem, markOrderAsPaid } from '../api';
+import { getProducts, addProduct, deleteProduct, updateProduct, getAllOrders, markAsShipped, getAdminStats, gerarEtiqueta, getLookbook, addLookbookItem, deleteLookbookItem, markOrderAsPaid, syncOrderPayment } from '../api';
 import { getVideos, addVideo, deleteVideo } from '../api';
 import { useUser } from '../context/UserContext';
 import ImageUpload from '../components/ImageUpload';
@@ -27,6 +27,8 @@ export default function Admin() {
   const [vidForm, setVidForm] = useState({ youtubeUrl: '', title: '', description: '', ordem: '' });
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [orderFilter, setOrderFilter] = useState('ship'); // ship | pending | shipped | all
+  const [syncingId, setSyncingId] = useState(null);
   const [form, setForm] = useState(EMPTY);
   const [editId, setEditId] = useState(null);
   const [message, setMessage] = useState({ text: '', type: '' });
@@ -37,11 +39,18 @@ export default function Admin() {
   useEffect(() => {
     if (!user || user.role !== 'ADMIN') { navigate('/'); return; }
     load();
-    loadOrders();
+    loadOrders({ syncPending: true });
     getAdminStats().then(setStats).catch(() => {});
     getLookbook().then(setLookbook).catch(() => {});
     getVideos().then(setVideos).catch(() => {});
   }, [user]);
+
+  // Atualiza pedidos a cada 20s enquanto a aba estiver aberta
+  useEffect(() => {
+    if (tab !== 'pedidos' || !user || user.role !== 'ADMIN') return;
+    const id = setInterval(() => { loadOrders(); getAdminStats().then(setStats).catch(() => {}); }, 20000);
+    return () => clearInterval(id);
+  }, [tab, user]);
 
   async function load() {
     try {
@@ -51,11 +60,38 @@ export default function Admin() {
     }
   }
 
-  async function loadOrders() {
+  async function loadOrders(opts = {}) {
+    const { syncPending = false } = opts;
     try {
-      setOrders(await getAllOrders());
+      let list = await getAllOrders();
+      setOrders(list);
+      if (syncPending) {
+        const pending = (list || []).filter(o => o.status === 'PENDING').slice(0, 10);
+        if (pending.length) {
+          await Promise.allSettled(pending.map(o => syncOrderPayment(o.id)));
+          list = await getAllOrders();
+          setOrders(list);
+        }
+      }
     } catch {
       showMsg('Erro ao carregar pedidos', 'error');
+    }
+  }
+
+  async function handleSyncPayment(orderId) {
+    setSyncingId(orderId);
+    try {
+      const result = await syncOrderPayment(orderId);
+      if (result?.updated || result?.status === 'PAID') {
+        showMsg(`Pedido #${orderId} atualizado: ${STATUS_LABEL[result.status] || result.status}`);
+      } else {
+        showMsg(`Pedido #${orderId} ainda aguardando pagamento no Mercado Pago`);
+      }
+      setOrders(await getAllOrders());
+    } catch (err) {
+      showMsg(err.message, 'error');
+    } finally {
+      setSyncingId(null);
     }
   }
 
@@ -361,14 +397,60 @@ export default function Admin() {
       )}
 
       {/* ABA PEDIDOS */}
-      {tab === 'pedidos' && (
+      {tab === 'pedidos' && (() => {
+        const statusRank = { PAID: 0, PENDING: 1, SHIPPED: 2, DELIVERED: 3, CANCELLED: 4 };
+        const sorted = [...orders].sort((a, b) => {
+          const ra = statusRank[a.status] ?? 9;
+          const rb = statusRank[b.status] ?? 9;
+          if (ra !== rb) return ra - rb;
+          const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return tb - ta;
+        });
+        const counts = {
+          ship: sorted.filter(o => o.status === 'PAID').length,
+          pending: sorted.filter(o => o.status === 'PENDING').length,
+          shipped: sorted.filter(o => o.status === 'SHIPPED' || o.status === 'DELIVERED').length,
+        };
+        const filtered = sorted.filter(o => {
+          if (orderFilter === 'all') return true;
+          if (orderFilter === 'ship') return o.status === 'PAID';
+          if (orderFilter === 'pending') return o.status === 'PENDING';
+          if (orderFilter === 'shipped') return o.status === 'SHIPPED' || o.status === 'DELIVERED';
+          return true;
+        });
+
+        return (
         <div>
           {message.text && <p className={message.type === 'error' ? 'error' : 'success'}>{message.text}</p>}
-          {orders.length === 0 ? (
-            <p className="empty">Nenhum pedido ainda.</p>
+
+          <div className="admin-order-filters">
+            <button type="button" className={orderFilter === 'ship' ? 'active' : ''} onClick={() => setOrderFilter('ship')}>
+              Para enviar {counts.ship > 0 && <span>{counts.ship}</span>}
+            </button>
+            <button type="button" className={orderFilter === 'pending' ? 'active' : ''} onClick={() => setOrderFilter('pending')}>
+              Aguardando pgto {counts.pending > 0 && <span>{counts.pending}</span>}
+            </button>
+            <button type="button" className={orderFilter === 'shipped' ? 'active' : ''} onClick={() => setOrderFilter('shipped')}>
+              Enviados {counts.shipped > 0 && <span>{counts.shipped}</span>}
+            </button>
+            <button type="button" className={orderFilter === 'all' ? 'active' : ''} onClick={() => setOrderFilter('all')}>
+              Todos ({sorted.length})
+            </button>
+            <button type="button" className="admin-order-refresh" onClick={() => { loadOrders({ syncPending: true }); getAdminStats().then(setStats).catch(() => {}); showMsg('Pedidos atualizados'); }}>
+              Atualizar + verificar pagamentos
+            </button>
+          </div>
+
+          {orderFilter === 'ship' && counts.ship === 0 && (
+            <p className="admin-order-hint">Nenhum pedido pago aguardando envio. Quando o cliente pagar, aparece aqui automaticamente.</p>
+          )}
+
+          {filtered.length === 0 ? (
+            <p className="empty">Nenhum pedido neste filtro.</p>
           ) : (
-            orders.map(order => (
-              <div key={order.id} className="form-card" style={{ marginBottom: '1rem' }}>
+            filtered.map(order => (
+              <div key={order.id} className={`form-card admin-order-card admin-order-${order.status?.toLowerCase()}`} style={{ marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div>
                     <strong>Pedido #{order.id}</strong>
@@ -378,6 +460,7 @@ export default function Admin() {
                     <p style={{ margin: '0.25rem 0 0', fontSize: '0.83rem', color: '#666' }}>
                       {order.createdAt ? new Date(order.createdAt).toLocaleString('pt-BR') : ''}
                       {' — '}{order.user?.email}
+                      {order.buyerCpf ? ` — CPF ${order.buyerCpf}` : ''}
                     </p>
                   </div>
                   <strong>R$ {Number(order.total).toFixed(2)}</strong>
@@ -390,12 +473,12 @@ export default function Admin() {
                 <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
                   <strong>Itens:</strong>{' '}
                   {order.items?.map((item, i) => (
-                    <span key={i}>{item.productName}{item.size ? ` (${item.size})` : ''}{i < order.items.length - 1 ? ', ' : ''}</span>
+                    <span key={i}>{item.productName}{item.size ? ` (${item.size})` : ''} ×{item.quantity || 1}{i < order.items.length - 1 ? ', ' : ''}</span>
                   ))}
                 </div>
 
                 <div style={{ marginTop: '0.5rem', fontSize: '0.83rem', color: '#666' }}>
-                  Frete: {order.shippingMethod === 'SEDEX' ? 'SEDEX' : 'PAC'} — R$ {Number(order.shippingCost).toFixed(2)}
+                  Frete: {order.shippingMethod === 'SEDEX' ? 'SEDEX' : 'PAC'} — R$ {Number(order.shippingCost || 0).toFixed(2)}
                 </div>
 
                 {order.trackingCode && (
@@ -408,25 +491,39 @@ export default function Admin() {
                 )}
 
                 {order.status === 'PENDING' && (
-                  <button
-                    onClick={async () => {
-                      if (!confirm('Confirmar pagamento manualmente?')) return;
-                      try {
-                        await markOrderAsPaid(order.id);
-                        showMsg('Pedido marcado como pago!');
-                        loadOrders();
-                      } catch (err) { showMsg(err.message, 'error'); }
-                    }}
-                    style={{ marginTop: '0.75rem', background: '#27ae60', color: '#fff', border: 'none', padding: '0.5rem 1rem', cursor: 'pointer', fontSize: '0.85rem', borderRadius: 4 }}
-                  >
-                    ✓ Confirmar pagamento manualmente
-                  </button>
+                  <div className="admin-order-pending-box">
+                    <p>
+                      Aguardando pagamento do cliente. O status muda para <strong>Pago</strong> sozinho após confirmação do Mercado Pago.
+                    </p>
+                    <div className="admin-order-pending-actions">
+                      <button type="button" disabled={syncingId === order.id} onClick={() => handleSyncPayment(order.id)}>
+                        {syncingId === order.id ? 'Verificando…' : 'Verificar no Mercado Pago'}
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-order-manual"
+                        onClick={async () => {
+                          if (!confirm('Confirmar pagamento manualmente? Use só se o cliente já pagou e a verificação automática falhou.')) return;
+                          try {
+                            await markOrderAsPaid(order.id);
+                            showMsg('Pedido marcado como pago!');
+                            setOrders(await getAllOrders());
+                          } catch (err) { showMsg(err.message, 'error'); }
+                        }}
+                      >
+                        Confirmar manualmente
+                      </button>
+                    </div>
+                  </div>
                 )}
 
                 {order.status === 'PAID' && !order.trackingCode && (
-                  <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: '#e8f5e9', borderRadius: 6, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: '#0a3622' }}>
+                      <strong>Pronto para envio</strong> — gere a etiqueta ou informe o rastreio.
+                    </p>
                     {!order.buyerCpf && (
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.25rem' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                         <input
                           placeholder="CPF do comprador (só números)"
                           value={trackingInputs[`cpf_${order.id}`] || ''}
@@ -453,19 +550,16 @@ export default function Admin() {
                         </button>
                       </div>
                     )}
-                    {/* Botão principal — gera etiqueta no Melhor Envio */}
                     <button
                       className="btn"
                       onClick={() => handleGerarEtiqueta(order.id)}
                       disabled={gerandoEtiqueta[order.id] || !order.buyerCpf}
                       style={{ background: order.buyerCpf ? '#111' : '#aaa', color: '#fff', border: 'none', padding: '0.6rem 1rem', fontSize: '0.88rem' }}
                     >
-                      {gerandoEtiqueta[order.id] ? 'Gerando etiqueta...' : !order.buyerCpf ? '📦 Salve o CPF primeiro' : '📦 Gerar etiqueta (Melhor Envio)'}
+                      {gerandoEtiqueta[order.id] ? 'Gerando etiqueta...' : !order.buyerCpf ? 'Salve o CPF primeiro' : 'Gerar etiqueta (Melhor Envio)'}
                     </button>
-
-                    {/* Fallback — inserir código manual */}
                     <details style={{ fontSize: '0.82rem' }}>
-                      <summary style={{ cursor: 'pointer', color: '#888' }}>Inserir código manualmente</summary>
+                      <summary style={{ cursor: 'pointer', color: '#666' }}>Inserir código manualmente</summary>
                       <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                         <input
                           placeholder="Ex: AA123456789BR"
@@ -484,7 +578,8 @@ export default function Admin() {
             ))
           )}
         </div>
-      )}
+        );
+      })()}
 
       {/* ABA PRODUTOS */}
       {tab === 'produtos' && (

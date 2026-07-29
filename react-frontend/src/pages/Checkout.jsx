@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCart, createOrder } from '../api';
+import { getCart, createOrder, syncOrderPayment } from '../api';
 import { useUser } from '../context/UserContext';
 
 const BASE = '/';
@@ -119,6 +119,27 @@ export default function Checkout() {
       .catch(() => setError('Erro ao carregar carrinho.'))
       .finally(() => setLoading(false));
   }, [user]);
+
+  // Após gerar PIX/boleto, verifica pagamento e redireciona quando aprovado
+  useEffect(() => {
+    const oid = result?.orderId || orderId;
+    if (!oid || !result || result.type === 'card') return;
+    if (result.status === 'paid' || result.status === 'approved' || result.status === 'processed') return;
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const sync = await syncOrderPayment(oid);
+        if (cancelled) return;
+        if (sync?.status === 'PAID') {
+          setResult(r => (r ? { ...r, status: 'paid' } : r));
+          setTimeout(() => navigate(`/pedido/${oid}`), 1200);
+        }
+      } catch { /* ignora */ }
+    };
+    const idInterval = setInterval(tick, 5000);
+    tick();
+    return () => { cancelled = true; clearInterval(idInterval); };
+  }, [result?.orderId, result?.type, result?.status, orderId, navigate]);
 
   function handleAddr(e) {
     const { name, value } = e.target;
@@ -392,6 +413,11 @@ export default function Checkout() {
                         Ver pedido #{result.orderId}
                       </button>
                     )}
+                    <p className="pix-hint" style={{ marginTop: '1rem' }}>
+                      {result.status === 'paid' || result.status === 'approved'
+                        ? 'Pagamento confirmado! Redirecionando…'
+                        : 'Aguardando confirmação do pagamento… esta tela atualiza sozinha.'}
+                    </p>
                   </>
                 )}
                 {result.type === 'boleto' && (

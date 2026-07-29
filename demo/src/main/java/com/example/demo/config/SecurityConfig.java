@@ -77,6 +77,7 @@ public class SecurityConfig {
                 // Só ADMIN
                 .requestMatchers("/orders/admin/all", "/orders/admin/stats").hasRole("ADMIN")
                 .requestMatchers("/orders/*/ship", "/orders/*/etiqueta", "/orders/*/mark-paid", "/orders/*/set-cpf").hasRole("ADMIN")
+                .requestMatchers("/orders/*/sync-payment").authenticated()
                 .requestMatchers(HttpMethod.POST, "/products").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole("ADMIN")
