@@ -443,9 +443,10 @@ public class PaymentService {
         tryMarkFromOrdersApi(resourceId);
 
         // 3) Match direto pelo mpPaymentId já salvo
-        orderRepository.findByMpPaymentId(resourceId).ifPresent(o -> {
+        final String mpResourceId = resourceId;
+        orderRepository.findByMpPaymentId(mpResourceId).ifPresent(o -> {
             if ("PENDING".equals(o.getStatus())) {
-                orderService.markAsPaid(o.getId(), resourceId);
+                orderService.markAsPaid(o.getId(), mpResourceId);
                 logger.info("Pedido #{} marcado PAID via mpPaymentId direto", o.getId());
             }
         });
