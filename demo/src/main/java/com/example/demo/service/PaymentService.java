@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.exception.BusinessException;
 import com.example.demo.model.Order;
 import com.example.demo.repository.OrderRepository;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -60,11 +61,21 @@ public class PaymentService {
         return ",\"notification_url\":\"" + url + "\"";
     }
 
+    /** Garante que o pedido pertence ao usuário autenticado. */
+    private Order requireOwnedOrder(Long userId, Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException("Pedido não encontrado"));
+        if (order.getUser() == null || !order.getUser().getId().equals(userId)) {
+            logger.warn("Tentativa de pagamento em pedido alheio: userId={}, orderId={}", userId, orderId);
+            throw new BusinessException("Você não pode pagar este pedido");
+        }
+        return order;
+    }
+
     public Map<String, Object> createPixPayment(Long userId, Long orderId, String email, String cpf, String firstName, String lastName) throws Exception {
         Double total;
         if (orderId != null) {
-            Order order = orderRepository.findById(orderId)
-                    .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+            Order order = requireOwnedOrder(userId, orderId);
             total = order.getTotal();
             if (total == null && order.getSubtotal() != null) {
                 total = order.getSubtotal() + (order.getShippingCost() != null ? order.getShippingCost() : 0.0);
@@ -231,8 +242,7 @@ public class PaymentService {
                neighborhood = "Bela Vista", city = "São Paulo", state = "SP";
 
         if (orderId != null) {
-            Order order = orderRepository.findById(orderId)
-                    .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+            Order order = requireOwnedOrder(userId, orderId);
             total = order.getTotal();
             if (total == null && order.getSubtotal() != null) {
                 total = order.getSubtotal() + (order.getShippingCost() != null ? order.getShippingCost() : 0.0);
@@ -328,8 +338,7 @@ public class PaymentService {
                                                    String firstName, String lastName, String cardType) throws Exception {
         Double total;
         if (orderId != null) {
-            Order order = orderRepository.findById(orderId)
-                    .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+            Order order = requireOwnedOrder(userId, orderId);
             total = order.getTotal();
             if (total == null && order.getSubtotal() != null) {
                 total = order.getSubtotal() + (order.getShippingCost() != null ? order.getShippingCost() : 0.0);
@@ -434,24 +443,12 @@ public class PaymentService {
 
         logger.info("Webhook MP processando resourceId={} kind={}", resourceId, kind);
 
-        // 1) Tenta API de payments clássica
-        if (tryMarkFromPaymentApi(resourceId)) {
-            // se não marcou PAID, ainda tenta Orders e busca
-        }
-
-        // 2) Tenta Orders API (id ORD...)
+        // Sempre confirma status na API do MP antes de marcar PAID.
+        // Nunca confiar só no id enviado no body (evita marcar pago sem pagamento real).
+        tryMarkFromPaymentApi(resourceId);
         tryMarkFromOrdersApi(resourceId);
 
-        // 3) Match direto pelo mpPaymentId já salvo
-        final String mpResourceId = resourceId;
-        orderRepository.findByMpPaymentId(mpResourceId).ifPresent(o -> {
-            if ("PENDING".equals(o.getStatus())) {
-                orderService.markAsPaid(o.getId(), mpResourceId);
-                logger.info("Pedido #{} marcado PAID via mpPaymentId direto", o.getId());
-            }
-        });
-
-        // 4) Se o body/query trouxer external_reference numérico, busca e marca
+        // Se o body/query trouxer external_reference numérico, busca pagamentos aprovados no MP
         String extFromBody = null;
         if (body != null && body.get("external_reference") != null) {
             extFromBody = body.get("external_reference").toString();

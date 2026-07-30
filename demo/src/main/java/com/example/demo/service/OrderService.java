@@ -104,19 +104,27 @@ public class OrderService {
                 .mapToDouble(Cart::getSubtotal)
                 .sum();
 
-        Double shippingCost = request.getShippingCost() != null ? request.getShippingCost()
-                : calcularFrete(request.getAddress().getCep(), request.getShippingMethod());
-
-        if (shippingCost == null) {
-            shippingCost = 0.0;
+        // Frete sempre recalculado no servidor — não confiar no valor enviado pelo cliente
+        String method = request.getShippingMethod();
+        if (method == null || method.isBlank()) {
+            method = "PAC";
+        }
+        if (!"PAC".equalsIgnoreCase(method) && !"SEDEX".equalsIgnoreCase(method)) {
+            throw new BusinessException("Método de frete inválido");
+        }
+        double shippingCost = calcularFrete(request.getAddress().getCep(), method);
+        if (request.getShippingCost() != null
+                && Math.abs(request.getShippingCost() - shippingCost) > 0.05) {
+            logger.warn("Frete do cliente ({}) difere do servidor ({}) — usando valor do servidor",
+                    request.getShippingCost(), shippingCost);
         }
 
         Order order = new Order();
         order.setUser(user);
         order.setSubtotal(subtotal);
         order.setShippingCost(shippingCost);
-        order.setTotal((subtotal != null ? subtotal : 0.0) + (shippingCost != null ? shippingCost : 0.0));
-        order.setShippingMethod(request.getShippingMethod());
+        order.setTotal((subtotal != null ? subtotal : 0.0) + shippingCost);
+        order.setShippingMethod(method.toUpperCase());
 
         // Mapeia endereço
         order.setCep(request.getAddress().getCep());
