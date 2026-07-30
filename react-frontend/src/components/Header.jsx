@@ -58,8 +58,8 @@ export default function Header() {
   return (
     <header className={`header ${isHome && !scrolled ? 'header-hero' : ''}`}>
       <nav className="header-nav-left">
-        <Link to="/shop">Shop</Link>
-        <Link to="/lookbook">Lookbook</Link>
+        <Link to="/shop">Produtos</Link>
+        <Link to="/lookbook">Fotografia</Link>
         <Link to="/videos">Videos</Link>
       </nav>
       <Link to="/" className="header-logo">

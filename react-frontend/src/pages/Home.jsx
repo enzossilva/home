@@ -28,8 +28,8 @@ export default function Home() {
       <div className="home-hero-content">
         <img src="/logo.png" alt="Young Zone" className="home-hero-logo" />
         <nav className="home-hero-nav">
-          <Link to="/shop">SHOP ALL</Link>
-          <Link to="/lookbook">LOOKBOOK</Link>
+          <Link to="/shop">PRODUTOS</Link>
+          <Link to="/lookbook">FOTOGRAFIA</Link>
           <Link to="/videos">VIDEOS</Link>
         </nav>
       </div>
