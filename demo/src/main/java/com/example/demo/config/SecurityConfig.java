@@ -60,6 +60,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/index.html", "/favicon.ico").permitAll()
                 .requestMatchers("/login", "/register", "/admin", "/checkout",
                         "/product/**", "/pedido/**", "/meus-pedidos",
+                        "/produtos", "/shop", "/fotografia", "/lookbook",
                         "/esqueci-senha", "/reset-senha", "/privacidade", "/termos").permitAll()
                 .requestMatchers("/users/register", "/users/login",
                         "/users/reset-request", "/users/reset-password").permitAll()

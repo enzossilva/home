@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { UserProvider } from './context/UserContext';
 import { SearchProvider } from './context/SearchContext';
 import { CartDrawerProvider } from './context/CartDrawerContext';
@@ -34,7 +34,8 @@ export default function App() {
             <CookieBanner />
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/shop" element={<Shop />} />
+              <Route path="/produtos" element={<Shop />} />
+              <Route path="/shop" element={<Navigate to="/produtos" replace />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/admin" element={<Admin />} />
@@ -47,7 +48,8 @@ export default function App() {
               <Route path="/reset-senha" element={<ResetPassword />} />
               <Route path="/privacidade" element={<Privacy />} />
               <Route path="/termos" element={<Terms />} />
-              <Route path="/lookbook" element={<Lookbook />} />
+              <Route path="/fotografia" element={<Lookbook />} />
+              <Route path="/lookbook" element={<Navigate to="/fotografia" replace />} />
               <Route path="/videos" element={<Videos />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
