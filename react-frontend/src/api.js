@@ -9,13 +9,78 @@ function authHeaders(extra = {}) {
   };
 }
 
-function handleResponse(res) {
-  if (res.status === 401) {
-    localStorage.removeItem('yz_token');
-    localStorage.removeItem('yz_user');
-    window.dispatchEvent(new Event('yz:logout'));
+function forceLogout() {
+  localStorage.removeItem('yz_token');
+  localStorage.removeItem('yz_user');
+  const path = window.location.pathname + window.location.search;
+  if (path && !path.startsWith('/login')) {
+    sessionStorage.setItem('yz_login_redirect', path);
   }
-  return res;
+  window.dispatchEvent(new Event('yz:logout'));
+}
+
+let refreshPromise = null;
+
+/** Renova o JWT (válido ou recentemente expirado). */
+export async function refreshSession() {
+  const token = localStorage.getItem('yz_token');
+  if (!token) throw new Error('Sem sessão');
+
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      const res = await fetch(`${BASE}users/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const text = await res.text();
+      let json = null;
+      try {
+        json = text ? JSON.parse(text) : null;
+      } catch {
+        throw new Error('Falha ao renovar sessão');
+      }
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.message || 'Sessão expirada');
+      }
+      const data = json.data;
+      if (data?.token) localStorage.setItem('yz_token', data.token);
+      if (data?.user) {
+        localStorage.setItem('yz_user', JSON.stringify(data.user));
+        window.dispatchEvent(new CustomEvent('yz:user', { detail: data.user }));
+      }
+      return data;
+    })().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}
+
+/**
+ * fetch autenticado: em 401 tenta renovar a sessão uma vez e repete.
+ * Assim o cliente não precisa deslogar/logar só porque o token antigo expirou.
+ */
+export async function authFetch(url, options = {}, retried = false) {
+  const headers = { ...authHeaders(), ...(options.headers || {}) };
+  const res = await fetch(url, { ...options, headers });
+
+  if (res.status !== 401) return res;
+
+  if (!retried && localStorage.getItem('yz_token')) {
+    try {
+      await refreshSession();
+      return authFetch(url, options, true);
+    } catch {
+      forceLogout();
+      throw new Error('Sua sessão expirou. Faça login novamente para continuar.');
+    }
+  }
+
+  forceLogout();
+  throw new Error('Sua sessão expirou. Faça login novamente para continuar.');
 }
 
 async function parseResponse(res) {
@@ -39,27 +104,24 @@ export async function getProducts() {
 }
 
 export async function addProduct(product) {
-  const res = await fetch(`${BASE}products`, {
+  const res = await authFetch(`${BASE}products`, {
     method: 'POST',
-    headers: authHeaders(),
     body: JSON.stringify(product),
   });
   return parseResponse(res);
 }
 
 export async function updateProduct(id, product) {
-  const res = await fetch(`${BASE}products/${id}`, {
+  const res = await authFetch(`${BASE}products/${id}`, {
     method: 'PUT',
-    headers: authHeaders(),
     body: JSON.stringify(product),
   });
   return parseResponse(res);
 }
 
 export async function deleteProduct(id) {
-  const res = await fetch(`${BASE}products/${id}`, {
+  const res = await authFetch(`${BASE}products/${id}`, {
     method: 'DELETE',
-    headers: authHeaders(),
   });
   return parseResponse(res);
 }
@@ -88,11 +150,10 @@ export async function login(email, password) {
 }
 
 export async function updateProfile(userId, data) {
-  const res = handleResponse(await fetch(`${BASE}users/${userId}/profile`, {
+  const res = await authFetch(`${BASE}users/${userId}/profile`, {
     method: 'PUT',
-    headers: authHeaders(),
     body: JSON.stringify(data),
-  }));
+  });
   const result = await parseResponse(res);
   if (result.token) localStorage.setItem('yz_token', result.token);
   return result;
@@ -118,23 +179,21 @@ export async function resetPassword(token, password) {
 
 // ── Cart ───────────────────────────────────────────────────
 export async function getCart(userId) {
-  const res = handleResponse(await fetch(`${BASE}cart/${userId}`, { headers: authHeaders() }));
+  const res = await authFetch(`${BASE}cart/${userId}`);
   return parseResponse(res);
 }
 
 export async function addToCart(userId, productId, quantity = 1, size = null) {
-  const res = await fetch(`${BASE}cart`, {
+  const res = await authFetch(`${BASE}cart`, {
     method: 'POST',
-    headers: authHeaders(),
     body: JSON.stringify({ userId, productId, quantity, size }),
   });
   return parseResponse(res);
 }
 
 export async function removeFromCart(cartItemId) {
-  const res = await fetch(`${BASE}cart/${cartItemId}`, {
+  const res = await authFetch(`${BASE}cart/${cartItemId}`, {
     method: 'DELETE',
-    headers: authHeaders(),
   });
   return parseResponse(res);
 }
@@ -143,43 +202,42 @@ export async function removeFromCart(cartItemId) {
 export async function createOrder(userId, address, shippingMethod, shippingCost) {
   let res;
   try {
-    res = await fetch(`${BASE}orders`, {
+    res = await authFetch(`${BASE}orders`, {
       method: 'POST',
-      headers: authHeaders(),
       body: JSON.stringify({ userId, address, shippingMethod, shippingCost }),
     });
-  } catch {
+  } catch (err) {
+    if (err?.message?.includes('sessão')) throw err;
     throw new Error('Falha de conexão ao criar o pedido. Tente novamente.');
   }
   return parseResponse(res);
 }
 
 export async function getOrder(id) {
-  const res = await fetch(`${BASE}orders/${id}`, { headers: authHeaders() });
+  const res = await authFetch(`${BASE}orders/${id}`);
   return parseResponse(res);
 }
 
 export async function getOrdersByUser(userId) {
-  const res = await fetch(`${BASE}orders/user/${userId}`, { headers: authHeaders() });
+  const res = await authFetch(`${BASE}orders/user/${userId}`);
   return parseResponse(res);
 }
 
 export async function cancelOrder(orderId) {
-  const res = handleResponse(await fetch(`${BASE}orders/${orderId}/cancel`, {
+  const res = await authFetch(`${BASE}orders/${orderId}/cancel`, {
     method: 'POST',
-    headers: authHeaders(),
     body: JSON.stringify({}),
-  }));
+  });
   return parseResponse(res);
 }
 
 export async function getAdminStats() {
-  const res = handleResponse(await fetch(`${BASE}orders/admin/stats`, { headers: authHeaders() }));
+  const res = await authFetch(`${BASE}orders/admin/stats`);
   return parseResponse(res);
 }
 
 export async function getAllOrders() {
-  const res = await fetch(`${BASE}orders/admin/all`, { headers: authHeaders() });
+  const res = await authFetch(`${BASE}orders/admin/all`);
   return parseResponse(res);
 }
 
@@ -190,18 +248,16 @@ export async function getVideos() {
 }
 
 export async function addVideo(video) {
-  const res = await fetch(`${BASE}videos`, {
+  const res = await authFetch(`${BASE}videos`, {
     method: 'POST',
-    headers: authHeaders(),
     body: JSON.stringify(video),
   });
   return parseResponse(res);
 }
 
 export async function deleteVideo(id) {
-  const res = await fetch(`${BASE}videos/${id}`, {
+  const res = await authFetch(`${BASE}videos/${id}`, {
     method: 'DELETE',
-    headers: authHeaders(),
   });
   return parseResponse(res);
 }
@@ -213,50 +269,44 @@ export async function getLookbook() {
 }
 
 export async function addLookbookItem(item) {
-  const res = await fetch(`${BASE}lookbook`, {
+  const res = await authFetch(`${BASE}lookbook`, {
     method: 'POST',
-    headers: authHeaders(),
     body: JSON.stringify(item),
   });
   return parseResponse(res);
 }
 
 export async function deleteLookbookItem(id) {
-  const res = await fetch(`${BASE}lookbook/${id}`, {
+  const res = await authFetch(`${BASE}lookbook/${id}`, {
     method: 'DELETE',
-    headers: authHeaders(),
   });
   return parseResponse(res);
 }
 
 export async function markOrderAsPaid(orderId) {
-  const res = handleResponse(await fetch(`${BASE}orders/${orderId}/mark-paid`, {
+  const res = await authFetch(`${BASE}orders/${orderId}/mark-paid`, {
     method: 'POST',
-    headers: authHeaders(),
-  }));
+  });
   return parseResponse(res);
 }
 
 export async function syncOrderPayment(orderId) {
-  const res = handleResponse(await fetch(`${BASE}orders/${orderId}/sync-payment`, {
+  const res = await authFetch(`${BASE}orders/${orderId}/sync-payment`, {
     method: 'POST',
-    headers: authHeaders(),
-  }));
+  });
   return parseResponse(res);
 }
 
 export async function gerarEtiqueta(orderId) {
-  const res = handleResponse(await fetch(`${BASE}orders/${orderId}/etiqueta`, {
+  const res = await authFetch(`${BASE}orders/${orderId}/etiqueta`, {
     method: 'POST',
-    headers: authHeaders(),
-  }));
+  });
   return parseResponse(res);
 }
 
 export async function markAsShipped(orderId, trackingCode) {
-  const res = await fetch(`${BASE}orders/${orderId}/ship`, {
+  const res = await authFetch(`${BASE}orders/${orderId}/ship`, {
     method: 'POST',
-    headers: authHeaders(),
     body: JSON.stringify({ trackingCode }),
   });
   return parseResponse(res);
@@ -264,10 +314,27 @@ export async function markAsShipped(orderId, trackingCode) {
 
 // ── Payment ─────────────────────────────────────────────────
 export async function gerarPix(userId, orderId, email, cpf, firstName, lastName) {
-  const res = await fetch(`${BASE}payment/pix`, {
+  const res = await authFetch(`${BASE}payment/pix`, {
     method: 'POST',
-    headers: authHeaders(),
     body: JSON.stringify({ userId, orderId, email, cpf, firstName, lastName }),
+  });
+  return parseResponse(res);
+}
+
+export async function gerarBoleto(userId, orderId, email, cpf, firstName, lastName) {
+  const res = await authFetch(`${BASE}payment/boleto`, {
+    method: 'POST',
+    body: JSON.stringify({ userId, orderId, email, cpf, firstName, lastName }),
+  });
+  return parseResponse(res);
+}
+
+export async function pagarCartao(userId, orderId, token, paymentMethodId, installments, email, cpf, firstName, lastName, cardType) {
+  const res = await authFetch(`${BASE}payment/card`, {
+    method: 'POST',
+    body: JSON.stringify({
+      userId, orderId, token, paymentMethodId, installments, email, cpf, firstName, lastName, cardType,
+    }),
   });
   return parseResponse(res);
 }

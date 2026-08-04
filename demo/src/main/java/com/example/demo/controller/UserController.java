@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.config.AuthHelper;
 import com.example.demo.dto.*;
 import com.example.demo.config.JwtUtil;
+import com.example.demo.exception.UnauthorizedException;
 import com.example.demo.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -45,6 +46,27 @@ public class UserController {
         String token = jwtUtil.generateToken(userResponse.getEmail(), userResponse.getRole(), userResponse.getId());
         AuthResponse response = new AuthResponse(userResponse, token);
         return ResponseEntity.ok(ApiResponse.success(response, "Login realizado com sucesso"));
+    }
+
+    /**
+     * Renova o JWT enquanto a sessão ainda está na janela de refresh
+     * (token válido ou expirado há pouco). Evita forçar logout só porque o token passou de 24h/7d.
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            throw new UnauthorizedException("Token não encontrado");
+        }
+        String token = header.substring(7);
+        if (!jwtUtil.canRefresh(token)) {
+            throw new UnauthorizedException("Sessão expirada. Faça login novamente.");
+        }
+        Long userId = jwtUtil.extractUserIdAllowExpired(token);
+        UserResponse user = userService.getUserById(userId);
+        String newToken = jwtUtil.generateToken(user.getEmail(), user.getRole(), user.getId());
+        logger.info("Sessão renovada: userId={}", userId);
+        return ResponseEntity.ok(ApiResponse.success(new AuthResponse(user, newToken), "Sessão renovada"));
     }
 
     @PostMapping("/reset-request")

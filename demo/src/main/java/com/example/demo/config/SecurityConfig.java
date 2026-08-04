@@ -63,7 +63,8 @@ public class SecurityConfig {
                         "/produtos", "/shop", "/fotografia", "/lookbook",
                         "/esqueci-senha", "/reset-senha", "/privacidade", "/termos").permitAll()
                 .requestMatchers("/users/register", "/users/login",
-                        "/users/reset-request", "/users/reset-password").permitAll()
+                        "/users/reset-request", "/users/reset-password",
+                        "/users/refresh").permitAll()
                 .requestMatchers("/payment/public-key").permitAll()
                 .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/lookbook").permitAll()

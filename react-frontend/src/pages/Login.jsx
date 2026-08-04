@@ -18,7 +18,9 @@ export default function Login() {
     try {
       const data = await login(email, password);
       setUser(data.user);
-      navigate('/');
+      const redirect = sessionStorage.getItem('yz_login_redirect') || '/';
+      sessionStorage.removeItem('yz_login_redirect');
+      navigate(redirect.startsWith('/') ? redirect : '/');
     } catch (err) {
       setError(err.message);
     } finally {

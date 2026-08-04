@@ -1,6 +1,7 @@
 package com.example.demo.config;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -18,6 +19,10 @@ public class JwtUtil {
 
     @Value("${jwt.expiration}")
     private long expiration;
+
+    /** Quanto tempo após expirar ainda dá para renovar a sessão (ms). Default: 30 dias. */
+    @Value("${jwt.refresh-window-ms:2592000000}")
+    private long refreshWindowMs;
 
     public String generateToken(String email, String role, Long userId) {
         return Jwts.builder()
@@ -51,12 +56,44 @@ public class JwtUtil {
         }
     }
 
+    /**
+     * Token com assinatura válida e ainda dentro da janela de renovação
+     * (válido agora OU expirado há menos de refreshWindowMs).
+     */
+    public boolean canRefresh(String token) {
+        try {
+            Claims claims = parseClaimsAllowExpired(token);
+            Date exp = claims.getExpiration();
+            if (exp == null) return false;
+            long skew = System.currentTimeMillis() - exp.getTime();
+            return skew <= refreshWindowMs;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public Long extractUserIdAllowExpired(String token) {
+        return parseClaimsAllowExpired(token).get("userId", Long.class);
+    }
+
+    public String extractEmailAllowExpired(String token) {
+        return parseClaimsAllowExpired(token).getSubject();
+    }
+
     private Claims getClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    private Claims parseClaimsAllowExpired(String token) {
+        try {
+            return getClaims(token);
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 
     private SecretKey getKey() {

@@ -1,50 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCart, createOrder, syncOrderPayment } from '../api';
+import {
+  getCart, createOrder, syncOrderPayment,
+  gerarPix, gerarBoleto, pagarCartao,
+} from '../api';
 import { useUser } from '../context/UserContext';
 
 const BASE = '/';
-
-function authH() {
-  const t = localStorage.getItem('yz_token');
-  return { 'Content-Type': 'application/json', ...(t ? { Authorization: `Bearer ${t}` } : {}) };
-}
-
-async function gerarPix(userId, orderId, email, cpf, firstName, lastName) {
-  const res = await fetch(`${BASE}payment/pix`, {
-    method: 'POST', headers: authH(),
-    body: JSON.stringify({ userId, orderId, email, cpf, firstName, lastName }),
-  });
-  const json = await res.json();
-  if (!res.ok || json?.success === false) {
-    throw new Error(json?.message || json?.detalhes || json?.erro || 'Erro ao gerar PIX');
-  }
-  return json?.data ?? json;
-}
-
-async function gerarBoleto(userId, orderId, email, cpf, firstName, lastName) {
-  const res = await fetch(`${BASE}payment/boleto`, {
-    method: 'POST', headers: authH(),
-    body: JSON.stringify({ userId, orderId, email, cpf, firstName, lastName }),
-  });
-  const json = await res.json();
-  if (!res.ok || json?.success === false) {
-    throw new Error(json?.message || json?.detalhes || json?.erro || 'Erro ao gerar boleto');
-  }
-  return json?.data ?? json;
-}
-
-async function pagarCartao(userId, orderId, token, paymentMethodId, installments, email, cpf, firstName, lastName, cardType) {
-  const res = await fetch(`${BASE}payment/card`, {
-    method: 'POST', headers: authH(),
-    body: JSON.stringify({ userId, orderId, token, paymentMethodId, installments, email, cpf, firstName, lastName, cardType }),
-  });
-  const json = await res.json();
-  if (!res.ok || json?.success === false) {
-    throw new Error(json?.message || json?.detalhes || json?.erro || 'Erro ao processar cartão');
-  }
-  return json?.data ?? json;
-}
 
 async function getPublicKey() {
   const res = await fetch(`${BASE}payment/public-key`);
