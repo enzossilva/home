@@ -1,7 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" fill="#000"/>
-  <!-- Main fan (lashes) from bottom center -->
-  <g stroke="#fff" stroke-linecap="round" stroke-width="1.6">
+  <!-- Transparent background — only white mark -->
+  <g stroke="#fff" stroke-linecap="round" stroke-width="1.7">
     <path d="M16 28 L16 10"/>
     <path d="M16 28 L12.2 11.2"/>
     <path d="M16 28 L19.8 11.2"/>
@@ -14,8 +13,7 @@
     <path d="M16 28 L3.5 25"/>
     <path d="M16 28 L28.5 25"/>
   </g>
-  <!-- Small upper tuft -->
-  <g stroke="#fff" stroke-linecap="round" stroke-width="1.4">
+  <g stroke="#fff" stroke-linecap="round" stroke-width="1.5">
     <path d="M16 8 L16 3.5"/>
     <path d="M16 8 L13.2 4.2"/>
     <path d="M16 8 L18.8 4.2"/>
