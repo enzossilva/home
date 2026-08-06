@@ -1,4 +1,4 @@
-"""Generate favicons from logo-yz-source.png (white mark on transparent)."""
+"""Generate favicons from logo-yz-source.png (black mark on transparent)."""
 from PIL import Image
 from pathlib import Path
 
@@ -6,7 +6,7 @@ public = Path(__file__).resolve().parent.parent / "public"
 src = public / "logo-yz-source.png"
 
 
-def make_white_mark(im: Image.Image) -> Image.Image:
+def make_black_mark(im: Image.Image) -> Image.Image:
     im = im.convert("RGBA")
     pixels = im.load()
     w, h = im.size
@@ -17,7 +17,8 @@ def make_white_mark(im: Image.Image) -> Image.Image:
             r, g, b, a = pixels[x, y]
             brightness = (r + g + b) / 3
             if brightness < 210 and a > 20:
-                op[x, y] = (255, 255, 255, min(255, int(255 - brightness * 0.15)))
+                alpha = min(255, int((210 - brightness) * 1.3))
+                op[x, y] = (0, 0, 0, alpha)
     bbox = out.getbbox()
     return out.crop(bbox) if bbox else out
 
@@ -35,7 +36,7 @@ def fit(mark: Image.Image, size: int, pad_ratio: float = 0.04) -> Image.Image:
 
 
 def main():
-    mark = make_white_mark(Image.open(src))
+    mark = make_black_mark(Image.open(src))
     for name, size in {
         "favicon-16.png": 16,
         "favicon-32.png": 32,
@@ -48,7 +49,7 @@ def main():
 
     fit(mark, 32).save(public / "favicon.png", optimize=True)
 
-    apple = Image.new("RGBA", (180, 180), (0, 0, 0, 255))
+    apple = Image.new("RGBA", (180, 180), (255, 255, 255, 255))
     apple.alpha_composite(fit(mark, 180, pad_ratio=0.06))
     apple.convert("RGB").save(public / "apple-touch-icon.png", optimize=True)
     print("wrote apple-touch-icon.png")
