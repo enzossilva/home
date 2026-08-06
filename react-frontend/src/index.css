@@ -1098,6 +1098,8 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
   .header-logo-img { height: 40px; }
   .header-logo { max-width: 40%; }
   .header-nav-left { display: none; }
+  /* Com o menu esquerdo oculto, empurra ícones (busca/conta/carrinho) para a direita */
+  .header-nav { margin-left: auto; }
   .search-input.search-open { width: 130px; }
 
   /* Container */
