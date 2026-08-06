@@ -1463,8 +1463,48 @@ body.lookbook-mode .header .search-input::placeholder { color: rgba(255,255,255,
 }
 
 @media (max-width: 768px) {
-  .lb-caption { left: 1.5rem; bottom: 2.5rem; }
-  .lb-counter { right: 1.5rem; bottom: 2.5rem; }
+  .lb-wrap,
+  .lb-slide,
+  .lb-empty {
+    height: 100dvh;
+    height: 100svh;
+  }
+
+  .lb-slide {
+    background: #000;
+  }
+
+  /* Foto inteira no celular — sem crop do cover / zoom */
+  .lb-slide img {
+    object-fit: contain;
+    object-position: center;
+    transform: none;
+  }
+  .lb-slide.in-view img {
+    transform: none;
+    opacity: 1;
+  }
+
+  .lb-caption {
+    left: 1.25rem;
+    right: 4.5rem;
+    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    max-width: calc(100% - 5.5rem);
+  }
+  .lb-title {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    line-height: 1.35;
+  }
+  .lb-counter {
+    right: 1.25rem;
+    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  }
+  .lb-scroll-hint {
+    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  }
   .lb-nav-arrows { display: none !important; }
 }
 
