@@ -96,6 +96,36 @@ a:hover { text-decoration: underline; }
 .header-nav a { color: rgba(255,255,255,0.7); }
 .header-nav a:hover { color: #fff; text-decoration: none; }
 
+/* Mobile-only: menu + busca à esquerda (oculto no desktop) */
+.header-mobile-left {
+  display: none;
+  align-items: center;
+  gap: 0.35rem;
+  z-index: 2;
+}
+.mobile-nav-wrapper { position: relative; }
+.mobile-nav-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  min-width: 180px;
+  z-index: 200;
+  overflow: hidden;
+}
+.mobile-nav-item {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #f0f0f0;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.mobile-nav-item:hover { background: #222; color: #fff; text-decoration: none; }
+.search-wrapper-mobile { display: none; }
+
 .btn-link {
   background: none;
   border: none;
@@ -1093,14 +1123,20 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 
 /* ── Responsividade Mobile ── */
 @media (max-width: 768px) {
-  /* Header */
+  /* Header: menu + lupa à esquerda | conta + carrinho à direita */
   .header { padding: 0 1rem; height: 70px; }
   .header-logo-img { height: 40px; }
-  .header-logo { max-width: 40%; }
+  .header-logo { max-width: 36%; }
   .header-nav-left { display: none; }
-  /* Com o menu esquerdo oculto, empurra ícones (busca/conta/carrinho) para a direita */
-  .header-nav { margin-left: auto; }
-  .search-input.search-open { width: 130px; }
+  .header-mobile-left { display: flex; }
+  .search-wrapper-desktop { display: none; }
+  .search-wrapper-mobile { display: flex; }
+  .header-nav {
+    margin-left: auto;
+    gap: 0.75rem;
+    z-index: 2;
+  }
+  .search-input.search-open { width: 110px; }
 
   /* Container */
   .container { padding: 1rem; }
