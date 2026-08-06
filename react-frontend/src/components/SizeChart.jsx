@@ -1,18 +1,15 @@
-/** Medidas padrão — camiseta (cm). Aprox. ±0,5 cm. */
+/** Medidas padrão — camiseta (cm). */
 export const CAMISETA_MEASUREMENTS = [
-  { size: 'PP',  peito: 48, comprimento: 66, manga: 19 },
-  { size: 'P',   peito: 51, comprimento: 69, manga: 20 },
-  { size: 'M',   peito: 54, comprimento: 72, manga: 21 },
-  { size: 'G',   peito: 57, comprimento: 75, manga: 22 },
-  { size: 'GG',  peito: 61, comprimento: 78, manga: 23 },
-  { size: 'XGG', peito: 65, comprimento: 81, manga: 24 },
+  { size: 'M',  largura: 57, comprimento: 64, manga: 20 },
+  { size: 'G',  largura: 61, comprimento: 77, manga: 22 },
+  { size: 'GG', largura: 62, comprimento: 78, manga: 23 },
 ];
 
 const DEFAULT_CHART = '/size-chart-camiseta.png';
 
 /**
  * Guia de medidas: vetor com setas + textos leves nas mesmas
- * posições da referência (manga canto esq., peito no torso, comprimento canto dir.).
+ * posições da referência (manga canto esq., largura no torso, comprimento canto dir.).
  */
 export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMENTS }) {
   if (imageUrl) {
@@ -43,10 +40,10 @@ export default function SizeChart({ imageUrl, measurements = CAMISETA_MEASUREMEN
       </div>
 
       <div className="size-chart-block size-chart-peito">
-        <p className="size-chart-label">PEITO</p>
+        <p className="size-chart-label">LARGURA</p>
         {measurements.map(m => (
-          <p key={`peito-${m.size}`} className="size-chart-value">
-            {m.size} = {fmt(m.peito)} cm
+          <p key={`largura-${m.size}`} className="size-chart-value">
+            {m.size} = {fmt(m.largura ?? m.peito)} cm
           </p>
         ))}
       </div>
