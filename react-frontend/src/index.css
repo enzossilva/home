@@ -1421,41 +1421,45 @@ body.lookbook-mode .header .search-input::placeholder { color: rgba(255,255,255,
 .lb-lightbox-close { position: absolute; top: 1.5rem; right: 2rem; background: none; border: none; color: rgba(255,255,255,0.4); font-size: 1rem; cursor: pointer; letter-spacing: 0.1em; transition: color 0.2s; }
 .lb-lightbox-close:hover { color: #fff; }
 
-/* Setas desktop — navegar com mouse */
+/* Setas de navegação do lookbook */
 .lb-nav-arrows {
   display: none;
+  pointer-events: none;
 }
+
+.lb-arrow {
+  pointer-events: auto;
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  padding: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: color 0.2s, opacity 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.lb-arrow:disabled {
+  opacity: 0.2;
+  cursor: default;
+}
+
+.lb-arrow-prev { left: 0.75rem; }
+.lb-arrow-next { right: 0.75rem; }
 
 @media (hover: hover) and (pointer: fine) {
   .lb-nav-arrows {
     display: block;
-    pointer-events: none;
-  }
-
-  .lb-arrow {
-    pointer-events: auto;
-    position: fixed;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 20;
-    padding: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.55);
-    cursor: pointer;
-    transition: color 0.2s, opacity 0.2s;
   }
 
   .lb-arrow:hover:not(:disabled) {
     color: #fff;
-  }
-
-  .lb-arrow:disabled {
-    opacity: 0.2;
-    cursor: default;
   }
 
   .lb-arrow-prev { left: 1.25rem; }
@@ -1505,7 +1509,10 @@ body.lookbook-mode .header .search-input::placeholder { color: rgba(255,255,255,
   .lb-scroll-hint {
     bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   }
-  .lb-nav-arrows { display: none !important; }
+
+  .lb-nav-arrows {
+    display: block;
+  }
 }
 
 /* ── Videos ── */
