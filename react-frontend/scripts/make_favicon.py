@@ -22,9 +22,9 @@ def make_white_mark(im: Image.Image) -> Image.Image:
     return out.crop(bbox) if bbox else out
 
 
-def fit(mark: Image.Image, size: int, pad_ratio: float = 0.12) -> Image.Image:
+def fit(mark: Image.Image, size: int, pad_ratio: float = 0.04) -> Image.Image:
     canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    pad = int(size * pad_ratio)
+    pad = max(0, int(size * pad_ratio))
     box = size - pad * 2
     tw, th = mark.size
     scale = min(box / tw, box / th)
@@ -49,7 +49,7 @@ def main():
     fit(mark, 32).save(public / "favicon.png", optimize=True)
 
     apple = Image.new("RGBA", (180, 180), (0, 0, 0, 255))
-    apple.alpha_composite(fit(mark, 180, pad_ratio=0.16))
+    apple.alpha_composite(fit(mark, 180, pad_ratio=0.06))
     apple.convert("RGB").save(public / "apple-touch-icon.png", optimize=True)
     print("wrote apple-touch-icon.png")
 
