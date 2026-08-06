@@ -130,7 +130,7 @@ public class OrderController {
                                        @RequestParam(required = false) String id,
                                        @RequestParam(required = false) String data_id) {
         String resourceId = id != null ? id : data_id;
-        logger.info("Webhook Mercado Pago recebido topic={} type={} id={} body={}", topic, type, resourceId, body);
+        logger.info("Webhook Mercado Pago recebido topic={} type={} id={}", topic, type, resourceId);
         try {
             paymentService.handleMercadoPagoWebhook(body, topic, type, resourceId);
         } catch (Exception e) {

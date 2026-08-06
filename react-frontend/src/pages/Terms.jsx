@@ -4,12 +4,12 @@ export default function Terms() {
   return (
     <main className="container" style={{ maxWidth: 760, padding: '2rem 1rem' }}>
       <h1>Termos de Uso</h1>
-      <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '2rem' }}>Última atualização: abril de 2025</p>
+      <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '2rem' }}>Última atualização: agosto de 2026</p>
 
       <section className="legal-section">
         <h2>1. Aceitação dos termos</h2>
         <p>
-          Ao acessar ou utilizar a loja Young Zone, você concorda com estes Termos de Uso.
+          Ao acessar ou utilizar a loja Young Zone (youngszone.com.br), você concorda com estes Termos de Uso.
           Se não concordar, não utilize nossos serviços.
         </p>
       </section>
@@ -58,7 +58,10 @@ export default function Terms() {
             <strong>Defeito:</strong> produtos com defeito podem ser trocados ou ter o valor devolvido
             em até <strong>30 dias</strong> após o recebimento.
           </li>
-          <li>Para solicitar troca ou devolução, entre em contato pelo email: <strong>[SEU EMAIL]</strong></li>
+          <li>
+            Para solicitar troca ou devolução, entre em contato pelo email:{' '}
+            <strong>pedidos@youngszone.com.br</strong>
+          </li>
           <li>O produto deve ser devolvido sem uso, com etiquetas e na embalagem original.</li>
         </ul>
       </section>
@@ -92,15 +95,15 @@ export default function Terms() {
         <h2>9. Foro</h2>
         <p>
           Estes termos são regidos pelas leis brasileiras. Para resolução de conflitos,
-          fica eleito o foro da comarca de <strong>[SUA CIDADE/ESTADO]</strong>.
+          fica eleito o foro da comarca do domicílio do consumidor, nos termos do Código de Defesa do Consumidor.
         </p>
       </section>
 
       <section className="legal-section">
         <h2>10. Contato</h2>
         <p>
-          Email: <strong>[SEU EMAIL DE CONTATO]</strong><br />
-          WhatsApp: <strong>[SEU WHATSAPP]</strong>
+          Email: <strong>pedidos@youngszone.com.br</strong><br />
+          Site: <strong>youngszone.com.br</strong>
         </p>
       </section>
 

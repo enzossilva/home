@@ -4,15 +4,15 @@ export default function Privacy() {
   return (
     <main className="container" style={{ maxWidth: 760, padding: '2rem 1rem' }}>
       <h1>Política de Privacidade</h1>
-      <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '2rem' }}>Última atualização: abril de 2025</p>
+      <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '2rem' }}>Última atualização: agosto de 2026</p>
 
       <section className="legal-section">
         <h2>1. Quem somos</h2>
         <p>
-          A <strong>Young Zone</strong> é uma loja de roupas e acessórios operada por{' '}
-          <strong>[NOME COMPLETO / RAZÃO SOCIAL]</strong>, inscrita no CPF/CNPJ{' '}
-          <strong>[CPF ou CNPJ]</strong>, com sede em <strong>[CIDADE/ESTADO]</strong>.
-          Somos responsáveis pelo tratamento dos seus dados pessoais conforme descrito nesta política.
+          A <strong>Young Zone</strong> é uma loja de roupas e acessórios disponível em{' '}
+          <strong>youngszone.com.br</strong>. Somos responsáveis pelo tratamento dos seus dados
+          pessoais conforme descrito nesta política. Dados cadastrais completos (razão social / CNPJ)
+          podem ser solicitados pelo email de contato abaixo.
         </p>
       </section>
 
@@ -58,7 +58,10 @@ export default function Privacy() {
           <li>Solicitar a exclusão dos seus dados (exceto quando exigido por lei).</li>
           <li>Revogar consentimentos dados anteriormente.</li>
         </ul>
-        <p>Para exercer seus direitos, entre em contato pelo email: <strong>[SEU EMAIL DE CONTATO]</strong></p>
+        <p>
+          Para exercer seus direitos, entre em contato pelo email:{' '}
+          <strong>pedidos@youngszone.com.br</strong>
+        </p>
       </section>
 
       <section className="legal-section">
@@ -73,7 +76,8 @@ export default function Privacy() {
         <h2>7. Segurança</h2>
         <p>
           Senhas são armazenadas com criptografia (BCrypt). As comunicações com nosso servidor
-          utilizam HTTPS. Tokens de acesso expiram em 24 horas.
+          utilizam HTTPS. A sessão pode ser renovada automaticamente enquanto você usa a loja;
+          tokens de acesso têm validade limitada (padrão: 7 dias, renovável).
         </p>
       </section>
 
@@ -81,8 +85,8 @@ export default function Privacy() {
         <h2>8. Contato</h2>
         <p>
           Dúvidas sobre esta política? Entre em contato:<br />
-          Email: <strong>[SEU EMAIL DE CONTATO]</strong><br />
-          WhatsApp: <strong>[SEU WHATSAPP]</strong>
+          Email: <strong>pedidos@youngszone.com.br</strong><br />
+          Site: <strong>youngszone.com.br</strong>
         </p>
       </section>
 

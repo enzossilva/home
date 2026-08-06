@@ -39,7 +39,7 @@ export default function Admin() {
   useEffect(() => {
     if (!user || user.role !== 'ADMIN') { navigate('/'); return; }
     load();
-    loadOrders({ syncPending: true });
+    loadOrders();
     getAdminStats().then(setStats).catch(() => {});
     getLookbook().then(setLookbook).catch(() => {});
     getVideos().then(setVideos).catch(() => {});

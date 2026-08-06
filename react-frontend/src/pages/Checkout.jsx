@@ -197,8 +197,6 @@ export default function Checkout() {
       const cardNumber = card.number.replace(/\D/g, '');
       const cpfNumbers = form.cpf.replace(/\D/g, '');
 
-      console.log('Tokenizando cartão:', { cardNumber, expMonth, expYear, cvv: card.cvv, cpf: cpfNumbers });
-
       const tokenData = await mp.createCardToken({
         cardNumber,
         cardholderName: card.name,
@@ -209,11 +207,9 @@ export default function Checkout() {
         identificationNumber: cpfNumbers,
       });
 
-      console.log('Token gerado:', tokenData);
       const paymentMethodId = tokenData.payment_method_id
         || tokenData.bin_attributes?.brand?.code
         || detectBrand(card.number);
-      console.log('paymentMethodId:', paymentMethodId);
       const data = await pagarCartao(user.id, orderId, tokenData.id, paymentMethodId,
         parseInt(card.installments), form.email, form.cpf, form.firstName, form.lastName, card.cardType);
       setResult({ type: 'card', ...data });
@@ -221,8 +217,7 @@ export default function Checkout() {
         setTimeout(() => navigate(`/pedido/${data.orderId}`), 2000);
       }
     } catch (err) {
-      console.error('Erro cartão completo:', err);
-      const msg = err?.cause?.message || err?.message || JSON.stringify(err);
+      const msg = err?.cause?.message || err?.message || 'Falha ao processar o cartão';
       setError('Erro: ' + msg);
     }
     finally { setPaying(false); }

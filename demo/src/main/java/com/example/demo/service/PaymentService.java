@@ -118,7 +118,7 @@ public class PaymentService {
         HttpResponse<String> httpResponse = http
                 .send(request, HttpResponse.BodyHandlers.ofString());
 
-        System.out.println("=== PIX ORDERS API === status=" + httpResponse.statusCode() + " body=" + httpResponse.body());
+        logger.info("PIX Orders API status={}", httpResponse.statusCode());
 
         if (httpResponse.statusCode() >= 400) {
             throw new RuntimeException(httpResponse.body());
@@ -296,7 +296,7 @@ public class PaymentService {
         HttpResponse<String> httpResponse = http
                 .send(request, HttpResponse.BodyHandlers.ofString());
 
-        System.out.println("=== BOLETO ORDERS API === status=" + httpResponse.statusCode() + " body=" + httpResponse.body());
+        logger.info("Boleto Orders API status={}", httpResponse.statusCode());
 
         if (httpResponse.statusCode() >= 400) {
             throw new RuntimeException(httpResponse.body());
@@ -388,7 +388,7 @@ public class PaymentService {
         HttpResponse<String> httpResponse = http
                 .send(request, HttpResponse.BodyHandlers.ofString());
 
-        System.out.println("=== CARD ORDERS API === status=" + httpResponse.statusCode() + " body=" + httpResponse.body());
+        logger.info("Card Orders API status={}", httpResponse.statusCode());
 
         if (httpResponse.statusCode() >= 400) {
             throw new RuntimeException(httpResponse.body());
