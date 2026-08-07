@@ -29,12 +29,6 @@ public class PaymentService {
     @Value("${mercadopago.access-token}")
     private String accessToken;
 
-    @Value("${app.public.url:}")
-    private String publicUrl;
-
-    @Value("${app.frontend.url:}")
-    private String frontendUrl;
-
     private final CartService cartService;
     private final OrderService orderService;
     private final OrderRepository orderRepository;
@@ -48,17 +42,6 @@ public class PaymentService {
         this.cartService = cartService;
         this.orderService = orderService;
         this.orderRepository = orderRepository;
-    }
-
-    /** URL que o Mercado Pago chama quando o pagamento muda de status. */
-    private String notificationUrlJsonField() {
-        String base = (publicUrl != null && !publicUrl.isBlank()) ? publicUrl : frontendUrl;
-        if (base == null || base.isBlank() || base.contains("localhost")) {
-            logger.warn("app.public.url / FRONTEND_URL não configurados — webhook MP não será registrado no pagamento");
-            return "";
-        }
-        String url = base.replaceAll("/+$", "") + "/orders/webhook/mp";
-        return ",\"notification_url\":\"" + url + "\"";
     }
 
     /** Garante que o pedido pertence ao usuário autenticado. */
@@ -96,8 +79,7 @@ public class PaymentService {
             + "\"type\":\"online\","
             + "\"total_amount\":\"" + totalStr + "\","
             + "\"external_reference\":\"" + extRef + "\","
-            + "\"processing_mode\":\"automatic\""
-            + notificationUrlJsonField() + ","
+            + "\"processing_mode\":\"automatic\","
             + "\"payer\":{\"email\":\"" + email + "\"},"
             + "\"transactions\":{\"payments\":[{"
             +   "\"amount\":\"" + totalStr + "\","
@@ -269,8 +251,7 @@ public class PaymentService {
             + "\"type\":\"online\","
             + "\"total_amount\":\"" + totalStr + "\","
             + "\"external_reference\":\"" + extRef + "\","
-            + "\"processing_mode\":\"automatic\""
-            + notificationUrlJsonField() + ","
+            + "\"processing_mode\":\"automatic\","
             + "\"payer\":{"
             +   "\"email\":\"" + email + "\","
             +   "\"first_name\":\"" + firstName + "\","
@@ -359,8 +340,7 @@ public class PaymentService {
             + "\"type\":\"online\","
             + "\"total_amount\":\"" + totalStr + "\","
             + "\"external_reference\":\"" + extRef + "\","
-            + "\"processing_mode\":\"automatic\""
-            + notificationUrlJsonField() + ","
+            + "\"processing_mode\":\"automatic\","
             + "\"payer\":{\"email\":\"" + email + "\","
             +   "\"first_name\":\"" + firstName + "\","
             +   "\"last_name\":\"" + lastName + "\"},"
