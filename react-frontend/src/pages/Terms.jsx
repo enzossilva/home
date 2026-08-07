@@ -7,18 +7,24 @@ export default function Terms() {
       <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '2rem' }}>Última atualização: agosto de 2026</p>
 
       <section className="legal-section">
-        <h2>1. Aceitação dos termos</h2>
+        <h2>1. Quem somos e aceitação</h2>
         <p>
-          Ao acessar ou utilizar a loja Young Zone (youngszone.com.br), você concorda com estes Termos de Uso.
+          A <strong>YoungsZone</strong> é uma crew de skate da zona oeste de São Paulo, com o intuito
+          de movimentar a cena cultural com vídeos de skate e o lifestyle verdadeiro das ruas.
+          Operamos a loja e o conteúdo em <strong>youngszone.com.br</strong>.
+        </p>
+        <p>
+          Ao acessar ou utilizar o site, a loja ou nossos conteúdos, você concorda com estes Termos de Uso.
           Se não concordar, não utilize nossos serviços.
         </p>
       </section>
 
       <section className="legal-section">
-        <h2>2. Produtos e disponibilidade</h2>
+        <h2>2. Produtos, conteúdo e disponibilidade</h2>
         <ul>
-          <li>Os produtos estão sujeitos à disponibilidade de estoque.</li>
+          <li>Os produtos da loja estão sujeitos à disponibilidade de estoque.</li>
           <li>As imagens são ilustrativas. Pode haver pequenas variações de cor dependendo do monitor.</li>
+          <li>Fotos, vídeos e materiais culturais publicados no site são de caráter editorial/promocional da YoungsZone.</li>
           <li>Nos reservamos o direito de corrigir preços incorretos antes da confirmação do pedido.</li>
           <li>Reservamos o direito de cancelar pedidos suspeitos de fraude.</li>
         </ul>
@@ -78,15 +84,16 @@ export default function Terms() {
       <section className="legal-section">
         <h2>7. Propriedade intelectual</h2>
         <p>
-          Todo o conteúdo do site (imagens, textos, logotipo, design) é de propriedade da Young Zone
-          ou licenciado a nós. É proibida a reprodução sem autorização prévia.
+          Todo o conteúdo do site (imagens, vídeos, textos, logotipo, design e materiais da crew)
+          é de propriedade da YoungsZone ou licenciado a nós. É proibida a reprodução, cópia ou uso
+          comercial sem autorização prévia.
         </p>
       </section>
 
       <section className="legal-section">
         <h2>8. Limitação de responsabilidade</h2>
         <p>
-          A Young Zone não se responsabiliza por danos indiretos decorrentes do uso do site,
+          A YoungsZone não se responsabiliza por danos indiretos decorrentes do uso do site,
           como perda de dados ou interrupção do serviço, exceto nos casos previstos em lei.
         </p>
       </section>

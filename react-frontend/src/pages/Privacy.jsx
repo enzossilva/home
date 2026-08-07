@@ -9,10 +9,10 @@ export default function Privacy() {
       <section className="legal-section">
         <h2>1. Quem somos</h2>
         <p>
-          A <strong>Young Zone</strong> é uma loja de roupas e acessórios disponível em{' '}
-          <strong>youngszone.com.br</strong>. Somos responsáveis pelo tratamento dos seus dados
-          pessoais conforme descrito nesta política. Dados cadastrais completos (razão social / CNPJ)
-          podem ser solicitados pelo email de contato abaixo.
+          A <strong>YoungsZone</strong> é uma crew de skate da zona oeste de São Paulo e opera a loja
+          e conteúdos em <strong>youngszone.com.br</strong>. Somos responsáveis pelo tratamento dos
+          seus dados pessoais conforme descrito nesta política. Dados cadastrais completos
+          (razão social / CNPJ), quando aplicáveis, podem ser solicitados pelo email de contato abaixo.
         </p>
       </section>
 
@@ -33,7 +33,7 @@ export default function Privacy() {
           <li>Enviar confirmações de compra e atualizações de rastreio por email.</li>
           <li>Permitir que você acesse seu histórico de pedidos.</li>
           <li>Cumprir obrigações legais e fiscais.</li>
-          <li>Comunicar promoções (apenas se você concordar).</li>
+          <li>Comunicar novidades da crew ou da loja (apenas se você concordar).</li>
         </ul>
       </section>
 
@@ -42,7 +42,7 @@ export default function Privacy() {
         <p>Seus dados são compartilhados apenas com:</p>
         <ul>
           <li><strong>Mercado Pago:</strong> para processar pagamentos (PIX, boleto, cartão).</li>
-          <li><strong>Correios / Melhor Envio:</strong> para entrega do pedido (nome e endereço).</li>
+          <li><strong>Correios:</strong> para entrega do pedido (nome e endereço).</li>
           <li><strong>Autoridades competentes:</strong> quando exigido por lei.</li>
         </ul>
         <p>Não vendemos nem compartilhamos seus dados com terceiros para fins comerciais.</p>
