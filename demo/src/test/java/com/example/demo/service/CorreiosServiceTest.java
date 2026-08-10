@@ -9,11 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
- * Teste simples de autenticação direta com a API dos Correios.
- *
- * Este teste faz uma chamada real à API dos Correios, então só roda quando
- * as credenciais estiverem disponíveis via variáveis de ambiente
- * (CORREIOS_USERNAME e CORREIOS_ACCESS_CODE). Caso contrário, é ignorado.
+ * Teste de autenticação com cartão de postagem (só roda com credenciais no ambiente).
  */
 class CorreiosServiceTest {
 
@@ -23,24 +19,28 @@ class CorreiosServiceTest {
     void setUp() {
         correiosService = new CorreiosService();
 
-        String username = System.getenv("CORREIOS_USERNAME");
-        String accessCode = System.getenv("CORREIOS_ACCESS_CODE");
-
-        ReflectionTestUtils.setField(correiosService, "username", username);
-        ReflectionTestUtils.setField(correiosService, "accessCode", accessCode);
+        ReflectionTestUtils.setField(correiosService, "username", System.getenv("CORREIOS_USERNAME"));
+        ReflectionTestUtils.setField(correiosService, "accessCode", System.getenv("CORREIOS_ACCESS_CODE"));
+        ReflectionTestUtils.setField(correiosService, "cartaoPostagem", System.getenv("CORREIOS_CARTAO_POSTAGEM"));
+        ReflectionTestUtils.setField(correiosService, "contrato", System.getenv("CORREIOS_CONTRATO"));
+        ReflectionTestUtils.setField(correiosService, "dr", System.getenv("CORREIOS_DR"));
+        ReflectionTestUtils.setField(correiosService, "ambiente",
+                System.getenv().getOrDefault("CORREIOS_AMBIENTE", "hom"));
     }
 
     @Test
-    void deveObterTokenValidoDaApiDosCorreios() {
-        String username = System.getenv("CORREIOS_USERNAME");
-        String accessCode = System.getenv("CORREIOS_ACCESS_CODE");
-
-        assumeTrue(username != null && !username.isBlank(), "CORREIOS_USERNAME não configurado, ignorando teste");
-        assumeTrue(accessCode != null && !accessCode.isBlank(), "CORREIOS_ACCESS_CODE não configurado, ignorando teste");
+    void deveObterTokenValidoComCartaoDePostagem() {
+        assumeTrue(notBlank(System.getenv("CORREIOS_USERNAME")), "CORREIOS_USERNAME não configurado");
+        assumeTrue(notBlank(System.getenv("CORREIOS_ACCESS_CODE")), "CORREIOS_ACCESS_CODE não configurado");
+        assumeTrue(notBlank(System.getenv("CORREIOS_CARTAO_POSTAGEM")), "CORREIOS_CARTAO_POSTAGEM não configurado");
 
         String token = correiosService.getAuthToken();
 
-        assertNotNull(token, "O token retornado pelos Correios não deveria ser nulo");
-        assertFalse(token.isBlank(), "O token retornado pelos Correios não deveria ser vazio");
+        assertNotNull(token);
+        assertFalse(token.isBlank());
+    }
+
+    private static boolean notBlank(String s) {
+        return s != null && !s.isBlank();
     }
 }

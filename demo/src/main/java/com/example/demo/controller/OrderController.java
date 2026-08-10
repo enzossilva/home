@@ -99,9 +99,9 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/etiqueta")
-    public ResponseEntity<?> gerarEtiqueta(@PathVariable Long id, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> gerarEtiqueta(@PathVariable Long id, HttpServletRequest request) {
         authHelper.requireAdmin(request);
-        logger.info("Gerando etiqueta para pedido: orderId={}", id);
+        logger.info("Gerando etiqueta Correios para pedido: orderId={}", id);
         Map<String, String> result = orderService.gerarEtiqueta(id);
         return ResponseEntity.ok(ApiResponse.success(result, "Etiqueta gerada com sucesso"));
     }

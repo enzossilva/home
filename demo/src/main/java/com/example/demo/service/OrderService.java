@@ -31,8 +31,7 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final ProductSizeRepository productSizeRepository;
     private final EmailService emailService;
-    private final EtiquetaService etiquetaService;
-    private final TrackingCodeService trackingCodeService;
+    private final CorreiosService correiosService;
 
     public OrderService(OrderRepository orderRepository,
                         UserRepository userRepository,
@@ -40,20 +39,18 @@ public class OrderService {
                         ProductRepository productRepository,
                         ProductSizeRepository productSizeRepository,
                         EmailService emailService,
-                        EtiquetaService etiquetaService,
-                        TrackingCodeService trackingCodeService) {
+                        CorreiosService correiosService) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.cartService = cartService;
         this.productRepository = productRepository;
         this.productSizeRepository = productSizeRepository;
         this.emailService = emailService;
-        this.etiquetaService = etiquetaService;
-        this.trackingCodeService = trackingCodeService;
+        this.correiosService = correiosService;
     }
 
     @Transactional
-    public Map<String, String> gerarEtiqueta(Long orderId) throws Exception {
+    public Map<String, String> gerarEtiqueta(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido", orderId));
 
@@ -61,30 +58,16 @@ public class OrderService {
             throw new BusinessException("Apenas pedidos pagos podem gerar etiqueta");
         }
 
-        Map<String, String> result;
-        try {
-            result = etiquetaService.gerarEtiqueta(order);
-        } catch (Exception e) {
-            // Fallback: gera código de rastreio local quando o Melhor Envio falha
-            // (ex: CEP não coberto pela transportadora)
-            logger.warn("Falha ao gerar etiqueta via Melhor Envio para pedido {}, usando rastreio local", orderId, e);
-            String trackingCode = trackingCodeService.gerarCodigoRastreio();
-            result = new HashMap<>();
-            result.put("trackingCode", trackingCode);
-            result.put("labelUrl", null);
-        }
+        Map<String, String> result = correiosService.criarPostagem(order);
 
-        // Salva tracking e marca como SHIPPED
         order.setTrackingCode(result.get("trackingCode"));
         order.setStatus("SHIPPED");
         orderRepository.save(order);
 
-        // Email para o cliente
         try {
             emailService.enviarCodigoRastreio(order);
         } catch (Exception e) {
             logger.error("Erro ao enviar email de rastreio para order {}", orderId, e);
-            // Não falha a operação se email não puder ser enviado
         }
 
         return result;

@@ -111,9 +111,18 @@ export default function Admin() {
     setGerandoEtiqueta(g => ({ ...g, [orderId]: true }));
     try {
       const result = await gerarEtiqueta(orderId);
-      showMsg('Etiqueta gerada! Email enviado ao cliente.');
+      showMsg('Etiqueta Correios gerada! Email enviado ao cliente.');
       loadOrders();
-      if (result.labelUrl) window.open(result.labelUrl, '_blank');
+      if (result.labelUrl) {
+        if (result.labelUrl.startsWith('data:')) {
+          const a = document.createElement('a');
+          a.href = result.labelUrl;
+          a.download = `etiqueta-pedido-${orderId}.pdf`;
+          a.click();
+        } else {
+          window.open(result.labelUrl, '_blank');
+        }
+      }
     } catch (err) {
       showMsg(err.message, 'error');
     } finally {
@@ -556,7 +565,7 @@ export default function Admin() {
                       disabled={gerandoEtiqueta[order.id] || !order.buyerCpf}
                       style={{ background: order.buyerCpf ? '#111' : '#aaa', color: '#fff', border: 'none', padding: '0.6rem 1rem', fontSize: '0.88rem' }}
                     >
-                      {gerandoEtiqueta[order.id] ? 'Gerando etiqueta...' : !order.buyerCpf ? 'Salve o CPF primeiro' : 'Gerar etiqueta (Melhor Envio)'}
+                      {gerandoEtiqueta[order.id] ? 'Gerando etiqueta...' : !order.buyerCpf ? 'Salve o CPF primeiro' : 'Gerar etiqueta (Correios)'}
                     </button>
                     <details style={{ fontSize: '0.82rem' }}>
                       <summary style={{ cursor: 'pointer', color: '#666' }}>Inserir código manualmente</summary>
