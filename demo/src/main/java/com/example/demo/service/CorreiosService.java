@@ -214,14 +214,37 @@ public class CorreiosService {
     }
 
     private String basicAuthHeader() {
-        String user = trim(username);
-        String pass = trim(accessCode);
+        String user = sanitizeCredential(username);
+        String pass = sanitizeCredential(accessCode);
         String credentials = user + ":" + pass;
         return Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
     }
 
+    /** Remove aspas/BOM/espaços que o Railway às vezes cola junto com o valor. */
+    private static String sanitizeCredential(String raw) {
+        if (raw == null) return "";
+        String s = raw.trim();
+        if (s.startsWith("\uFEFF")) s = s.substring(1).trim();
+        if ((s.startsWith("\"") && s.endsWith("\"")) || (s.startsWith("'") && s.endsWith("'"))) {
+            s = s.substring(1, s.length() - 1).trim();
+        }
+        return s;
+    }
+
     private void aplicarRespostaToken(HttpResponse<String> response, String escopo) throws Exception {
         if (response.statusCode() >= 400) {
+            String user = sanitizeCredential(username);
+            String pass = sanitizeCredential(accessCode);
+            logger.warn(
+                    "Correios auth falhou status={} escopo={} ambiente={} userLen={} userHint={} codeLen={} codePrefix={}",
+                    response.statusCode(),
+                    escopo,
+                    trim(ambiente),
+                    user.length(),
+                    maskHint(user),
+                    pass.length(),
+                    pass.length() >= 3 ? pass.substring(0, 3) : "(curto)");
+
             String hint = response.statusCode() == 401
                     ? " Verifique CORREIOS_USERNAME (usuário Meu Correios), CORREIOS_ACCESS_CODE (código CWS, não a senha do site) e CORREIOS_AMBIENTE=prod."
                     : "";
@@ -242,6 +265,12 @@ public class CorreiosService {
         tokenExpiraEm = parseExpiraEm(root.path("expiraEm").asText(null));
         tokenEscopo = escopo;
         logger.info("Token Correios obtido escopo={} ambiente={} expiraEm={}", escopo, ambiente, tokenExpiraEm);
+    }
+
+    private static String maskHint(String user) {
+        if (user == null || user.isBlank()) return "(vazio)";
+        if (user.length() <= 4) return "****";
+        return user.substring(0, 2) + "…" + user.substring(user.length() - 2);
     }
 
     /**
