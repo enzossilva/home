@@ -573,7 +573,7 @@ public class CorreiosService {
 
     /**
      * Cota PAC e SEDEX na API de Preço/Prazo dos Correios.
-     * Origem = LOJA_CEP. Sem fallback de tabela — exige API configurada e disponível.
+     * Origem = LOJA_CEP. Se API falhar (ex. GTW-012) ou não estiver pronta, usa tabela estimada.
      */
     public List<Map<String, Object>> cotarOpcoesFrete(String cepDestino) {
         String dest = digitsOnly(cepDestino);
@@ -582,12 +582,11 @@ public class CorreiosService {
         }
 
         if (!isConfigured() || isBlank(lojaCep) || digitsOnly(lojaCep).length() != 8) {
-            throw new BusinessException(
-                    "Frete indisponível: configure CORREIOS_USERNAME, CORREIOS_ACCESS_CODE, CORREIOS_CARTAO_POSTAGEM e LOJA_CEP");
+            logger.info("Correios/LOJA_CEP não prontos — frete pela tabela estimada");
+            return opcoesFallback(dest);
         }
 
         try {
-            // Preço/Prazo costumam exigir token com escopo de cartão/contrato (não só /autentica).
             String token = getAuthToken();
             String origem = digitsOnly(lojaCep);
             int pesoG = Math.max(1, (int) Math.round(pacotePesoKg * 1000));
@@ -596,16 +595,13 @@ public class CorreiosService {
             opts.add(cotarServico("PAC", "PAC — Correios", codigoPac, origem, dest, pesoG, token));
             opts.add(cotarServico("SEDEX", "SEDEX — Correios", codigoSedex, origem, dest, pesoG, token));
             return opts;
-        } catch (BusinessException | ExternalServiceException e) {
-            throw e;
         } catch (Exception e) {
-            logger.warn("Falha na cotação Correios: {}", e.getMessage());
-            throw new ExternalServiceException(
-                    "Não foi possível cotar frete nos Correios. Tente novamente.", e);
+            logger.warn("Falha na cotação Correios, usando tabela: {}", e.getMessage());
+            return opcoesFallback(dest);
         }
     }
 
-    /** Valor único para gravar no pedido (recalcula no servidor via API). */
+    /** Valor único para gravar no pedido (API com fallback para tabela). */
     public double cotarValor(String cepDestino, String method) {
         List<Map<String, Object>> opts = cotarOpcoesFrete(cepDestino);
         String want = method == null ? "PAC" : method.toUpperCase();
@@ -615,7 +611,7 @@ public class CorreiosService {
                 if (p instanceof Number) return ((Number) p).doubleValue();
             }
         }
-        throw new BusinessException("Modalidade de frete indisponível: " + want);
+        return OrderService.calcularFrete(cepDestino, method);
     }
 
     private Map<String, Object> cotarServico(String service, String name, String codigo,
@@ -710,6 +706,26 @@ public class CorreiosService {
             n = n.replace(",", ".");
         }
         return Double.parseDouble(n);
+    }
+
+    private List<Map<String, Object>> opcoesFallback(String cepDestino) {
+        double pac = OrderService.calcularFrete(cepDestino, "PAC");
+        double sedex = OrderService.calcularFrete(cepDestino, "SEDEX");
+        String[] prazos = OrderService.prazosFrete(cepDestino);
+        List<Map<String, Object>> resultado = new ArrayList<>();
+        Map<String, Object> pacOpt = new HashMap<>();
+        pacOpt.put("service", "PAC");
+        pacOpt.put("name", "PAC — Correios");
+        pacOpt.put("price", pac);
+        pacOpt.put("days", prazos[0]);
+        resultado.add(pacOpt);
+        Map<String, Object> sedexOpt = new HashMap<>();
+        sedexOpt.put("service", "SEDEX");
+        sedexOpt.put("name", "SEDEX — Correios");
+        sedexOpt.put("price", sedex);
+        sedexOpt.put("days", prazos[1]);
+        resultado.add(sedexOpt);
+        return resultado;
     }
 
     private void requireAuthCredentials() {

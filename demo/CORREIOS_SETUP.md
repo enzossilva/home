@@ -4,7 +4,7 @@ Com contrato + cartão, o site:
 - **Cota frete** na API Preço/Prazo (origem = `LOJA_CEP`)
 - **Gera etiqueta** na API Pré-postagem (PDF + rastreio)
 
-Sem tabela hardcoded: se a API falhar ou faltar configuração, o checkout mostra erro.
+Se a API Preço falhar (ex. GTW-012) ou faltar config, o frete cai na **tabela estimada** automaticamente.
 
 ## 1. Variáveis no Railway (produção)
 
