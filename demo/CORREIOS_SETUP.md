@@ -45,7 +45,7 @@ No CWS, libere: **Token**, **Pré-postagem**, **Preço**, **Prazo**.
 
 ## 3. Erros comuns
 
-- Auth 401 → usuário/senha/cartão ou API não liberada.
+- Auth 401 → usuário/código CWS errados, ou `CORREIOS_AMBIENTE` não é `prod`.
 - “serviço não disponível no cartão” → ajuste `CORREIOS_CODIGO_PAC` / `SEDEX`.
 - Frete com erro no checkout → falta `LOJA_CEP`/credenciais ou Preço/Prazo não liberados; veja o log.
 - Sem CPF no pedido → “Salvar CPF” no admin antes da etiqueta.

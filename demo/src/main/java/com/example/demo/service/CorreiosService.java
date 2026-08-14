@@ -57,8 +57,8 @@ public class CorreiosService {
     @Value("${correios.dr:}")
     private String dr;
 
-    /** hom | prod */
-    @Value("${correios.ambiente:hom}")
+    /** prod | hom — default prod (Railway). */
+    @Value("${correios.ambiente:prod}")
     private String ambiente;
 
     /** Códigos oficiais do contrato (confirmar no CWS). */
@@ -120,18 +120,34 @@ public class CorreiosService {
 
     private String cachedToken;
     private ZonedDateTime tokenExpiraEm;
+    /** basico | cartao — escopo do token em cache */
+    private String tokenEscopo;
 
     private String apiHost() {
-        return "prod".equalsIgnoreCase(ambiente)
+        return "prod".equalsIgnoreCase(trim(ambiente))
                 ? "https://api.correios.com.br"
                 : "https://apihom.correios.com.br";
     }
 
+    /** Token com cartão (pré-postagem / etiqueta). */
     public synchronized String getAuthToken() {
-        if (isTokenValid()) {
+        return obterToken("cartao");
+    }
+
+    /** Token só com usuário+código (Preço/Prazo — frete). */
+    public synchronized String getAuthTokenBasico() {
+        return obterToken("basico");
+    }
+
+    private String obterToken(String escopo) {
+        if (isTokenValid() && escopo.equals(tokenEscopo)) {
             return cachedToken;
         }
-        autenticarComCartao();
+        if ("cartao".equals(escopo)) {
+            autenticarComCartao();
+        } else {
+            autenticarBasico();
+        }
         return cachedToken;
     }
 
@@ -143,20 +159,38 @@ public class CorreiosService {
         return ZonedDateTime.now(tokenExpiraEm.getZone()).isBefore(renewAt);
     }
 
+    private void autenticarBasico() {
+        requireAuthCredentials();
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(apiHost() + "/token/v1/autentica"))
+                    .timeout(Duration.ofSeconds(15))
+                    .header("Accept", "application/json")
+                    .header("Authorization", "Basic " + basicAuthHeader())
+                    .POST(HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+            aplicarRespostaToken(http.send(request, HttpResponse.BodyHandlers.ofString()), "basico");
+        } catch (ExternalServiceException | BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ExternalServiceException("Erro ao autenticar na API dos Correios: " + e.getMessage(), e);
+        }
+    }
+
     private void autenticarComCartao() {
         requireConfigured();
         try {
-            String credentials = username + ":" + accessCode;
-            String basicAuth = Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
-
             ObjectNode body = objectMapper.createObjectNode();
             body.put("numero", digitsOnly(cartaoPostagem));
-            if (contrato != null && !contrato.isBlank()) {
-                body.put("contrato", digitsOnly(contrato));
+            String contratoTrim = trim(contrato);
+            if (!isBlank(contratoTrim)) {
+                body.put("contrato", digitsOnly(contratoTrim));
             }
-            if (dr != null && !dr.isBlank()) {
+            String drTrim = trim(dr);
+            if (!isBlank(drTrim)) {
                 try {
-                    body.put("dr", Integer.parseInt(dr.trim()));
+                    body.put("dr", Integer.parseInt(drTrim));
                 } catch (NumberFormatException ignored) {
                     logger.warn("CORREIOS_DR inválido, ignorando: {}", dr);
                 }
@@ -167,30 +201,47 @@ public class CorreiosService {
                     .timeout(Duration.ofSeconds(15))
                     .header("Accept", "application/json")
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Basic " + basicAuth)
+                    .header("Authorization", "Basic " + basicAuthHeader())
                     .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
                     .build();
 
-            HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() >= 400) {
-                throw new ExternalServiceException(
-                        "Falha ao autenticar nos Correios (status " + response.statusCode() + "): "
-                                + truncate(response.body()));
-            }
-
-            JsonNode root = objectMapper.readTree(response.body());
-            JsonNode tokenNode = root.get("token");
-            if (tokenNode == null || tokenNode.asText().isBlank()) {
-                throw new ExternalServiceException("API dos Correios não retornou token");
-            }
-            cachedToken = tokenNode.asText();
-            tokenExpiraEm = parseExpiraEm(root.path("expiraEm").asText(null));
-            logger.info("Token Correios obtido ambiente={} expiraEm={}", ambiente, tokenExpiraEm);
+            aplicarRespostaToken(http.send(request, HttpResponse.BodyHandlers.ofString()), "cartao");
         } catch (ExternalServiceException | BusinessException e) {
             throw e;
         } catch (Exception e) {
             throw new ExternalServiceException("Erro ao autenticar na API dos Correios: " + e.getMessage(), e);
         }
+    }
+
+    private String basicAuthHeader() {
+        String user = trim(username);
+        String pass = trim(accessCode);
+        String credentials = user + ":" + pass;
+        return Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private void aplicarRespostaToken(HttpResponse<String> response, String escopo) throws Exception {
+        if (response.statusCode() >= 400) {
+            String hint = response.statusCode() == 401
+                    ? " Verifique CORREIOS_USERNAME (usuário Meu Correios), CORREIOS_ACCESS_CODE (código CWS, não a senha do site) e CORREIOS_AMBIENTE=prod."
+                    : "";
+            if ("cartao".equals(escopo) && (response.statusCode() == 400 || response.statusCode() == 403)) {
+                hint += " Confira CORREIOS_CARTAO_POSTAGEM (e remova CORREIOS_CONTRATO/DR se estiverem errados).";
+            }
+            throw new ExternalServiceException(
+                    "Falha ao autenticar nos Correios (status " + response.statusCode() + " ambiente="
+                            + trim(ambiente) + "): " + truncate(response.body()) + hint);
+        }
+
+        JsonNode root = objectMapper.readTree(response.body());
+        JsonNode tokenNode = root.get("token");
+        if (tokenNode == null || tokenNode.asText().isBlank()) {
+            throw new ExternalServiceException("API dos Correios não retornou token");
+        }
+        cachedToken = tokenNode.asText();
+        tokenExpiraEm = parseExpiraEm(root.path("expiraEm").asText(null));
+        tokenEscopo = escopo;
+        logger.info("Token Correios obtido escopo={} ambiente={} expiraEm={}", escopo, ambiente, tokenExpiraEm);
     }
 
     /**
@@ -464,7 +515,11 @@ public class CorreiosService {
 
     /** Credenciais mínimas para chamar APIs (token + cartão). */
     public boolean isConfigured() {
-        return !isBlank(username) && !isBlank(accessCode) && !isBlank(cartaoPostagem);
+        return hasAuthCredentials() && !isBlank(trim(cartaoPostagem));
+    }
+
+    public boolean hasAuthCredentials() {
+        return !isBlank(trim(username)) && !isBlank(trim(accessCode));
     }
 
     /**
@@ -477,13 +532,13 @@ public class CorreiosService {
             throw new BusinessException("CEP de destino inválido");
         }
 
-        if (!isConfigured() || isBlank(lojaCep) || digitsOnly(lojaCep).length() != 8) {
+        if (!hasAuthCredentials() || isBlank(lojaCep) || digitsOnly(lojaCep).length() != 8) {
             throw new BusinessException(
-                    "Frete indisponível: configure CORREIOS_* e LOJA_CEP no servidor");
+                    "Frete indisponível: configure CORREIOS_USERNAME, CORREIOS_ACCESS_CODE e LOJA_CEP no servidor");
         }
 
         try {
-            String token = getAuthToken();
+            String token = getAuthTokenBasico();
             String origem = digitsOnly(lojaCep);
             int pesoG = Math.max(1, (int) Math.round(pacotePesoKg * 1000));
 
@@ -607,10 +662,18 @@ public class CorreiosService {
         return Double.parseDouble(n);
     }
 
-    private void requireConfigured() {
-        if (!isConfigured()) {
+    private void requireAuthCredentials() {
+        if (!hasAuthCredentials()) {
             throw new BusinessException(
-                    "Correios não configurados. Defina CORREIOS_USERNAME, CORREIOS_ACCESS_CODE e CORREIOS_CARTAO_POSTAGEM no Railway (após abrir contrato + cartão de postagem).");
+                    "Correios sem credenciais. Defina CORREIOS_USERNAME e CORREIOS_ACCESS_CODE no Railway.");
+        }
+    }
+
+    private void requireConfigured() {
+        requireAuthCredentials();
+        if (isBlank(trim(cartaoPostagem))) {
+            throw new BusinessException(
+                    "Correios sem cartão. Defina CORREIOS_CARTAO_POSTAGEM no Railway (após abrir contrato + cartão de postagem).");
         }
     }
 
@@ -677,8 +740,12 @@ public class CorreiosService {
         return s == null ? "" : s.replaceAll("[^0-9]", "");
     }
 
-    private static String safe(String s) {
+    private static String trim(String s) {
         return s == null ? "" : s.trim();
+    }
+
+    private static String safe(String s) {
+        return trim(s);
     }
 
     private static boolean isBlank(String s) {
