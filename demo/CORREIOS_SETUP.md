@@ -1,44 +1,28 @@
-# Setup — API oficial dos Correios (etiquetas)
+# Setup — API oficial dos Correios (frete + etiquetas)
 
-O botão **Gerar etiqueta (Correios)** no admin cria pré-postagem + PDF + rastreio.
-Sem contrato isso **não funciona** — a API recusa.
+Com contrato + cartão, o site:
+- **Cota frete** na API Preço/Prazo (origem = `LOJA_CEP`)
+- **Gera etiqueta** na API Pré-postagem (PDF + rastreio)
 
-## 1. O que você precisa nos Correios (antes do Railway)
+Se a API falhar, o frete cai na tabela estimada automaticamente.
 
-1. Conta **Meu Correios** / Correios Empresas (PJ recomenda-se).
-2. **Contrato comercial** + **cartão de postagem** (gerente comercial / portal).
-3. No **CWS** (Correios Web Services), liberar APIs:
-   - Token
-   - Pré-postagem
-   - (opcional) Preço / Prazo
-4. Anotar:
-   - usuário Meu Correios
-   - senha/código de acesso da API
-   - número do cartão de postagem
-   - número do contrato (e DR/SE se existir)
-5. Confirmar no CWS os **códigos de serviço** PAC e SEDEX do seu cartão
-   (podem diferir dos padrões `03298` / `03220`).
-
-Homologação: `https://apihom.correios.com.br`  
-Produção: `https://api.correios.com.br`
-
-## 2. Variáveis no Railway
+## 1. Variáveis no Railway (produção)
 
 ```
-CORREIOS_USERNAME=...
-CORREIOS_ACCESS_CODE=...
+CORREIOS_USERNAME=...                 # CNPJ / usuário Meu Correios
+CORREIOS_ACCESS_CODE=...              # senha/código da API no CWS
 CORREIOS_CARTAO_POSTAGEM=...
-CORREIOS_CONTRATO=...          # opcional
-CORREIOS_DR=...                # opcional
-CORREIOS_AMBIENTE=hom          # use hom até validar; depois prod
-CORREIOS_CODIGO_PAC=03298      # confirme no contrato
+CORREIOS_CONTRATO=...                 # se tiver
+CORREIOS_DR=...                       # se tiver
+CORREIOS_AMBIENTE=prod                # use hom só para testes
+CORREIOS_CODIGO_PAC=03298             # confirme no CWS / cartão
 CORREIOS_CODIGO_SEDEX=03220
 
 LOJA_NOME=Youngs Zone Envio
-LOJA_CPF=00000000000000
+LOJA_CPF=...                          # CNPJ só números
 LOJA_TELEFONE=11999999999
 LOJA_EMAIL=pedidos@youngszone.com.br
-LOJA_CEP=00000000
+LOJA_CEP=...                          # CEP de origem do frete/remetente
 LOJA_RUA=...
 LOJA_NUMERO=...
 LOJA_COMPLEMENTO=
@@ -51,16 +35,17 @@ LOJA_PACOTE_LARGURA=15
 LOJA_PACOTE_COMPRIMENTO=20
 ```
 
-## 3. Teste
+No CWS, libere: **Token**, **Pré-postagem**, **Preço**, **Prazo**.
 
-1. Deixe `CORREIOS_AMBIENTE=hom` e faça redeploy.
-2. No admin, pedido **PAID** com CPF do comprador.
-3. Clique **Gerar etiqueta (Correios)** — deve baixar PDF e salvar rastreio.
-4. Só então mude para `CORREIOS_AMBIENTE=prod`.
+## 2. Teste rápido
 
-## 4. Se der erro
+1. Redeploy após salvar as vars.
+2. Checkout: digite um CEP e confira se PAC/SEDEX vêm com valores parecidos com o balcão.
+3. Admin: pedido PAID + CPF → **Gerar etiqueta (Correios)** → PDF + rastreio.
 
-- Auth 401 → usuário/senha/cartão errados ou API não liberada no CWS.
+## 3. Erros comuns
+
+- Auth 401 → usuário/senha/cartão ou API não liberada.
 - “serviço não disponível no cartão” → ajuste `CORREIOS_CODIGO_PAC` / `SEDEX`.
-- Dados da loja incompletos → preencha todos os `LOJA_*`.
-- Sem CPF no pedido → use “Salvar CPF” no admin antes.
+- Frete cai na tabela → falta `LOJA_CEP` ou Preço/Prazo não liberados; veja o log.
+- Sem CPF no pedido → “Salvar CPF” no admin antes da etiqueta.

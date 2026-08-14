@@ -23,8 +23,10 @@ import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -460,8 +462,170 @@ public class CorreiosService {
         return codigoPac;
     }
 
+    /** Credenciais mínimas para chamar APIs (token + cartão). */
+    public boolean isConfigured() {
+        return !isBlank(username) && !isBlank(accessCode) && !isBlank(cartaoPostagem);
+    }
+
+    /**
+     * Cota PAC e SEDEX na API de Preço/Prazo dos Correios.
+     * Origem = LOJA_CEP. Se API falhar ou não estiver configurada, usa tabela estimada.
+     */
+    public List<Map<String, Object>> cotarOpcoesFrete(String cepDestino) {
+        String dest = digitsOnly(cepDestino);
+        if (dest.length() != 8) {
+            throw new BusinessException("CEP de destino inválido");
+        }
+
+        if (!isConfigured() || isBlank(lojaCep) || digitsOnly(lojaCep).length() != 8) {
+            logger.info("Correios/LOJA_CEP não prontos — frete pela tabela estimada");
+            return opcoesFallback(dest);
+        }
+
+        try {
+            String token = getAuthToken();
+            String origem = digitsOnly(lojaCep);
+            int pesoG = Math.max(1, (int) Math.round(pacotePesoKg * 1000));
+
+            List<Map<String, Object>> opts = new ArrayList<>();
+            opts.add(cotarServico("PAC", "PAC — Correios", codigoPac, origem, dest, pesoG, token));
+            opts.add(cotarServico("SEDEX", "SEDEX — Correios", codigoSedex, origem, dest, pesoG, token));
+            return opts;
+        } catch (Exception e) {
+            logger.warn("Falha na cotação Correios, usando tabela: {}", e.getMessage());
+            return opcoesFallback(dest);
+        }
+    }
+
+    /** Valor único para gravar no pedido (recalcula no servidor). */
+    public double cotarValor(String cepDestino, String method) {
+        List<Map<String, Object>> opts = cotarOpcoesFrete(cepDestino);
+        String want = method == null ? "PAC" : method.toUpperCase();
+        for (Map<String, Object> o : opts) {
+            if (want.equals(String.valueOf(o.get("service")))) {
+                Object p = o.get("price");
+                if (p instanceof Number) return ((Number) p).doubleValue();
+            }
+        }
+        return OrderService.calcularFrete(cepDestino, method);
+    }
+
+    private Map<String, Object> cotarServico(String service, String name, String codigo,
+                                              String cepOrigem, String cepDestino,
+                                              int pesoG, String token) throws Exception {
+        double preco = consultarPreco(codigo, cepOrigem, cepDestino, pesoG, token);
+        int dias = consultarPrazoDias(codigo, cepOrigem, cepDestino, token);
+
+        Map<String, Object> opt = new HashMap<>();
+        opt.put("service", service);
+        opt.put("name", name);
+        opt.put("price", preco);
+        opt.put("days", formatarPrazo(service, dias));
+        return opt;
+    }
+
+    private double consultarPreco(String codigoServico, String cepOrigem, String cepDestino,
+                                  int pesoG, String token) throws Exception {
+        String q = "cepOrigem=" + cepOrigem
+                + "&cepDestino=" + cepDestino
+                + "&psObjeto=" + pesoG
+                + "&tpObjeto=2"
+                + "&comprimento=" + pacoteComprimento
+                + "&largura=" + pacoteLargura
+                + "&altura=" + pacoteAltura;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(apiHost() + "/preco/v1/nacional/" + codigoServico + "?" + q))
+                .timeout(Duration.ofSeconds(12))
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + token)
+                .GET()
+                .build();
+
+        HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() >= 400) {
+            throw new ExternalServiceException(
+                    "Preço Correios " + codigoServico + " status " + response.statusCode() + ": "
+                            + truncate(response.body()));
+        }
+
+        JsonNode root = objectMapper.readTree(response.body());
+        String pc = firstText(root, "pcFinal", "pcProduto", "pcFinalServico");
+        if (pc == null || pc.isBlank()) {
+            throw new ExternalServiceException("Resposta de preço sem pcFinal: " + truncate(response.body()));
+        }
+        return parseReais(pc);
+    }
+
+    private int consultarPrazoDias(String codigoServico, String cepOrigem, String cepDestino,
+                                   String token) {
+        try {
+            String q = "cepOrigem=" + cepOrigem + "&cepDestino=" + cepDestino;
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(apiHost() + "/prazo/v1/nacional/" + codigoServico + "?" + q))
+                    .timeout(Duration.ofSeconds(12))
+                    .header("Accept", "application/json")
+                    .header("Authorization", "Bearer " + token)
+                    .GET()
+                    .build();
+            HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 400) {
+                return -1;
+            }
+            JsonNode root = objectMapper.readTree(response.body());
+            if (root.has("prazoEntrega") && root.get("prazoEntrega").canConvertToInt()) {
+                return root.get("prazoEntrega").asInt();
+            }
+            String txt = firstText(root, "prazoEntrega", "prazo");
+            if (txt != null) {
+                return Integer.parseInt(txt.replaceAll("[^0-9]", ""));
+            }
+        } catch (Exception e) {
+            logger.debug("Prazo Correios indisponível: {}", e.getMessage());
+        }
+        return -1;
+    }
+
+    private static String formatarPrazo(String service, int dias) {
+        if (dias > 0) {
+            return dias == 1 ? "1 dia útil" : dias + " dias úteis";
+        }
+        return "SEDEX".equalsIgnoreCase(service) ? "1–3 dias úteis" : "5–10 dias úteis";
+    }
+
+    private static double parseReais(String valor) {
+        String n = valor.trim().replace("R$", "").replace(" ", "");
+        // 1.234,56 → 1234.56  |  19,92 → 19.92  |  19.92 → 19.92
+        if (n.contains(",") && n.contains(".")) {
+            n = n.replace(".", "").replace(",", ".");
+        } else if (n.contains(",")) {
+            n = n.replace(",", ".");
+        }
+        return Double.parseDouble(n);
+    }
+
+    private List<Map<String, Object>> opcoesFallback(String cepDestino) {
+        double pac = OrderService.calcularFrete(cepDestino, "PAC");
+        double sedex = OrderService.calcularFrete(cepDestino, "SEDEX");
+        String[] prazos = OrderService.prazosFrete(cepDestino);
+        List<Map<String, Object>> resultado = new ArrayList<>();
+        Map<String, Object> pacOpt = new HashMap<>();
+        pacOpt.put("service", "PAC");
+        pacOpt.put("name", "PAC — Correios");
+        pacOpt.put("price", pac);
+        pacOpt.put("days", prazos[0]);
+        resultado.add(pacOpt);
+        Map<String, Object> sedexOpt = new HashMap<>();
+        sedexOpt.put("service", "SEDEX");
+        sedexOpt.put("name", "SEDEX — Correios");
+        sedexOpt.put("price", sedex);
+        sedexOpt.put("days", prazos[1]);
+        resultado.add(sedexOpt);
+        return resultado;
+    }
+
     private void requireConfigured() {
-        if (isBlank(username) || isBlank(accessCode) || isBlank(cartaoPostagem)) {
+        if (!isConfigured()) {
             throw new BusinessException(
                     "Correios não configurados. Defina CORREIOS_USERNAME, CORREIOS_ACCESS_CODE e CORREIOS_CARTAO_POSTAGEM no Railway (após abrir contrato + cartão de postagem).");
         }
