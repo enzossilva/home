@@ -264,7 +264,27 @@ public class CorreiosService {
         cachedToken = tokenNode.asText();
         tokenExpiraEm = parseExpiraEm(root.path("expiraEm").asText(null));
         tokenEscopo = escopo;
-        logger.info("Token Correios obtido escopo={} ambiente={} expiraEm={}", escopo, ambiente, tokenExpiraEm);
+        logger.info("Token Correios obtido escopo={} ambiente={} expiraEm={} apis={}",
+                escopo, ambiente, tokenExpiraEm, summarizeApis(root.get("apis")));
+    }
+
+    private static String summarizeApis(JsonNode apis) {
+        if (apis == null || !apis.isArray() || apis.isEmpty()) return "(nenhuma/ausente)";
+        StringBuilder sb = new StringBuilder();
+        int n = 0;
+        for (JsonNode a : apis) {
+            if (n > 0) sb.append(',');
+            if (a.isTextual()) sb.append(a.asText());
+            else if (a.has("api")) sb.append(a.get("api").asText());
+            else if (a.has("nome")) sb.append(a.get("nome").asText());
+            else if (a.has("id")) sb.append(a.get("id").asText());
+            else sb.append(a.toString());
+            if (++n >= 20) {
+                sb.append(",…");
+                break;
+            }
+        }
+        return sb.toString();
     }
 
     private static String maskHint(String user) {
@@ -561,13 +581,14 @@ public class CorreiosService {
             throw new BusinessException("CEP de destino inválido");
         }
 
-        if (!hasAuthCredentials() || isBlank(lojaCep) || digitsOnly(lojaCep).length() != 8) {
+        if (!isConfigured() || isBlank(lojaCep) || digitsOnly(lojaCep).length() != 8) {
             throw new BusinessException(
-                    "Frete indisponível: configure CORREIOS_USERNAME, CORREIOS_ACCESS_CODE e LOJA_CEP no servidor");
+                    "Frete indisponível: configure CORREIOS_USERNAME, CORREIOS_ACCESS_CODE, CORREIOS_CARTAO_POSTAGEM e LOJA_CEP");
         }
 
         try {
-            String token = getAuthTokenBasico();
+            // Preço/Prazo costumam exigir token com escopo de cartão/contrato (não só /autentica).
+            String token = getAuthToken();
             String origem = digitsOnly(lojaCep);
             int pesoG = Math.max(1, (int) Math.round(pacotePesoKg * 1000));
 
