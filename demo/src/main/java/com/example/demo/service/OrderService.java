@@ -325,64 +325,6 @@ public class OrderService {
         logger.info("processWebhookMP chamado (delegar via controller)");
     }
 
-    /**
-     * Frete estimado (origem SP / zona oeste) para pacote leve (~camiseta 0,3–0,5 kg).
-     * Valores alinhados a faixas típicas de balcão Correios; API oficial substitui depois do contrato.
-     */
-    public static double calcularFrete(String cep, String method) {
-        double pac = pacPorCep(cep);
-        if ("SEDEX".equalsIgnoreCase(method)) {
-            return pac + sedexExtra(cep);
-        }
-        return pac;
-    }
-
-    /** @return [prazoPac, prazoSedex] */
-    public static String[] prazosFrete(String cep) {
-        int prefix = cepPrefix(cep);
-        if (prefix < 0) return new String[] { "5–10 dias úteis", "2–4 dias úteis" };
-        if (prefix < 20000) return new String[] { "3–6 dias úteis", "1–2 dias úteis" };   // SP
-        if (prefix < 40000) return new String[] { "4–8 dias úteis", "1–3 dias úteis" };   // Sudeste
-        if (prefix < 66000) return new String[] { "7–14 dias úteis", "2–5 dias úteis" };  // Nordeste
-        if (prefix < 70000) return new String[] { "8–16 dias úteis", "3–6 dias úteis" };  // Norte
-        if (prefix < 80000) return new String[] { "5–10 dias úteis", "2–4 dias úteis" };  // Centro-Oeste
-        return new String[] { "4–9 dias úteis", "1–3 dias úteis" };                      // Sul
-    }
-
-    private static double pacPorCep(String cep) {
-        int prefix = cepPrefix(cep);
-        if (prefix < 0) return 32.90;
-        if (prefix < 10000) return 22.90;  // capital SP
-        if (prefix < 20000) return 26.90;  // interior / grande SP
-        if (prefix < 40000) return 34.90;  // RJ / ES / MG
-        if (prefix < 66000) return 44.90;  // Nordeste
-        if (prefix < 70000) return 54.90;  // Norte (PA/AM/…)
-        if (prefix < 80000) return 39.90;  // Centro-Oeste + RO/TO/…
-        return 32.90;                      // Sul
-    }
-
-    private static double sedexExtra(String cep) {
-        int prefix = cepPrefix(cep);
-        if (prefix < 0) return 22.0;
-        if (prefix < 20000) return 14.0;
-        if (prefix < 40000) return 18.0;
-        if (prefix < 66000) return 24.0;
-        if (prefix < 70000) return 28.0;
-        if (prefix < 80000) return 22.0;
-        return 18.0;
-    }
-
-    private static int cepPrefix(String cep) {
-        if (cep == null) return -1;
-        String digits = cep.replaceAll("[^0-9]", "");
-        if (digits.length() < 5) return -1;
-        try {
-            return Integer.parseInt(digits.substring(0, 5));
-        } catch (NumberFormatException e) {
-            return -1;
-        }
-    }
-
     private boolean isPaidOrder(Order order) {
         return "PAID".equals(order.getStatus()) || "SHIPPED".equals(order.getStatus()) || "DELIVERED".equals(order.getStatus());
     }

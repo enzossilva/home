@@ -4,7 +4,7 @@ Com contrato + cartão, o site:
 - **Cota frete** na API Preço/Prazo (origem = `LOJA_CEP`)
 - **Gera etiqueta** na API Pré-postagem (PDF + rastreio)
 
-Se a API falhar, o frete cai na tabela estimada automaticamente.
+Sem tabela hardcoded: se a API falhar ou faltar configuração, o checkout mostra erro.
 
 ## 1. Variáveis no Railway (produção)
 
@@ -47,5 +47,5 @@ No CWS, libere: **Token**, **Pré-postagem**, **Preço**, **Prazo**.
 
 - Auth 401 → usuário/senha/cartão ou API não liberada.
 - “serviço não disponível no cartão” → ajuste `CORREIOS_CODIGO_PAC` / `SEDEX`.
-- Frete cai na tabela → falta `LOJA_CEP` ou Preço/Prazo não liberados; veja o log.
+- Frete com erro no checkout → falta `LOJA_CEP`/credenciais ou Preço/Prazo não liberados; veja o log.
 - Sem CPF no pedido → “Salvar CPF” no admin antes da etiqueta.

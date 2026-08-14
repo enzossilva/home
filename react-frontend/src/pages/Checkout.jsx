@@ -35,16 +35,17 @@ function loadMpScript(publicKey) {
 }
 
 async function buscarOpcoesFrete(cep) {
-  try {
-    const res = await fetch(`/frete/calcular?cep=${cep.replace(/[^0-9]/g, '')}`);
-    if (!res.ok) return null;
-    const json = await res.json();
-    // API devolve { success, data: [...] }
-    const list = Array.isArray(json) ? json : (json?.data ?? null);
-    return Array.isArray(list) ? list : null;
-  } catch {
-    return null;
+  const res = await fetch(`/frete/calcular?cep=${cep.replace(/[^0-9]/g, '')}`);
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(json?.message || json?.error || 'Não foi possível cotar o frete nos Correios.');
   }
+  // API devolve { success, data: [...] }
+  const list = Array.isArray(json) ? json : (json?.data ?? null);
+  if (!Array.isArray(list) || list.length === 0) {
+    throw new Error('Nenhuma opção de frete disponível para este CEP.');
+  }
+  return list;
 }
 
 const EMPTY_ADDRESS = { cep: '', rua: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '' };
@@ -112,28 +113,34 @@ export default function Checkout() {
     const digits = address.cep.replace(/[^0-9]/g, '');
     if (digits.length !== 8) return;
     setCepLoading(true);
+    setError('');
+    setFreteOptions([]);
+    setShippingCost(null);
     try {
-      const [viacepRes, opcoes] = await Promise.all([
+      const [viacepRes, freteResult] = await Promise.allSettled([
         fetch(`https://viacep.com.br/ws/${digits}/json/`).then(r => r.json()),
         buscarOpcoesFrete(digits),
       ]);
-      if (!viacepRes.erro) {
+      if (viacepRes.status === 'fulfilled' && !viacepRes.value?.erro) {
+        const v = viacepRes.value;
         setAddress(a => ({
           ...a,
-          rua: viacepRes.logradouro || a.rua,
-          bairro: viacepRes.bairro || a.bairro,
-          cidade: viacepRes.localidade || a.cidade,
-          estado: viacepRes.uf || a.estado,
+          rua: v.logradouro || a.rua,
+          bairro: v.bairro || a.bairro,
+          cidade: v.localidade || a.cidade,
+          estado: v.uf || a.estado,
         }));
       }
-      if (opcoes && opcoes.length > 0) {
+      if (freteResult.status === 'fulfilled') {
+        const opcoes = freteResult.value;
         setFreteOptions(opcoes);
         const selected = opcoes.find(o => o.service === shippingMethod) || opcoes[0];
         setShippingMethod(selected.service);
         setShippingCost(selected.price);
+      } else {
+        setError(freteResult.reason?.message || 'Não foi possível cotar o frete nos Correios.');
       }
-    } catch {}
-    finally { setCepLoading(false); }
+    } finally { setCepLoading(false); }
   }
 
   function handleShippingMethod(method) {
@@ -148,11 +155,14 @@ export default function Checkout() {
     for (const f of required) {
       if (!address[f]) { setError('Preencha todos os campos obrigatórios do endereço.'); return; }
     }
+    if (shippingCost == null || freteOptions.length === 0) {
+      setError('Informe o CEP e aguarde a cotação de frete dos Correios.');
+      return;
+    }
     setError('');
     setCreatingOrder(true);
     try {
-      const cost = shippingCost != null ? shippingCost : 0;
-      const order = await createOrder(user.id, address, shippingMethod, cost);
+      const order = await createOrder(user.id, address, shippingMethod, shippingCost);
       setOrderId(order.id);
       setShippingCost(order.shippingCost);
       setStep(2);
