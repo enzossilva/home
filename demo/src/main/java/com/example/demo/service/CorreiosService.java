@@ -702,6 +702,10 @@ public class CorreiosService {
         return s == null || s.isBlank();
     }
 
+    private static String truncate(String s) {
+        return truncate(s, 300);
+    }
+
     private static String truncate(String s, int max) {
         if (s == null) return "";
         return s.length() <= max ? s : s.substring(0, max);
