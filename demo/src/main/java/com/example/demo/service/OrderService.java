@@ -60,16 +60,12 @@ public class OrderService {
 
         Map<String, String> result = correiosService.criarPostagem(order);
 
+        // Só grava o rastreio — status/email ficam para "marcar como enviado"
         order.setTrackingCode(result.get("trackingCode"));
-        order.setStatus("SHIPPED");
         orderRepository.save(order);
 
-        try {
-            emailService.enviarCodigoRastreio(order);
-        } catch (Exception e) {
-            logger.error("Erro ao enviar email de rastreio para order {}", orderId, e);
-        }
-
+        logger.info("Etiqueta Correios gerada (pedido continua PAID): orderId={}, tracking={}",
+                orderId, result.get("trackingCode"));
         return result;
     }
 

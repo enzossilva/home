@@ -95,11 +95,11 @@ export default function Admin() {
     }
   }
 
-  async function handleShip(orderId) {
-    const code = trackingInputs[orderId];
-    if (!code?.trim()) { showMsg('Informe o código de rastreio', 'error'); return; }
+  async function handleShip(orderId, trackingCode) {
+    const code = (trackingCode || trackingInputs[orderId] || '').trim();
+    if (!code) { showMsg('Informe o código de rastreio', 'error'); return; }
     try {
-      await markAsShipped(orderId, code.trim());
+      await markAsShipped(orderId, code);
       showMsg('Pedido marcado como enviado! Email enviado ao cliente.');
       loadOrders();
     } catch (err) {
@@ -111,7 +111,7 @@ export default function Admin() {
     setGerandoEtiqueta(g => ({ ...g, [orderId]: true }));
     try {
       const result = await gerarEtiqueta(orderId);
-      showMsg('Etiqueta Correios gerada! Email enviado ao cliente.');
+      showMsg('Etiqueta gerada. Pedido ainda não marcado como enviado.');
       loadOrders();
       if (result.labelUrl) {
         if (result.labelUrl.startsWith('data:')) {
@@ -526,10 +526,25 @@ export default function Admin() {
                   </div>
                 )}
 
+                {order.status === 'PAID' && order.trackingCode && (
+                  <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: '#fff8e6', borderRadius: 6, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: '#664d03' }}>
+                      <strong>Etiqueta pronta</strong> — rastreio salvo. Marque como enviado quando postar o pacote (aí o cliente recebe o e-mail).
+                    </p>
+                    <button
+                      className="btn"
+                      onClick={() => handleShip(order.id, order.trackingCode)}
+                      style={{ background: '#111', color: '#fff', border: 'none', padding: '0.6rem 1rem', fontSize: '0.88rem' }}
+                    >
+                      Marcar como enviado
+                    </button>
+                  </div>
+                )}
+
                 {order.status === 'PAID' && !order.trackingCode && (
                   <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: '#e8f5e9', borderRadius: 6, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <p style={{ margin: 0, fontSize: '0.82rem', color: '#0a3622' }}>
-                      <strong>Pronto para envio</strong> — gere a etiqueta ou informe o rastreio.
+                      <strong>Pronto para envio</strong> — gere a etiqueta (não marca como enviado) ou informe o rastreio.
                     </p>
                     {!order.buyerCpf && (
                       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
