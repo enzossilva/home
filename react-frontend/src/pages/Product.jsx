@@ -46,29 +46,38 @@ export default function Product() {
 
   const hasSizes = product.productSizes && product.productSizes.length > 0;
   const needsSize = hasSizes && !selectedSize;
-  const outOfStock = product.stock === 0;
+  const outOfStock = !(Number(product.stock) > 0);
 
   return (
     <main className="container">
       <button className="btn-back" onClick={() => navigate(-1)}>← Voltar</button>
 
-      <div className="product-detail">
+      <div className={`product-detail${outOfStock ? ' product-detail-sold-out' : ''}`}>
         <div className="product-detail-img">
           {(() => {
             const imgs = product.images && product.images.length > 0
               ? product.images
               : product.imageUrl ? [product.imageUrl] : [];
-            if (imgs.length === 0) return <div className="product-detail-no-img">Sem imagem</div>;
+            if (imgs.length === 0) {
+              return (
+                <div className="product-detail-no-img">
+                  Sem imagem
+                  {outOfStock && <span className="card-soldout-badge">SOLD OUT</span>}
+                </div>
+              );
+            }
             return (
               <div className="product-img-stack">
                 {imgs.map((url, i) => (
-                  <ProductImage
-                    key={i}
-                    src={url}
-                    alt={`${product.name} ${i + 1}`}
-                    className="product-detail-photo"
-                    onClick={() => setLightbox(url)}
-                  />
+                  <div key={i} className="product-detail-photo-wrap">
+                    <ProductImage
+                      src={url}
+                      alt={`${product.name} ${i + 1}`}
+                      className="product-detail-photo"
+                      onClick={() => setLightbox(url)}
+                    />
+                    {i === 0 && outOfStock && <span className="card-soldout-badge">SOLD OUT</span>}
+                  </div>
                 ))}
               </div>
             );
