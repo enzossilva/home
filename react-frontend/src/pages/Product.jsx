@@ -47,6 +47,11 @@ export default function Product() {
   const hasSizes = product.productSizes && product.productSizes.length > 0;
   const needsSize = hasSizes && !selectedSize;
   const outOfStock = !(Number(product.stock) > 0);
+  const imgs = product.images && product.images.length > 0
+    ? product.images
+    : product.imageUrl ? [product.imageUrl] : [];
+  const heroImg = imgs[0] || null;
+  const moreImgs = imgs.slice(1);
 
   return (
     <main className="container">
@@ -54,34 +59,22 @@ export default function Product() {
 
       <div className={`product-detail${outOfStock ? ' product-detail-sold-out' : ''}`}>
         <div className="product-detail-img">
-          {(() => {
-            const imgs = product.images && product.images.length > 0
-              ? product.images
-              : product.imageUrl ? [product.imageUrl] : [];
-            if (imgs.length === 0) {
-              return (
-                <div className="product-detail-no-img">
-                  Sem imagem
-                  {outOfStock && <span className="card-soldout-badge">SOLD OUT</span>}
-                </div>
-              );
-            }
-            return (
-              <div className="product-img-stack">
-                {imgs.map((url, i) => (
-                  <div key={i} className="product-detail-photo-wrap">
-                    <ProductImage
-                      src={url}
-                      alt={`${product.name} ${i + 1}`}
-                      className="product-detail-photo"
-                      onClick={() => setLightbox(url)}
-                    />
-                    {i === 0 && outOfStock && <span className="card-soldout-badge">SOLD OUT</span>}
-                  </div>
-                ))}
-              </div>
-            );
-          })()}
+          {heroImg ? (
+            <div className="product-detail-photo-wrap">
+              <ProductImage
+                src={heroImg}
+                alt={product.name}
+                className="product-detail-photo"
+                onClick={() => setLightbox(heroImg)}
+              />
+              {outOfStock && <span className="card-soldout-badge">SOLD OUT</span>}
+            </div>
+          ) : (
+            <div className="product-detail-no-img">
+              Sem imagem
+              {outOfStock && <span className="card-soldout-badge">SOLD OUT</span>}
+            </div>
+          )}
         </div>
 
         <div className="product-detail-info">
@@ -128,6 +121,10 @@ export default function Product() {
             </div>
           )}
 
+          <div className="size-guide-block">
+            <SizeChart imageUrl={product.sizeChartUrl || null} />
+          </div>
+
           {cartError && <p className="error">{cartError}</p>}
 
           <div className="product-add-wrap">
@@ -140,12 +137,24 @@ export default function Product() {
               {outOfStock ? 'ESGOTADO' : added ? 'ADICIONADO!' : needsSize ? 'SELECIONE UM TAMANHO' : 'ADICIONAR AO CARRINHO'}
             </button>
           </div>
-
-          <div className="size-guide-block">
-            <SizeChart imageUrl={product.sizeChartUrl || null} />
-          </div>
         </div>
       </div>
+
+      {moreImgs.length > 0 && (
+        <div className={`product-more-imgs${outOfStock ? ' product-detail-sold-out' : ''}`}>
+          {moreImgs.map((url, i) => (
+            <div key={i} className="product-detail-photo-wrap">
+              <ProductImage
+                src={url}
+                alt={`${product.name} ${i + 2}`}
+                className="product-detail-photo"
+                onClick={() => setLightbox(url)}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
       {lightbox && (
         <div className="lb-lightbox" onClick={() => setLightbox(null)} role="dialog" aria-modal="true">
           <button type="button" className="lb-lightbox-close" onClick={() => setLightbox(null)}>✕</button>

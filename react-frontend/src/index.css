@@ -668,8 +668,8 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 .product-img-stack img,
 .product-detail-photo {
   width: 100%;
-  min-height: 380px;
-  max-height: 680px;
+  min-height: 280px;
+  max-height: 560px;
   display: block;
   object-fit: contain;
   object-position: center center;
@@ -699,9 +699,8 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
   max-width: 380px;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  /* Desce o bloco de infos em relação à foto (desktop) */
-  padding-top: clamp(12rem, 42vh, 22rem);
+  gap: 0.75rem;
+  padding-top: 0;
 }
 
 .product-detail-info h1 {
@@ -805,12 +804,26 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 
 /* ── Size chart / guia de tamanhos ── */
 .product-add-wrap {
-  margin-top: 1.5rem;
+  margin-top: 1.25rem;
 }
 
 .size-guide-block {
-  margin-top: 2rem;
-  padding-top: 0.5rem;
+  margin-top: 1rem;
+}
+
+.product-more-imgs {
+  display: flex;
+  flex-direction: column;
+  gap: 2.25rem;
+  margin-top: 2.5rem;
+  max-width: 620px;
+}
+
+@media (max-width: 768px) {
+  .product-more-imgs {
+    max-width: 100%;
+    margin-top: 1.75rem;
+  }
 }
 
 .size-chart {
@@ -823,7 +836,7 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 .size-chart-frame {
   position: relative;
   width: 100%;
-  max-width: 300px;
+  max-width: 240px;
   aspect-ratio: 1 / 1.08;
   background: #000;
   overflow: hidden;
@@ -831,7 +844,7 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 
 .size-chart-img {
   width: 100%;
-  max-width: 420px;
+  max-width: 280px;
   height: auto;
   display: block;
 }
