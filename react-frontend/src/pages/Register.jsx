@@ -7,6 +7,7 @@ export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { setUser } = useUser();
@@ -15,6 +16,10 @@ export default function Register() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
+    if (password !== confirmPassword) {
+      setError('As senhas não coincidem.');
+      return;
+    }
     setLoading(true);
     try {
       const data = await register(name, email, password);
@@ -40,6 +45,7 @@ export default function Register() {
             onChange={e => setName(e.target.value)}
             placeholder="Seu nome"
             required
+            autoComplete="name"
           />
           <label>Email</label>
           <input
@@ -48,6 +54,7 @@ export default function Register() {
             onChange={e => setEmail(e.target.value)}
             placeholder="seu@email.com"
             required
+            autoComplete="email"
           />
           <label>Senha</label>
           <input
@@ -57,11 +64,22 @@ export default function Register() {
             placeholder="••••••••"
             minLength={8}
             required
+            autoComplete="new-password"
           />
           <p className="password-hint">
             A senha deve seguir o padrão: mínimo 8 caracteres, com letra maiúscula,
             minúscula, número e caractere especial (@ $ ! % * ? &amp;).
           </p>
+          <label>Confirmar senha</label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
+            placeholder="Repita a senha"
+            minLength={8}
+            required
+            autoComplete="new-password"
+          />
           <button type="submit" className="btn" disabled={loading}>
             {loading ? 'Cadastrando...' : 'Cadastrar'}
           </button>
