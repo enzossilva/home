@@ -121,10 +121,6 @@ export default function Product() {
             </div>
           )}
 
-          <div className="size-guide-block">
-            <SizeChart imageUrl={product.sizeChartUrl || null} />
-          </div>
-
           {cartError && <p className="error">{cartError}</p>}
 
           <div className="product-add-wrap">
@@ -136,6 +132,10 @@ export default function Product() {
             >
               {outOfStock ? 'ESGOTADO' : added ? 'ADICIONADO!' : needsSize ? 'SELECIONE UM TAMANHO' : 'ADICIONAR AO CARRINHO'}
             </button>
+          </div>
+
+          <div className="size-guide-block">
+            <SizeChart imageUrl={product.sizeChartUrl || null} />
           </div>
         </div>
       </div>
