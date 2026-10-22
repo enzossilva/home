@@ -802,13 +802,15 @@ h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
 }
 .size-btn-esgotado:hover { border-color: #ccc; }
 
-/* ── Add to cart (logo abaixo dos tamanhos) + guia de tamanhos ── */
+/* Add to cart above size guide on desktop and mobile */
 .product-add-wrap {
   margin-top: 1.25rem;
+  order: 1;
 }
 
 .size-guide-block {
   margin-top: 1.5rem;
+  order: 2;
 }
 
 .product-more-imgs {
