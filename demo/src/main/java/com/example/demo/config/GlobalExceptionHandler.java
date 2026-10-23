@@ -36,7 +36,8 @@ public class GlobalExceptionHandler {
             errors.put(error.getField(), error.getDefaultMessage())
         );
         logger.warn("Erro de validação: {}", errors);
-        ApiResponse<?> response = ApiResponse.error("Erro de validação", "VALIDATION_ERROR");
+        String detail = errors.values().stream().findFirst().orElse("Erro de validação");
+        ApiResponse<?> response = ApiResponse.error(detail, "VALIDATION_ERROR");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 

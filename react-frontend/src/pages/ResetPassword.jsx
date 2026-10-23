@@ -60,8 +60,7 @@ export default function ResetPassword() {
                   required
                 />
                 <p className="password-hint">
-                  A senha deve seguir o padrão: mínimo 8 caracteres, com letra maiúscula,
-                  minúscula, número e caractere especial (@ $ ! % * ? &amp;).
+                  Mínimo 8 caracteres, com letra maiúscula, minúscula, número e um caractere especial.
                 </p>
                 <label>Confirmar senha</label>
                 <input

@@ -18,8 +18,8 @@ public class UserRegisterRequest {
     @NotBlank(message = "Senha é obrigatória")
     @Size(min = 8, max = 100, message = "Senha deve ter entre 8 e 100 caracteres")
     @Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[a-zA-Z\\d@$!%*?&]+$",
-        message = "Senha deve conter letras maiúsculas, minúsculas, números e caracteres especiais"
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9\\s])\\S{8,100}$",
+        message = "Senha deve ter maiúscula, minúscula, número e um caractere especial"
     )
     private String password;
 

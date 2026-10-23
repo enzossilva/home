@@ -59,8 +59,7 @@ export default function Profile() {
           <label>Nova senha</label>
           <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Mínimo 8 caracteres" minLength={8} />
           <p className="password-hint">
-            A senha deve seguir o padrão: mínimo 8 caracteres, com letra maiúscula,
-            minúscula, número e caractere especial (@ $ ! % * ? &amp;).
+            Mínimo 8 caracteres, com letra maiúscula, minúscula, número e um caractere especial.
           </p>
 
           <label>Confirmar nova senha</label>
